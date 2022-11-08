@@ -1,0 +1,37 @@
+package com.example.winnipeghistoricalsites;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.os.Bundle;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
+import android.widget.Toast;
+
+public class WebviewActivity extends AppCompatActivity {
+    private WebView webView;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_webview);
+
+        webView = (WebView) findViewById(R.id.wvInfo);
+        String url = getIntent().getStringExtra(getString(R.string.webviewUrl));
+        webView.setWebViewClient(new WebViewClient());
+        webView.getSettings().setJavaScriptEnabled(true);
+        //String pdf = "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf";
+
+        try {
+            webView.loadUrl("https://drive.google.com/viewerng/viewer?embedded=true&url=" + url);
+            //webView.loadUrl(url);
+        } catch (Error e)
+        {
+            Toast.makeText(this, "Error :" + e.getMessage(), Toast.LENGTH_LONG).show();
+        }
+
+
+
+
+
+    }
+}

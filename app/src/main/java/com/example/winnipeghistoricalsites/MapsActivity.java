@@ -7,11 +7,16 @@ import androidx.fragment.app.FragmentActivity;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.Html;
+import android.text.TextUtils;
+import android.text.method.LinkMovementMethod;
 import android.view.View;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -47,12 +52,14 @@ public class MapsActivity extends FragmentActivity
         implements OnMapReadyCallback, ActivityCompat.OnRequestPermissionsResultCallback, GoogleMap.OnMarkerClickListener {
 
     private GoogleMap mMap;
-    private ActivityMapsBinding binding;
     private RequestQueue queue;
     private List<HistoricalSite> allHistoricalSites;
     private List<Marker> allMarkers;
     private LinearLayout displayInfo;
     private HistoricalSite currentSite;
+    private  Button btnLong;
+    private Button btnShort;
+
 
     /**
      * Request code for location permission request.
@@ -95,6 +102,23 @@ public class MapsActivity extends FragmentActivity
         //String url = baseUrl;
         displayInfo = findViewById(R.id.Details);
         displayInfo.setVisibility(View.GONE);
+
+        btnShort = (Button) findViewById(R.id.btnShortLink);
+        btnShort.setVisibility(View.VISIBLE);
+        btnShort.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                openWebPage(currentSite.shortUrl);
+            }
+        });
+
+
+
+        btnLong = (Button) findViewById(R.id.btnLongLink);
+        btnLong.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                openWebPage(currentSite.longUrl);
+            }
+        });
 
 
         try {
@@ -149,8 +173,8 @@ public class MapsActivity extends FragmentActivity
                             newSite.streetNumber = site.getString("street_number");
                             newSite.constructionDate = ((site.has("construction_date")) ? site.getString("construction_date") : null);
 
-                            newSite.shortUrl =((site.has("short_report_url")) ? site.getString("short_report_url") : null);
-                            newSite.longUrl = ((site.has("long_report_url")) ? site.getString("long_report_url") : null);
+                            newSite.shortUrl =((site.has("short_report_url")) ? "https:" + site.getString("short_report_url") : null);
+                            newSite.longUrl = ((site.has("long_report_url")) ? "https:" + site.getString("long_report_url") : null);
 
                             //Location
                             JSONObject location = site.getJSONObject("location");
@@ -258,9 +282,39 @@ public class MapsActivity extends FragmentActivity
         ((TextView)findViewById(R.id.tvName)).setText(site.name);
         ((TextView)findViewById(R.id.tvBuildDate)).setText(site.constructionDate);
         ((TextView)findViewById(R.id.tvAddress)).setText(site.address());
-        ((TextView)findViewById(R.id.tvDistance)).setText((int) site.location.distanceTo(mMap.getMyLocation()));
+        if (TextUtils.isEmpty(site.shortUrl))
+            ((LinearLayout)(findViewById(R.id.llMoreInfo))).setVisibility(View.GONE);
+        else
+            ((LinearLayout)(findViewById(R.id.llMoreInfo))).setVisibility(View.VISIBLE);
 
 
 
+
+
+
+      //  ((TextView)findViewById(R.id.tvDistance)).setText((int) site.location.distanceTo(mMap.getMyLocation()));
+
+
+
+    }
+    public void openWebPage(String url) {
+        //url = "https://developer.android.com/reference/android/webkit/WebView";
+        if(TextUtils.isEmpty(url)) {
+            Toast.makeText(this, "There is no addition information about the historic site " + currentSite.name + " in this app.", Toast.LENGTH_SHORT).show();
+        }else
+
+        {
+            /*Uri webpage = Uri.parse(url);
+            Intent intent = new Intent(Intent.ACTION_VIEW, webpage);
+
+            if (intent.resolveActivity(getPackageManager()) != null) {
+                startActivity(intent);*/
+
+            Intent intent = new Intent(getApplicationContext(), WebviewActivity.class);
+            intent.putExtra(getString(R.string.webviewUrl), url);
+            startActivity(intent);
+
+
+        }
     }
 }

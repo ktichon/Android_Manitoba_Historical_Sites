@@ -54,23 +54,37 @@
             android:text="Distance"
             android:textSize="16dp"
             android:layout_margin="10px"/>
-        <Button
-            android:id="@+id/btnShortLink"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textAlignment="center"
-            android:text="Short Link"
-            android:textSize="16dp"
-            android:layout_margin="10px"/>
-        <Button
-            android:id="@+id/btnLongLink"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textAlignment="center"
-            android:text="Long Link"
-            android:background="@color/design_default_color_background"
-            android:textSize="16dp"
-            android:layout_margin="10px"/>
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:gravity="center_horizontal"
+            android:id="@+id/llMoreInfo">
+            >
+            <Button
+                android:id="@+id/btnShortLink"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAlignment="center"
+                android:text="Short Link"
+                android:textSize="14dp"
+                android:layout_margin="10px"
+                android:textAllCaps="false"
+                />
+            <Button
+                android:id="@+id/btnLongLink"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAlignment="center"
+                android:text="Long Link"
+
+                android:textSize="14dp"
+                android:layout_margin="10px"
+                android:textAllCaps="false"
+                />
+
+        </LinearLayout>
+
 
     </LinearLayout>
 

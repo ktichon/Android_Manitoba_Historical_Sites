@@ -2,4 +2,5 @@
     <string name="app_name">Winnipeg Historical Sites</string>
     <string name="title_activity_maps">MapsActivity</string>
     <string name="data_url">https://data.winnipeg.ca/resource/ptpx-kgiu.json?</string>
+    <string name="webviewUrl">webViewUrl</string>
 </resources>
