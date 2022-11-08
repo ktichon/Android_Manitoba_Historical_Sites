@@ -11,7 +11,9 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.toolbox.JsonArrayRequest;
@@ -38,6 +40,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
+
 
 
 public class MapsActivity extends FragmentActivity
@@ -90,6 +93,8 @@ public class MapsActivity extends FragmentActivity
             e.printStackTrace();
         }*/
         //String url = baseUrl;
+        displayInfo = findViewById(R.id.Details);
+        displayInfo.setVisibility(View.GONE);
 
 
         try {
@@ -176,7 +181,7 @@ public class MapsActivity extends FragmentActivity
             }
 
             Toast.makeText(getApplicationContext(), "Found all " + allHistoricalSites.size() + " historic sites in Winnipeg", Toast.LENGTH_SHORT).show();
-            
+
         }
     };
 
@@ -240,8 +245,22 @@ public class MapsActivity extends FragmentActivity
     @Override
     public boolean onMarkerClick(Marker marker) {
         currentSite = (HistoricalSite) marker.getTag();
+        setDisplayInfo(currentSite);
 
 
         return false;
+    }
+
+    //Set info
+    public void setDisplayInfo(HistoricalSite site)
+    {
+        displayInfo.setVisibility(View.VISIBLE);
+        ((TextView)findViewById(R.id.tvName)).setText(site.name);
+        ((TextView)findViewById(R.id.tvBuildDate)).setText(site.constructionDate);
+        ((TextView)findViewById(R.id.tvAddress)).setText(site.address());
+        ((TextView)findViewById(R.id.tvDistance)).setText((int) site.location.distanceTo(mMap.getMyLocation()));
+
+
+
     }
 }
