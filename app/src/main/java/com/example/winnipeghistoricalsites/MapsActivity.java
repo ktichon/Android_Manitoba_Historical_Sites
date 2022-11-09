@@ -56,8 +56,8 @@ public class MapsActivity extends FragmentActivity
     private HistoricalSite currentSite;
     private Button btnLong;
     private Button btnShort;
-    private Location currentLocation;
-    private FusedLocationProviderClient fusedLocationProviderClient;
+    //private Location currentLocation;
+    //private FusedLocationProviderClient fusedLocationProviderClient;
     LocationManager locationManager;
 
 
@@ -148,11 +148,11 @@ public class MapsActivity extends FragmentActivity
         //mMap.addMarker(new MarkerOptions().position(winnipeg).title("Marker in Winnipeg"));
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(winnipeg, 15));
         enableMyLocation();
-        /*if(getUserLocation() != null)
+        if(getUserLocation() != null)
         {
             LatLng current = new LatLng(getUserLocation().getLatitude(), getUserLocation().getLongitude());
             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(current, 15));
-        }*/
+        }
 
     }
 
@@ -289,13 +289,13 @@ public class MapsActivity extends FragmentActivity
             ((LinearLayout) (findViewById(R.id.llMoreInfo))).setVisibility(View.VISIBLE);
 
         Float distance = site.location.distanceTo(getUserLocation()) ;
-        //String distanceText = distance >= 1000? String.format("%.2f",distance/1000) + " km": String.format("%.2f",distance) + " m";
-        String distanceText = String.format("%.2f",distance) + " m";
+        String distanceText = distance >= 1000? String.format("%.2f",distance/1000) + " km": String.format("%.2f",distance) + " m";
+        //String distanceText = String.format("%.2f",distance) + " m";
 
 
 
 
-                ((TextView)findViewById(R.id.tvDistance)).setText(distanceText + " away");
+        ((TextView)findViewById(R.id.tvDistance)).setText(distanceText + " away");
 
 
     }

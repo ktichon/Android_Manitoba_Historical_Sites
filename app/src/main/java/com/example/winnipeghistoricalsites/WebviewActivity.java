@@ -19,6 +19,8 @@ public class WebviewActivity extends AppCompatActivity {
         String url = getIntent().getStringExtra(getString(R.string.webviewUrl));
         webView.setWebViewClient(new WebViewClient());
         webView.getSettings().setJavaScriptEnabled(true);
+        webView.getSettings().setBuiltInZoomControls(true);
+        webView.getSettings().setSupportZoom(true);
         //String pdf = "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf";
 
         try {
