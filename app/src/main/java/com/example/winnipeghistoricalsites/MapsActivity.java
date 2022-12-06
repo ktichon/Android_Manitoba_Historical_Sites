@@ -15,6 +15,7 @@ import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
@@ -22,6 +23,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.toolbox.JsonArrayRequest;
+import com.android.volley.toolbox.JsonObjectRequest;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -121,7 +123,7 @@ public class MapsActivity extends FragmentActivity
         btnGoogle = (Button) findViewById(R.id.btnGoogleLink);
         btnGoogle.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                String googleSearch  = "https://www.google.com/search?q=" + city + "+" + currentSite.address().replace(" ", "+") + "+" + currentSite.name.replace(" ", "+");
+                String googleSearch  = "https://www.google.com/search?q=" + currentSite.city + "+" + currentSite.address().replace(" ", "+") + "+" + currentSite.name.replace(" ", "+");
                 openWebPage(googleSearch);
             }
         });
@@ -192,11 +194,20 @@ public class MapsActivity extends FragmentActivity
                             newSite.location = new Location("");
                             newSite.location.setLatitude(location.getDouble("latitude"));
                             newSite.location.setLongitude(location.getDouble("longitude"));
+                            newSite.city = "winnipeg";
+                            newSite.province = "MB";
 
+                            int id = allHistoricalSites.size();
                             allHistoricalSites.add(newSite);
-                            Marker newMarcker = mMap.addMarker(new MarkerOptions().position(new LatLng(newSite.location.getLatitude(), newSite.location.getLongitude())).title(newSite.name).snippet(newSite.address()));
-                            newMarcker.setTag(newSite);
-                            allMarkers.add(newMarcker);
+                            Marker newMarker = mMap.addMarker(new MarkerOptions().position(new LatLng(newSite.location.getLatitude(), newSite.location.getLongitude())).title(newSite.name).snippet(newSite.address()));
+                            newMarker.setTag(id);
+                            allMarkers.add(newMarker);
+
+
+                            attachPlaceIdToSite(newSite,id);
+
+
+
 
                         } catch (Exception e) {
                             e.printStackTrace();
@@ -277,17 +288,92 @@ public class MapsActivity extends FragmentActivity
     }
 
 
-
+    //On marker click zoom to location and display data
     @Override
     public boolean onMarkerClick(Marker marker) {
-        currentSite = (HistoricalSite) marker.getTag();
+        int currentSiteIndex = (int) marker.getTag();
+        currentSite = allHistoricalSites.get(currentSiteIndex);
         LatLng sitLocation = new LatLng(currentSite.location.getLatitude(), currentSite.location.getLongitude());
         mMap.animateCamera(CameraUpdateFactory.newLatLng(sitLocation));
+
+
+
         setDisplayInfo(currentSite);
 
 
         return false;
     }
+    public void attachPlaceIdToSite(HistoricalSite site, int siteIndex)
+    {
+        String addressParam = "address=" + (site.address() + " " + site.city + " " + site.province).replace(" ","%20").replace("+", "%2B");
+        String keyParam = "&key=" + getString(R.string.google_maps_additions_key);
+        /*try {
+            JSONObject idString = new JSONObject(Integer.toString(currentSiteIndex));
+            JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, getString(R.string.address_To_Place_Api) + addressParam + keyParam, null, fetchPlaceId, getJsonError);
+            queue.add(request);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }*/
+
+
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
+                (Request.Method.GET, getString(R.string.address_To_Place_Api) + addressParam + keyParam, null, new Response.Listener<JSONObject>() {
+                    int index = siteIndex;
+
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        String placeid = "";
+                        String formatedAddress = "";
+
+                        try {
+                            JSONArray results = response.getJSONArray("results");
+                            JSONObject resultsJSONObject = results.getJSONObject(0);
+                            placeid = resultsJSONObject.getString("place_id");
+                            formatedAddress = resultsJSONObject.getString("formatted_address");
+
+
+                            if(placeid != null)
+                            {
+                                allHistoricalSites.get(siteIndex).placeId = placeid;
+                                allHistoricalSites.get(siteIndex).googleAddress = formatedAddress;
+                            }
+
+                            //Log.e("Place id", "Place id: " + placeid.toString());
+
+
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }, getJsonError);
+        queue.add(jsonObjectRequest);
+    }
+
+   /* Unused because filtering parameter is hard
+    private Response.Listener<JSONObject> fetchPlaceId = new Response.Listener<JSONObject>() {
+        @Override
+        public void onResponse(JSONObject response) {
+            String placeid = "";
+
+            try {
+                JSONArray results = response.getJSONArray("results");
+                JSONObject resultsJSONObject = results.getJSONObject(0);
+                placeid = resultsJSONObject.getString("place_id");
+                Log.e("Place id", "Place id: " + placeid.toString());
+
+
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+            //Toast.makeText(getApplicationContext(), "Found all " + allHistoricalSites.size() + " historic sites in Winnipeg", Toast.LENGTH_SHORT).show();
+
+        }
+    };*/
+
+
 
     //Set info
     public void setDisplayInfo(HistoricalSite site) {
