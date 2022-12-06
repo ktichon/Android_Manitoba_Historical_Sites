@@ -53,6 +53,8 @@ public class MapsActivity extends FragmentActivity
     private HistoricalSite currentSite;
     private Button btnLong;
     private Button btnShort;
+    private Button btnGoogle;
+    private String city = "winnipeg";
     //private Location currentLocation;
     //private FusedLocationProviderClient fusedLocationProviderClient;
     LocationManager locationManager;
@@ -116,6 +118,14 @@ public class MapsActivity extends FragmentActivity
             }
         });
 
+        btnGoogle = (Button) findViewById(R.id.btnGoogleLink);
+        btnGoogle.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                String googleSearch  = "https://www.google.com/search?q=" + city + "+" + currentSite.address().replace(" ", "+") + "+" + currentSite.name.replace(" ", "+");
+                openWebPage(googleSearch);
+            }
+        });
+
 
         try {
             JsonArrayRequest request = new JsonArrayRequest(Request.Method.GET, getString(R.string.data_url), null, fetchHistoricalData, getJsonError);
@@ -141,9 +151,9 @@ public class MapsActivity extends FragmentActivity
         mMap.setOnMarkerClickListener(this);
 
 
-        LatLng winnipeg = new LatLng(49.895077, -97.138451);
+
         //mMap.addMarker(new MarkerOptions().position(winnipeg).title("Marker in Winnipeg"));
-        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(winnipeg, 15));
+        //mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(winnipeg, 15));
         enableMyLocation();
         if(getUserLocation() != null)
         {
@@ -152,6 +162,8 @@ public class MapsActivity extends FragmentActivity
         }
 
     }
+
+
 
     /**
      * Fetches all the data from the Winnipeg Open Data Historical Resources and populates the markers and sites with the data
@@ -192,8 +204,6 @@ public class MapsActivity extends FragmentActivity
 
 
                     }
-
-                    int test = site.length();
 
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -262,12 +272,17 @@ public class MapsActivity extends FragmentActivity
             Toast.makeText(this, "App does not have access to location services", Toast.LENGTH_LONG).show();
             permissionDenied = false;
         }
+
+
     }
+
 
 
     @Override
     public boolean onMarkerClick(Marker marker) {
         currentSite = (HistoricalSite) marker.getTag();
+        LatLng sitLocation = new LatLng(currentSite.location.getLatitude(), currentSite.location.getLongitude());
+        mMap.animateCamera(CameraUpdateFactory.newLatLng(sitLocation));
         setDisplayInfo(currentSite);
 
 
@@ -281,12 +296,22 @@ public class MapsActivity extends FragmentActivity
         String buildDate = (TextUtils.isEmpty(site.constructionDate)? "": " (" + site.constructionDate + ")");
         nameAndBuildDate.setText(site.name + buildDate);
         //((TextView) findViewById(R.id.tvNameAndBuild)).setText(site.name);
-        ((TextView) findViewById(R.id.tvBuildDate)).setText(site.constructionDate);
+        //((TextView) findViewById(R.id.tvBuildDate)).setText(site.constructionDate);
         ((TextView) findViewById(R.id.tvAddress)).setText(site.address());
+
+        //if links are null, hide more info button
+        btnShort.setVisibility((TextUtils.isEmpty(site.shortUrl)? View.GONE: View.VISIBLE));
+        btnLong.setVisibility((TextUtils.isEmpty(site.longUrl)? View.GONE: View.VISIBLE));
+/*
         if (TextUtils.isEmpty(site.shortUrl))
-            ((LinearLayout) (findViewById(R.id.llMoreInfo))).setVisibility(View.GONE);
+            btnShort.setVisibility(View.GONE);
         else
-            ((LinearLayout) (findViewById(R.id.llMoreInfo))).setVisibility(View.VISIBLE);
+            btnShort.setVisibility(View.VISIBLE);
+
+        if (TextUtils.isEmpty(site.shortUrl))
+            btnShort.setVisibility(View.GONE);
+        else
+            btnShort.setVisibility(View.VISIBLE);*/
 
         Float distance = site.location.distanceTo(getUserLocation()) ;
         String distanceText = (distance >= 1000? String.format("%.2f",distance/1000) + " km": String.format("%.2f",distance) + " m");
@@ -364,5 +389,5 @@ public class MapsActivity extends FragmentActivity
         }*/
     }
 
-    private
+
 }

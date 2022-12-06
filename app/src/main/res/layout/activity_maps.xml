@@ -87,6 +87,17 @@
                 android:layout_margin="10px"
                 android:textAllCaps="false"
                 />
+            <Button
+                android:id="@+id/btnGoogleLink"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAlignment="center"
+                android:text="Google Link"
+
+                android:textSize="14dp"
+                android:layout_margin="10px"
+                android:textAllCaps="false"
+                />
 
         </LinearLayout>
 
