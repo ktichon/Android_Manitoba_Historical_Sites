@@ -23,7 +23,7 @@
         android:id="@+id/Details"
         android:background="@color/white">
         <TextView
-            android:id="@+id/tvName"
+            android:id="@+id/tvNameAndBuild"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textAlignment="center"
@@ -39,7 +39,8 @@
             android:text="build date"
             android:textSize="16dp"
             android:layout_margin="10px"
-            android:textColor="@color/cardview_dark_background"/>
+            android:textColor="@color/cardview_dark_background"
+            android:visibility="gone"/>
         <TextView
             android:id="@+id/tvAddress"
             android:layout_width="match_parent"

@@ -12,9 +12,9 @@ import android.content.pm.PackageManager;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
@@ -22,7 +22,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.toolbox.JsonArrayRequest;
-import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -34,8 +33,6 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.toolbox.Volley;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -280,7 +277,10 @@ public class MapsActivity extends FragmentActivity
     //Set info
     public void setDisplayInfo(HistoricalSite site) {
         displayInfo.setVisibility(View.VISIBLE);
-        ((TextView) findViewById(R.id.tvName)).setText(site.name);
+        TextView nameAndBuildDate = findViewById(R.id.tvNameAndBuild);
+        String buildDate = (TextUtils.isEmpty(site.constructionDate)? "": " (" + site.constructionDate + ")");
+        nameAndBuildDate.setText(site.name + buildDate);
+        //((TextView) findViewById(R.id.tvNameAndBuild)).setText(site.name);
         ((TextView) findViewById(R.id.tvBuildDate)).setText(site.constructionDate);
         ((TextView) findViewById(R.id.tvAddress)).setText(site.address());
         if (TextUtils.isEmpty(site.shortUrl))
@@ -289,7 +289,7 @@ public class MapsActivity extends FragmentActivity
             ((LinearLayout) (findViewById(R.id.llMoreInfo))).setVisibility(View.VISIBLE);
 
         Float distance = site.location.distanceTo(getUserLocation()) ;
-        String distanceText = distance >= 1000? String.format("%.2f",distance/1000) + " km": String.format("%.2f",distance) + " m";
+        String distanceText = (distance >= 1000? String.format("%.2f",distance/1000) + " km": String.format("%.2f",distance) + " m");
         //String distanceText = String.format("%.2f",distance) + " m";
 
 
@@ -312,9 +312,13 @@ public class MapsActivity extends FragmentActivity
             if (intent.resolveActivity(getPackageManager()) != null) {
                 startActivity(intent);*/
 
-            Intent intent = new Intent(getApplicationContext(), WebviewActivity.class);
+            /*Intent intent = new Intent(getApplicationContext(), WebviewActivity.class);
             intent.putExtra(getString(R.string.webviewUrl), url);
-            startActivity(intent);
+            startActivity(intent);*/
+
+            //Better and easier to pull up link in browser than in my own webview
+            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+            startActivity(browserIntent);
 
 
         }
@@ -359,4 +363,6 @@ public class MapsActivity extends FragmentActivity
             Log.e("Exception: %s", e.getMessage(), e);
         }*/
     }
+
+    private
 }

@@ -9,7 +9,7 @@ import android.widget.Toast;
 
 public class WebviewActivity extends AppCompatActivity {
     private WebView webView;
-
+    //Better and easier to pull up link in browser than in my own webview. So this code is now unused in the application.
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
