@@ -64,7 +64,6 @@ public class MapsActivity extends FragmentActivity
     private Button btnLong;
     private Button btnShort;
     private Button btnGoogle;
-    private String city = "winnipeg";
     //private Location currentLocation;
     //private FusedLocationProviderClient fusedLocationProviderClient;
     LocationManager locationManager;
@@ -467,10 +466,11 @@ public class MapsActivity extends FragmentActivity
         {
             try {
                 Place sitePlace = site.place;
-                setTextView(R.id.tvBusinessStatus, sitePlace.getBusinessStatus() == null? null: sitePlace.getBusinessStatus().toString());
-                setTextView(R.id.tvOpeningHours, sitePlace.getOpeningHours() == null? null: sitePlace.getOpeningHours().toString());
+                setTextView(R.id.tvBusinessStatus, (sitePlace.getBusinessStatus() == null? null: sitePlace.getBusinessStatus().toString()));
+                //setTextView(R.id.tvOpeningHours, (sitePlace.getOpeningHours() == null? null: sitePlace.getOpeningHours().toString()));
+                setTextView(R.id.tvOpeningHours, (sitePlace.isOpen() == null? null: (sitePlace.isOpen()? "Open Now": "Closed") ));
                 setTextView(R.id.tvPhoneNumber, sitePlace.getPhoneNumber());
-                setTextView(R.id.tvBusinessUrl, sitePlace.getWebsiteUri() == null? null: sitePlace.getWebsiteUri().toString());
+                setTextView(R.id.tvBusinessUrl, (sitePlace.getWebsiteUri() == null? null: sitePlace.getWebsiteUri().toString()));
                 List<PhotoMetadata> allPhotos = sitePlace.getPhotoMetadatas();
                 if (allPhotos != null)
                     Toast.makeText(getApplicationContext(), allPhotos.size() + " photos found" , Toast.LENGTH_SHORT).show();
