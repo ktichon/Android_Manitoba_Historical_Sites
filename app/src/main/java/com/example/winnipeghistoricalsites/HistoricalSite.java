@@ -2,6 +2,8 @@ package com.example.winnipeghistoricalsites;
 
 import android.location.Location;
 
+import com.google.android.libraries.places.api.model.Place;
+
 public class HistoricalSite {
     public String name;
     public String streetName;
@@ -14,6 +16,7 @@ public class HistoricalSite {
     public String province;
     public String placeId;
     public String googleAddress;
+    public Place place;
 
     public HistoricalSite(String name, String streetName, String streetNumber, String constructionDate, String shortUrl, String longUrl, Location location, String city, String province) {
         this.name = name;
