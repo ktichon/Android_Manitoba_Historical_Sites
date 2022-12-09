@@ -9,7 +9,6 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
@@ -19,6 +18,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -36,14 +36,16 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.toolbox.Volley;
+import com.google.android.gms.maps.model.PolygonOptions;
+import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.PhotoMetadata;
 import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.api.net.FetchPlaceRequest;
 import com.google.android.libraries.places.api.net.PlacesClient;
+import com.google.gson.JsonArray;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -59,11 +61,13 @@ public class MapsActivity extends FragmentActivity
     private RequestQueue queue;
     private List<HistoricalSite> allHistoricalSites;
     private List<Marker> allMarkers;
-    private LinearLayout displayInfo;
+    private LinearLayout llDisplayInfo;
+    private LinearLayout llPlaceInfo;
     private HistoricalSite currentSite;
     private Button btnLong;
     private Button btnShort;
     private Button btnGoogle;
+    private ImageButton btnDirections;
     //private Location currentLocation;
     //private FusedLocationProviderClient fusedLocationProviderClient;
     LocationManager locationManager;
@@ -111,8 +115,13 @@ public class MapsActivity extends FragmentActivity
             e.printStackTrace();
         }*/
         //String url = baseUrl;
-        displayInfo = findViewById(R.id.Details);
-        displayInfo.setVisibility(View.GONE);
+        llDisplayInfo = findViewById(R.id.Details);
+        llDisplayInfo.setVisibility(View.GONE);
+        llPlaceInfo = findViewById(R.id.llPlaceInformation);
+        llPlaceInfo.setVisibility(View.GONE);
+
+
+        //Set button presses
 
         btnShort = (Button) findViewById(R.id.btnShortLink);
         btnShort.setVisibility(View.VISIBLE);
@@ -138,12 +147,20 @@ public class MapsActivity extends FragmentActivity
             }
         });
 
+        btnDirections = (ImageButton) findViewById(R.id.btnDirections);
+        btnDirections.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                getDirectionsApi(currentSite);
+            }
+        });
+
+
 
         try {
             JsonArrayRequest request = new JsonArrayRequest(Request.Method.GET, getString(R.string.data_url), null, fetchHistoricalData, getJsonError);
             queue.add(request);
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.d("Error OnCreate Url", e.getMessage());
         }
 
     }
@@ -188,7 +205,7 @@ public class MapsActivity extends FragmentActivity
             for (int i = 0; i < response.length(); i++) {
                 try {
                     JSONObject site = (JSONObject) response.get(i);
-                    if (site.has("location")) {
+                    if (site.has("location") && site.has("historical_name")) {
                         try {
                             //Parsing fields
                             HistoricalSite newSite = new HistoricalSite(site.getString("historical_name"));
@@ -220,14 +237,14 @@ public class MapsActivity extends FragmentActivity
 
 
                         } catch (Exception e) {
-                            e.printStackTrace();
+                           Log.e("Error", "fetchHistoricalData: Extract site from json\n" + e.getMessage() + "\n" + site.toString());
                         }
 
 
                     }
 
-                } catch (JSONException e) {
-                    e.printStackTrace();
+                } catch (Exception e) {
+                    Log.e("Error",  "fetchHistoricalData: Site\n" + e.getMessage());
                 }
 
             }
@@ -240,7 +257,7 @@ public class MapsActivity extends FragmentActivity
     //Error fetching api
     private Response.ErrorListener getJsonError = error -> {
         Toast.makeText(getApplicationContext(), "Error fetching data", Toast.LENGTH_SHORT).show();
-        Log.e("Error",  error.getMessage());
+        Log.e("Error",  "getJsonError: Error fetching json\n" + error.getMessage());
     };
 
 
@@ -309,7 +326,7 @@ public class MapsActivity extends FragmentActivity
 
 
 
-        setDisplayInfo(currentSite);
+        setLlDisplayInfo(currentSite);
         if (currentSite.placeId == null)
             attachPlaceIdToSite(currentSite, currentSiteIndex);
         else
@@ -322,8 +339,8 @@ public class MapsActivity extends FragmentActivity
 
 
     //Set info
-    public void setDisplayInfo(HistoricalSite site) {
-        displayInfo.setVisibility(View.VISIBLE);
+    public void setLlDisplayInfo(HistoricalSite site) {
+        llDisplayInfo.setVisibility(View.VISIBLE);
         TextView nameAndBuildDate = findViewById(R.id.tvNameAndBuild);
         String buildDate = (TextUtils.isEmpty(site.constructionDate)? "": " (" + site.constructionDate + ")");
         nameAndBuildDate.setText(site.name + buildDate);
@@ -373,7 +390,7 @@ public class MapsActivity extends FragmentActivity
 
 
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
-                (Request.Method.GET, getString(R.string.address_To_Place_Api) + addressParam + keyParam, null, new Response.Listener<JSONObject>() {
+                (Request.Method.GET, getString(R.string.address_To_Place_Api_Link) + addressParam + keyParam, null, new Response.Listener<JSONObject>() {
                     int index = siteIndex;
 
                     @Override
@@ -408,26 +425,22 @@ public class MapsActivity extends FragmentActivity
                                         diplayPlaceInfo(allHistoricalSites.get(siteIndex));
 
                                     }).addOnFailureListener((exception) -> {
-                                        Log.e("Error",  exception.getMessage());
+                                        Log.e("Error",  "attachPlaceIdToSite: Error fetching place API\n" + exception.getMessage());
                                     });
                                 } catch (Exception e){
-                                    Log.e("Google Place Api Error", e.getMessage());
+                                    Log.e("Error","attachPlaceIdToSite: Error with Place data\n" + e.getMessage());
                                 }
 
 
 
 
                             }
-                            else {
-                                allHistoricalSites.get(siteIndex).placeId = getString(R.string.nope);
-                            }
-
-                            //Log.e("Place id", "Place id: " + placeid.toString());
 
 
 
-                        } catch (JSONException e) {
-                            Log.e("Google Place Error", e.getMessage());
+
+                        } catch (Exception e) {
+                            Log.e("Error", "attachPlaceIdToSite: Error with place id\n" +  e.getMessage());
                         }
 
                     }
@@ -458,11 +471,11 @@ public class MapsActivity extends FragmentActivity
         }
     };*/
 
-
+    //Displays information from the Place google API
     public void diplayPlaceInfo(HistoricalSite site)
     {
-        LinearLayout llPlaceInfo = findViewById(R.id.llPlaceInformation);
-        if (site.place != null && site == currentSite && displayInfo.getVisibility() == View.VISIBLE)
+
+        if (site.place != null && site == currentSite && llDisplayInfo.getVisibility() == View.VISIBLE)
         {
             try {
                 Place sitePlace = site.place;
@@ -478,7 +491,7 @@ public class MapsActivity extends FragmentActivity
                 llPlaceInfo.setVisibility(View.VISIBLE);
             } catch (Exception e)
             {
-                Log.e("Place Textbox Error", e.getMessage());
+                Log.e("Error", "diplayPlaceInfo: Error displaying place info\n" +  e.getMessage());
             }
 
 
@@ -488,6 +501,77 @@ public class MapsActivity extends FragmentActivity
         }
         // Specify the fields to return.
 
+    }
+
+    public void getDirectionsApi(HistoricalSite site)
+    {
+        Location userLocation = getUserLocation();
+        if (userLocation != null)
+        {
+            String origin = "origin=" + userLocation.getLatitude()+","+ userLocation.getLongitude();
+            String destination = "destination=";
+            if (site.placeId != null)
+                destination += "place_id:" + site.placeId;
+            else
+                destination += site.location.getLatitude() + "," + site.location.getLongitude();
+            String alternatives = "alternatives=false";
+
+            String departureTime = "departure_time=now";
+            String mode = "mode=driving";
+            String units = "units=metric";
+            String directionUrl = getString(R.string.directions_Api_Link) + origin + "&" + destination + "&" + alternatives + "&" + departureTime + "&" + mode + "&" + units + "&key=" + getString(R.string.google_maps_additions_key);
+
+            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
+                    (Request.Method.GET, directionUrl, null, new Response.Listener<JSONObject>() {
+
+
+                        @Override
+                        public void onResponse(JSONObject response) {
+
+
+
+                            try {
+                                String status = response.getString("status");
+                                if (status.equals( "OK"))
+                                {
+                                    JSONArray routesArray = response.getJSONArray("routes");
+                                    JSONObject routesObject = routesArray.getJSONObject(0);
+                                    JSONObject overViewPolyLineJson = routesObject.getJSONObject("overview_polyline");
+                                    String summary = routesObject.getString("summary");
+                                    JSONArray legJsonArray = routesObject.getJSONArray("legs");
+
+
+                                    Log.i("info", routesObject.toString());
+
+
+                                    try{
+                                        PolylineOptions directionLine = new PolylineOptions();
+
+
+                                    }catch (Exception e)
+                                    {
+                                        Log.e("Error", "getDirectionsApi: Error drawing Polyline on map\n" + e.getMessage());
+                                    }
+                                }
+                                else {
+                                    Log.e("Error", "getDirectionsApi: Result Status = " + status);
+                                    Toast.makeText(getApplicationContext(), "There was an issue getting directions", Toast.LENGTH_SHORT).show();
+                                }
+
+
+
+
+
+                            }catch (Exception e) {
+                                Log.e("Error", "getDirectionsApi: Error extracting Direction data\n" + e.getMessage());
+                            }
+
+                        }
+                    }, getJsonError);
+            queue.add(jsonObjectRequest);}
+        else {
+            Toast.makeText(this, "Please make sure that you have enabled us to access your location.", Toast.LENGTH_LONG).show();
+        }
     }
 
     //Sets text view data if it isn't null, else hide the textview
@@ -537,16 +621,25 @@ public class MapsActivity extends FragmentActivity
          * Get the best and most recent location of the device, which may be null in rare
          * cases when a location is not available.
          */
+        Location userLocation = null;
+        try {
+            // Creating a criteria object to retrieve provider
+            Criteria criteria = new Criteria();
 
-        // Creating a criteria object to retrieve provider
-        Criteria criteria = new Criteria();
+            // Getting the name of the best provider
+            String provider = locationManager.getBestProvider(criteria, true);
 
-        // Getting the name of the best provider
-        String provider = locationManager.getBestProvider(criteria, true);
+            // Getting Current Location
+            @SuppressLint("MissingPermission") Location location = locationManager.getLastKnownLocation(provider);
+            userLocation = location;
+        } catch (Exception e)
+        {
+            Toast.makeText(this,"Error fetching location. Please make sure to enable location in your settings.", Toast.LENGTH_LONG).show();
+            Log.e("Error", "getUserLocation: Error fetching user location\n" + e.getMessage());
+        }
 
-        // Getting Current Location
-        @SuppressLint("MissingPermission") Location location = locationManager.getLastKnownLocation(provider);
-        return location;
+
+        return userLocation;
        /* try {
 
 

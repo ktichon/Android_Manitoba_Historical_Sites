@@ -50,15 +50,27 @@
             android:textSize="16dp"
             android:layout_margin="10px"
             android:textColor="@color/cardview_dark_background"/>
-        <TextView
-            android:id="@+id/tvDistance"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textAlignment="center"
-            android:text="Distance"
-            android:textSize="16dp"
-            android:layout_margin="10px"
-            android:textColor="@color/cardview_dark_background"/>
+            android:orientation="horizontal"
+            android:gravity="center">
+            <TextView
+                android:id="@+id/tvDistance"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAlignment="center"
+                android:text="Distance"
+                android:textSize="16dp"
+                android:layout_margin="10px"
+                android:textColor="@color/cardview_dark_background"/>
+            <ImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_baseline_directions_24"
+                android:id="@+id/btnDirections"/>
+    </LinearLayout>
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
