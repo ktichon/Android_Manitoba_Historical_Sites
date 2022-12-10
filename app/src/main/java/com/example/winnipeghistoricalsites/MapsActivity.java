@@ -503,6 +503,7 @@ public class MapsActivity extends FragmentActivity
 
     }
 
+    //Gets direction infromation from the google directions api
     public void getDirectionsApi(HistoricalSite site)
     {
         Location userLocation = getUserLocation();
@@ -534,11 +535,14 @@ public class MapsActivity extends FragmentActivity
                                 String status = response.getString("status");
                                 if (status.equals( "OK"))
                                 {
-                                    JSONArray routesArray = response.getJSONArray("routes");
-                                    JSONObject routesObject = routesArray.getJSONObject(0);
+                                    //JSONArray routesArray = response.getJSONArray("routes");
+                                    JSONObject routesObject = response.getJSONArray("routes").getJSONObject(0);
                                     JSONObject overViewPolyLineJson = routesObject.getJSONObject("overview_polyline");
                                     String summary = routesObject.getString("summary");
-                                    JSONArray legJsonArray = routesObject.getJSONArray("legs");
+                                    JSONObject legObject = routesObject.getJSONArray("legs").getJSONObject(0);
+                                    JSONObject durationObject = legObject.getJSONObject("duration_in_traffic");
+                                    String duration = durationObject.getString("text");
+
 
 
                                     Log.i("info", routesObject.toString());
@@ -550,7 +554,7 @@ public class MapsActivity extends FragmentActivity
 
                                     }catch (Exception e)
                                     {
-                                        Log.e("Error", "getDirectionsApi: Error drawing Polyline on map\n" + e.getMessage());
+                                        Log.e("Error", "getDirectionsApi: Error parcing data\n" + e.getMessage());
                                     }
                                 }
                                 else {
