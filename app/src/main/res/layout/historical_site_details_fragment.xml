@@ -1,13 +1,158 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     tools:context=".HistoricalSiteDetailsFragment">
 
-    <TextView
+    <LinearLayout
+        android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="Hello" />
+        android:layout_height="wrap_content"
 
-</FrameLayout>
+        android:layout_gravity="bottom"
+        android:id="@+id/Details"
+        android:background="#a4dded">
+        <TextView
+            android:id="@+id/tvNameAndBuild"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:textColor="@color/cardview_dark_background"
+            android:text="Name"
+            android:textSize="16dp"
+            android:layout_margin="10px"/>
+        <TextView
+            android:id="@+id/tvBuildDate"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:text="build date"
+            android:textSize="16dp"
+            android:layout_margin="10px"
+            android:textColor="@color/cardview_dark_background"
+            android:visibility="gone"/>
+        <TextView
+            android:id="@+id/tvAddress"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:text="Address"
+            android:textSize="16dp"
+            android:layout_margin="10px"
+            android:textColor="@color/cardview_dark_background"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center">
+            <TextView
+                android:id="@+id/tvDistance"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAlignment="center"
+                android:text="Distance"
+                android:textSize="16dp"
+                android:layout_margin="10px"
+                android:textColor="@color/cardview_dark_background"/>
+            <ImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_baseline_directions_24"
+                android:id="@+id/btnDirections"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/llPlaceInformation"
+            android:orientation="vertical"
+            android:background="@color/cardview_shadow_start_color">
+            <TextView
+                android:id="@+id/tvBusinessStatus"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAlignment="center"
+                android:text="Business Status"
+                android:textSize="16dp"
+                android:layout_margin="10px"
+                android:textColor="@color/cardview_dark_background"/>
+            <TextView
+                android:id="@+id/tvOpeningHours"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAlignment="center"
+                android:text="Opening Hours"
+                android:textSize="16dp"
+                android:layout_margin="10px"
+                android:textColor="@color/cardview_dark_background"/>
+            <TextView
+                android:id="@+id/tvPhoneNumber"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAlignment="center"
+                android:text="Phone Number"
+                android:textSize="16dp"
+                android:layout_margin="10px"
+                android:textColor="@color/cardview_dark_background"/>
+            <TextView
+                android:id="@+id/tvBusinessUrl"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAlignment="center"
+                android:text="Business Website"
+                android:textSize="16dp"
+                android:layout_margin="10px"
+                android:textColor="@color/cardview_dark_background"/>
+
+
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:gravity="center_horizontal"
+            android:id="@+id/llMoreInfo">
+            >
+            <Button
+                android:id="@+id/btnShortLink"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAlignment="center"
+                android:text="Short Link"
+                android:textSize="14dp"
+                android:layout_margin="10px"
+                android:textAllCaps="false"
+                />
+            <Button
+                android:id="@+id/btnLongLink"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAlignment="center"
+                android:text="Long Link"
+
+                android:textSize="14dp"
+                android:layout_margin="10px"
+                android:textAllCaps="false"
+                />
+            <Button
+                android:id="@+id/btnGoogleLink"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAlignment="center"
+                android:text="Google Link"
+
+                android:textSize="14dp"
+                android:layout_margin="10px"
+                android:textAllCaps="false"
+                />
+
+        </LinearLayout>
+
+
+    </LinearLayout>
+
+
+
+
+</LinearLayout>

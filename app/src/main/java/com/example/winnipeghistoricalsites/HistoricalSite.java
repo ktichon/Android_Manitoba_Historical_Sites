@@ -4,7 +4,9 @@ import android.location.Location;
 
 import com.google.android.libraries.places.api.model.Place;
 
-public class HistoricalSite {
+import java.io.Serializable;
+
+public class HistoricalSite implements Serializable {
     public String name;
     public String streetName;
     public String streetNumber;

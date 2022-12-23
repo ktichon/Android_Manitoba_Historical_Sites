@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="textbox" parent="TextAppearance.AppCompat">
+        <item name="android:textColor">#faf5f5</item>
+    </style>
+    <style name="backgroundColour" parent="TextAppearance.AppCompat">
+        <item name="android:textColor">#00FF00</item>
+    </style>
+
+</resources>

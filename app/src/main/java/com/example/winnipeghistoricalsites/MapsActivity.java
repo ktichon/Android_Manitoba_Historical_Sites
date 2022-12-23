@@ -3,7 +3,12 @@ package com.example.winnipeghistoricalsites;
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentManager;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModel;
+import androidx.lifecycle.ViewModelProvider;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -71,6 +76,8 @@ public class MapsActivity extends FragmentActivity
     //private Location currentLocation;
     //private FusedLocationProviderClient fusedLocationProviderClient;
     LocationManager locationManager;
+    private HistoricalSiteDetailsViewModel viewModel;
+    private  FragmentManager fragmentManager;
 
 
     /**
@@ -119,6 +126,27 @@ public class MapsActivity extends FragmentActivity
         llDisplayInfo.setVisibility(View.GONE);
         llPlaceInfo = findViewById(R.id.llPlaceInformation);
         llPlaceInfo.setVisibility(View.GONE);
+
+        viewModel = new ViewModelProvider(this).get(HistoricalSiteDetailsViewModel.class);
+        viewModel.getCurrentSite().observe(this, new Observer<HistoricalSite>() {
+            @Override
+            public void onChanged(HistoricalSite  changedSite) {
+                try{
+                    currentSite = changedSite;
+                    LatLng sitLocation = new LatLng(currentSite.location.getLatitude(), currentSite.location.getLongitude());
+                    mMap.animateCamera(CameraUpdateFactory.newLatLng(sitLocation));
+
+                } catch (Exception e)
+                {
+                    Log.e("Error", "UpdateCurrentPositonToBeCurrentSite: Error updating the map to reflect the viewmodel\n" + e.getMessage());
+                }
+
+
+            }
+        } );
+
+
+        fragmentManager = getSupportFragmentManager();
 
 
         //Set button presses
@@ -321,16 +349,27 @@ public class MapsActivity extends FragmentActivity
     public boolean onMarkerClick(Marker marker) {
         int currentSiteIndex = (int) marker.getTag();
         currentSite = allHistoricalSites.get(currentSiteIndex);
+        viewModel.setCurrentSite(currentSite);
+        viewModel.setCurrentLocation(getUserLocation());
         LatLng sitLocation = new LatLng(currentSite.location.getLatitude(), currentSite.location.getLongitude());
         mMap.animateCamera(CameraUpdateFactory.newLatLng(sitLocation));
 
 
 
-        setLlDisplayInfo(currentSite);
+       /* setLlDisplayInfo(currentSite);
         if (currentSite.placeId == null)
             attachPlaceIdToSite(currentSite, currentSiteIndex);
         else
-            diplayPlaceInfo(currentSite);
+            diplayPlaceInfo(currentSite);*/
+
+        Fragment newFragment = HistoricalSiteDetailsFragment.newInstance(currentSite);
+
+        fragmentManager.beginTransaction()
+                //.replace(R.id.fcvDetails, HistoricalSiteDetailsFragment.class, null)
+                .replace(R.id.fcvDetails, newFragment, null)
+                .setReorderingAllowed(true)
+                .addToBackStack(null) // name can be null
+                .commit();
 
 
         return false;

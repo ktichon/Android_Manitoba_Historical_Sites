@@ -160,12 +160,24 @@
 
 
     </LinearLayout>
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+
+
+        android:background="@color/white">
+
+    </LinearLayout>
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/fcvDetails"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom">
 
     </androidx.fragment.app.FragmentContainerView>
+
 
 </FrameLayout>
 
