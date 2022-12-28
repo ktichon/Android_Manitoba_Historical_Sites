@@ -60,7 +60,7 @@ public class HistoricalSiteDetailsFragment extends Fragment {
     //Allows historical site to be passed in away the allows back-button
     public static HistoricalSiteDetailsFragment newInstance(HistoricalSite site) {
         Bundle args = new Bundle();
-        args.putSerializable(SITE_KEY, site);
+        args.putParcelable(SITE_KEY, site);
         HistoricalSiteDetailsFragment fragment = new HistoricalSiteDetailsFragment();
         fragment.setArguments(args);
         return fragment;
@@ -90,7 +90,7 @@ public class HistoricalSiteDetailsFragment extends Fragment {
         mViewModel = new ViewModelProvider(getActivity()).get(HistoricalSiteDetailsViewModel.class);
 
         //currentSite = mViewModel.getCurrentSite().getValue();
-        currentSite  = (HistoricalSite) getArguments().getSerializable(SITE_KEY);
+        currentSite  = (HistoricalSite) getArguments().getParcelable(SITE_KEY);
         if (mViewModel.getCurrentSite().getValue() != currentSite)
         {
             mViewModel.setCurrentSite(currentSite);
@@ -163,6 +163,23 @@ public class HistoricalSiteDetailsFragment extends Fragment {
         setLlDisplayInfo(currentSite);
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+    }
+
+    @Override
+    public void onPause() {
+        try {
+            super.onPause();
+
+        } catch (Exception e)
+        {
+            Log.e("Error", "Display Details On Pause:" + e.getMessage());
+            super.onPause();
+        }
+
+    }
 
     //Opens the web view activity and display the short or long link
     public void openWebPage(String url) {
