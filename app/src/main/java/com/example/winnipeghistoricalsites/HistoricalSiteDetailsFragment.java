@@ -36,8 +36,12 @@ import com.android.volley.Response;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.android.libraries.places.api.model.PhotoMetadata;
+import com.google.android.libraries.places.api.model.Place;
 
 import org.json.JSONObject;
+
+import java.util.List;
 
 public class HistoricalSiteDetailsFragment extends Fragment {
 
@@ -161,6 +165,7 @@ public class HistoricalSiteDetailsFragment extends Fragment {
             // Update the list UI
         });*/
         setLlDisplayInfo(currentSite);
+        diplayPlaceInfo(currentSite);
     }
 
     @Override
@@ -215,6 +220,51 @@ public class HistoricalSiteDetailsFragment extends Fragment {
         //if links are null, hide more info button
         btnShort.setVisibility((TextUtils.isEmpty(site.shortUrl)? View.GONE: View.VISIBLE));
         btnLong.setVisibility((TextUtils.isEmpty(site.longUrl)? View.GONE: View.VISIBLE));
+    }
+    //Displays information from the Place google API
+    public void diplayPlaceInfo(HistoricalSite site)
+    {
+
+        if (site.place != null && site == currentSite && llDisplayInfo.getVisibility() == View.VISIBLE)
+        {
+            try {
+                Place sitePlace = site.place;
+                setTextView(R.id.tvBusinessStatus, (sitePlace.getBusinessStatus() == null? null: sitePlace.getBusinessStatus().toString()));
+                //setTextView(R.id.tvOpeningHours, (sitePlace.getOpeningHours() == null? null: sitePlace.getOpeningHours().toString()));
+                setTextView(R.id.tvOpeningHours, (sitePlace.isOpen() == null? null: (sitePlace.isOpen()? "Open Now": "Closed") ));
+                setTextView(R.id.tvPhoneNumber, sitePlace.getPhoneNumber());
+                setTextView(R.id.tvBusinessUrl, (sitePlace.getWebsiteUri() == null? null: sitePlace.getWebsiteUri().toString()));
+                List<PhotoMetadata> allPhotos = sitePlace.getPhotoMetadatas();
+                if (allPhotos != null)
+                    Toast.makeText(mainView.getContext(), allPhotos.size() + " photos found" , Toast.LENGTH_SHORT).show();
+                //  PhotoMetadata firstPhoto = allPhotos.get(0);
+                llPlaceInfo.setVisibility(View.VISIBLE);
+            } catch (Exception e)
+            {
+                Log.e("Error", "diplayPlaceInfo: Error displaying place info\n" +  e.getMessage());
+            }
+
+
+        }
+        else {
+            llPlaceInfo.setVisibility(View.GONE);
+        }
+        // Specify the fields to return.
+
+    }
+    //Sets text view data if it isn't null, else hide the textview
+    private void setTextView(int viewId, String viewText)
+    {
+        TextView textView = mainView.findViewById(viewId);
+        if (viewText != null && !viewText.trim().isEmpty())
+        {
+            textView.setVisibility(View.VISIBLE);
+            textView.setText(viewText);
+        }
+        else
+        {
+            textView.setVisibility(View.GONE);
+        }
     }
 
 
