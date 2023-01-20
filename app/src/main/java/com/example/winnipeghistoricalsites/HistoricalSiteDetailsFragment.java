@@ -3,6 +3,7 @@ package com.example.winnipeghistoricalsites;
 import static android.content.Context.LOCATION_SERVICE;
 
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -139,6 +140,10 @@ public class HistoricalSiteDetailsFragment extends Fragment {
         btnDirections = (ImageButton) mainView.findViewById(R.id.btnDirections);
         btnDirections.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
+                FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.fcvDetails, HistoricalSiteDirectionsFragment.class, null);
+                ft.setReorderingAllowed(true)
+                        .addToBackStack(null) // name can be null
+                        .commit();
                //getDirectionsApi(currentSite);
             }
         });

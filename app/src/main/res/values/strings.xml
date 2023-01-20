@@ -6,4 +6,6 @@
     <string name="address_To_Place_Api_Link">https://maps.googleapis.com/maps/api/geocode/json?</string>
     <string name="directions_Api_Link">https://maps.googleapis.com/maps/api/directions/json?</string>
     <string name="nope">No Google Place Id Found :(</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

@@ -97,9 +97,26 @@ public class MapsActivity extends FragmentActivity
     private boolean trackingLocation;
     private boolean permissionDenied = false;
 
+
+    public MapsActivity(){
+        super(R.layout.activity_maps);
+
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        if (savedInstanceState == null) {
+
+            SupportMapFragment supportMapFragment =  SupportMapFragment.newInstance();
+            supportMapFragment.getMapAsync(this);
+            getSupportFragmentManager().beginTransaction()
+                    .setReorderingAllowed(true)
+                    .add(R.id.fcvMap, supportMapFragment, null)
+                    .commit();
+        }
+
         if (!Places.isInitialized()) {
             Places.initialize(getApplicationContext(), getString(R.string.google_maps_additions_key), Locale.CANADA);
         }
@@ -107,12 +124,15 @@ public class MapsActivity extends FragmentActivity
 
         //binding = ActivityMapsBinding.inflate(getLayoutInflater());
         //setContentView(binding.getRoot());
-        setContentView(R.layout.activity_maps);
 
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
+
+       /* Errors with inflating fragment, now doing it programmatically
+
+
+       // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
+        mapFragment.getMapAsync(this);*/
 
         queue = Volley.newRequestQueue(getApplicationContext());
         //String baseUrl = "https://data.winnipeg.ca/resource/ptpx-kgiu.json?";
@@ -461,10 +481,10 @@ public class MapsActivity extends FragmentActivity
             mMap.setMyLocationEnabled(true);
             locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
             // . . . . other initialization code
-            locationRequest = new LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 100)
+            locationRequest = new LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 10000)
                     .setWaitForAccurateLocation(false)
-                    .setMinUpdateIntervalMillis(3000)
-                    .setMaxUpdateDelayMillis(100)
+                    .setMinUpdateIntervalMillis(30000)
+                    .setMaxUpdateDelayMillis(10000)
                     .build();
 
             fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper());
