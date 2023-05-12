@@ -118,7 +118,7 @@ public class MapsActivity extends FragmentActivity
         }
 
         if (!Places.isInitialized()) {
-            Places.initialize(getApplicationContext(), getString(R.string.google_maps_additions_key), Locale.CANADA);
+            Places.initialize(getApplicationContext(), getString(R.string.google_maps_key), Locale.CANADA);
         }
 
 
@@ -150,10 +150,10 @@ public class MapsActivity extends FragmentActivity
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
-        llDisplayInfo = findViewById(R.id.Details);
+       /* llDisplayInfo = findViewById(R.id.Details);
         llDisplayInfo.setVisibility(View.GONE);
         llPlaceInfo = findViewById(R.id.llPlaceInformation);
-        llPlaceInfo.setVisibility(View.GONE);
+        llPlaceInfo.setVisibility(View.GONE);*/
 
         viewModel = new ViewModelProvider(this).get(HistoricalSiteDetailsViewModel.class);
         viewModel.getCurrentSite().observe(this, new Observer<HistoricalSite>() {
@@ -178,12 +178,12 @@ public class MapsActivity extends FragmentActivity
 
         //Set button presses
 
-        btnDirections = (ImageButton) findViewById(R.id.btnDirections);
+      /*  btnDirections = (ImageButton) findViewById(R.id.btnDirections);
         btnDirections.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 getDirectionsApi(currentSite);
             }
-        });
+        });*/
 
 
         try {
@@ -306,6 +306,7 @@ public class MapsActivity extends FragmentActivity
         else
             diplayPlaceInfo(currentSite);*/
 
+
         Fragment newFragment = HistoricalSiteDetailsFragment.newInstance(currentSite);
 
         fragmentManager.beginTransaction()
@@ -323,7 +324,7 @@ public class MapsActivity extends FragmentActivity
     // Attaches the place id to an historicalsite
     public void attachPlaceIdToSite(HistoricalSite site, int siteIndex) {
         String addressParam = "address=" + (site.address() + " " + site.city + " " + site.province).replace(" ", "%20").replace("+", "%2B");
-        String keyParam = "&key=" + getString(R.string.google_maps_additions_key);
+        String keyParam = "&key=" + getString(R.string.google_maps_key);
         /*try {
             JSONObject idString = new JSONObject(Integer.toString(currentSiteIndex));
             JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, getString(R.string.address_To_Place_Api) + addressParam + keyParam, null, fetchPlaceId, getJsonError);
@@ -403,7 +404,7 @@ public class MapsActivity extends FragmentActivity
             String departureTime = "departure_time=now";
             String mode = "mode=driving";
             String units = "units=metric";
-            String directionUrl = getString(R.string.directions_Api_Link) + origin + "&" + destination + "&" + alternatives + "&" + departureTime + "&" + mode + "&" + units + "&key=" + getString(R.string.google_maps_additions_key);
+            String directionUrl = getString(R.string.directions_Api_Link) + origin + "&" + destination + "&" + alternatives + "&" + departureTime + "&" + mode + "&" + units + "&key=" + getString(R.string.google_maps_key);
 
             JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
                     (Request.Method.GET, directionUrl, null, new Response.Listener<JSONObject>() {

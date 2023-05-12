@@ -157,7 +157,8 @@ public class HistoricalSiteDetailsFragment extends Fragment {
                     Float distance = currentSite.location.distanceTo(location) ;
                     String distanceText = (distance >= 1000? String.format("%.2f",distance/1000) + " km": String.format("%.2f",distance) + " m");
                     //String distanceText = String.format("%.2f",distance) + " m";
-                    ((TextView) mainView.findViewById(R.id.tvDistance)).setText(distanceText + " away");
+                    //((TextView) mainView.findViewById(R.id.tvDistance)).setText(distanceText + " away");
+                    ((TextView) mainView.findViewById(R.id.tvAddress)).setText(currentSite.address() + ", " + distanceText + " away");
                 } catch (Exception e)
                 {
                     Log.e("Error", "updateDistanceAway: Error updating user distance from the site\n" + e.getMessage());
@@ -290,7 +291,7 @@ public class HistoricalSiteDetailsFragment extends Fragment {
             String departureTime = "departure_time=now";
             String mode = "mode=driving";
             String units = "units=metric";
-            String directionUrl = getString(R.string.directions_Api_Link) + origin + "&" + destination + "&" + alternatives + "&" + departureTime + "&" + mode + "&" + units + "&key=" + getString(R.string.google_maps_additions_key);
+            String directionUrl = getString(R.string.directions_Api_Link) + origin + "&" + destination + "&" + alternatives + "&" + departureTime + "&" + mode + "&" + units + "&key=" + getString(R.string.google_maps_key);
 
             JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
                     (Request.Method.GET, directionUrl, null, new Response.Listener<JSONObject>() {

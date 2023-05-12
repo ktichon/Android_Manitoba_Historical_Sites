@@ -33,6 +33,22 @@ android:layout_height="wrap_content"
         android:layout_margin="10dp"
         android:textColor="@color/cardview_dark_background"
         />
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/llStep">
+            <androidx.recyclerview.widget.RecyclerView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/rvShowSteps"
+                android:layout_margin="10sp"
+                android:paddingHorizontal="10sp"/>
+        </LinearLayout>
+    </ScrollView>
     <TextView
         android:id="@+id/tvStartEnd"
         android:layout_width="match_parent"

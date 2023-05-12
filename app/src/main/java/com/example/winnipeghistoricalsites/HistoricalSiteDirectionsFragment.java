@@ -8,6 +8,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -26,6 +27,9 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Fragment that gets and displays the directions to a historical site
  */
@@ -35,6 +39,8 @@ public class HistoricalSiteDirectionsFragment extends Fragment {
     private RequestQueue queue;
     View mainView;
     private Location currentLocation;
+    RecyclerView stepView;
+    RecyclerView.Adapter stepAdapter;
 
 
 
@@ -100,7 +106,7 @@ public class HistoricalSiteDirectionsFragment extends Fragment {
             String departureTime = "departure_time=now";
             String mode = "mode=driving";
             String units = "units=metric";
-            String directionUrl = getString(R.string.directions_Api_Link) + origin + "&" + destination + "&" + alternatives + "&" + departureTime + "&" + mode + "&" + units + "&key=" + getString(R.string.google_maps_additions_key);
+            String directionUrl = getString(R.string.directions_Api_Link) + origin + "&" + destination + "&" + alternatives + "&" + departureTime + "&" + mode + "&" + units + "&key=" + getString(R.string.google_maps_key);
 
             JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
                     (Request.Method.GET, directionUrl, null, new Response.Listener<JSONObject>() {
@@ -132,13 +138,24 @@ public class HistoricalSiteDirectionsFragment extends Fragment {
                                     //Display
 
                                     TextView tvHeader = mainView.findViewById(R.id.tvDistanceHeader);
-                                    tvHeader.setText(duration + " (" + distance + ")");
+                                    tvHeader.setText(startAddress.substring(0, startAddress.indexOf(",")) + " " + duration + " (" + distance + ")");
 
                                     TextView tvSummary = mainView.findViewById(R.id.tvSummary);
                                     tvSummary.setText("via " + summary);
 
                                     TextView tvStartEnd = mainView.findViewById(R.id.tvStartEnd);
                                     tvStartEnd.setText(startAddress.substring(0, startAddress.indexOf(",")) + " to " + endAddress.substring(0, endAddress.indexOf(",")));
+                                    List<directionStep> directionStepList = new ArrayList<>();
+
+
+                                    for (int i = 0; i < allSteps.length(); i++) {
+                                        JSONObject current = allSteps.getJSONObject(i);
+                                        String cDistance = current.getJSONObject("distance").getString("text");
+                                        String cDuration = current.getJSONObject("duration").getString("text");
+                                        String cHtmlDirections = current.getString("html_instructions");
+                                        directionStep currentStep = new directionStep(cDistance, cDuration, cHtmlDirections);
+                                        directionStepList.add(currentStep);
+                                    }
 
 
 

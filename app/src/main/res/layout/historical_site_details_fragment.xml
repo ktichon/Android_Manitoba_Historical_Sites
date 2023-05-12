@@ -13,7 +13,8 @@
 
         android:layout_gravity="bottom"
         android:id="@+id/Details"
-        android:background="#a4dded">
+        android:background="@drawable/border"
+        >
         <TextView
             android:id="@+id/tvNameAndBuild"
             android:layout_width="match_parent"
@@ -33,35 +34,41 @@
             android:layout_margin="10px"
             android:textColor="@color/cardview_dark_background"
             android:visibility="gone"/>
-        <TextView
-            android:id="@+id/tvAddress"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textAlignment="center"
-            android:text="Address"
-            android:textSize="16dp"
-            android:layout_margin="10px"
-            android:textColor="@color/cardview_dark_background"/>
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center">
+
             <TextView
-                android:id="@+id/tvDistance"
+                android:id="@+id/tvAddress"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textAlignment="center"
-                android:text="Distance"
-                android:textSize="16dp"
+                android:text="Address"
+                android:textSize="14dp"
                 android:layout_margin="10px"
                 android:textColor="@color/cardview_dark_background"/>
+
+                <TextView
+                    android:id="@+id/tvDistance"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAlignment="center"
+                    android:text=""
+                    android:textSize="14dp"
+                    android:layout_margin="10px"
+                    android:textColor="@color/cardview_dark_background"/>
+
             <ImageButton
+                android:id="@+id/btnDirections"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@drawable/ic_baseline_directions_24"
-                android:id="@+id/btnDirections"/>
+                android:src="@drawable/ic_baseline_directions_18_by_18" />
+
+
         </LinearLayout>
+
 
         <LinearLayout
             android:layout_width="match_parent"
