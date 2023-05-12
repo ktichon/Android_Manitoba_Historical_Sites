@@ -11,6 +11,7 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
@@ -25,6 +26,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -59,6 +62,8 @@ public class HistoricalSiteDetailsFragment extends Fragment {
     LocationManager locationManager;
     private RequestQueue queue;
     View mainView;
+
+    private LinearLayout llWebView;
 
     private static final String SITE_KEY = "current_historical_site_yehaw";
 
@@ -172,6 +177,11 @@ public class HistoricalSiteDetailsFragment extends Fragment {
         });*/
         setLlDisplayInfo(currentSite);
         diplayPlaceInfo(currentSite);
+
+
+
+
+
     }
 
     @Override
@@ -226,6 +236,44 @@ public class HistoricalSiteDetailsFragment extends Fragment {
         //if links are null, hide more info button
         btnShort.setVisibility((TextUtils.isEmpty(site.shortUrl)? View.GONE: View.VISIBLE));
         btnLong.setVisibility((TextUtils.isEmpty(site.longUrl)? View.GONE: View.VISIBLE));
+
+
+        llWebView = mainView.findViewById(R.id.llWebView);
+        if(TextUtils.isEmpty(site.shortUrl))
+        {
+            llWebView.setVisibility(View.GONE);
+        }
+        else
+        {
+            int screenHeight = Resources.getSystem().getDisplayMetrics().heightPixels;
+            int maxHeight = (int)(screenHeight * Double.parseDouble( getString(R.string.max_height_of_webview_percent)));
+
+            ViewGroup.LayoutParams params = llWebView.getLayoutParams();
+            params.height = maxHeight;
+            params.width = ViewGroup.LayoutParams.MATCH_PARENT;
+            llWebView.setLayoutParams(params);
+
+            WebView webView = (WebView) mainView.findViewById(R.id.wvInfo);
+            webView.setWebViewClient(new WebViewClient());
+            webView.getSettings().setJavaScriptEnabled(true);
+           // webView.getSettings().setBuiltInZoomControls(true);
+            webView.getSettings().setSupportZoom(true);
+            webView.setInitialScale(200);
+            //String pdf = "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf";
+
+            try {
+                //webView.loadUrl("https://drive.google.com/viewerng/viewer?embedded=true&url=" + site.shortUrl);
+                https://docs.google.com/gview?embedded=true&url=
+                webView.loadUrl("https://docs.google.com/gview?embedded=true&url=" + site.shortUrl);
+                llWebView.setVisibility(View.VISIBLE);
+                //webView.loadUrl(site.shortUrl);
+            } catch (Error e)
+            {
+                Toast.makeText(mainView.getContext(), "Error fetching more data:" + e.getMessage(), Toast.LENGTH_LONG).show();
+                llWebView.setVisibility(View.GONE);
+            }
+
+        }
     }
     //Displays information from the Place google API
     public void diplayPlaceInfo(HistoricalSite site)

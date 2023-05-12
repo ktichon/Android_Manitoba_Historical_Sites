@@ -1,5 +1,6 @@
 package com.example.winnipeghistoricalsites;
 
+import android.content.res.Resources;
 import android.location.Location;
 import android.os.Bundle;
 
@@ -73,6 +74,9 @@ public class HistoricalSiteDirectionsFragment extends Fragment {
 
             }
         } );
+
+
+
 
 
         getDirectionsApi(currentSite);
