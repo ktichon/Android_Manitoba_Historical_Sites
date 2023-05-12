@@ -145,10 +145,16 @@ public class HistoricalSiteDetailsFragment extends Fragment {
         btnDirections = (ImageButton) mainView.findViewById(R.id.btnDirections);
         btnDirections.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.fcvDetails, HistoricalSiteDirectionsFragment.class, null);
+                String url = "google.navigation:q=" + currentSite.location.getLatitude() + "," + currentSite.location.getLongitude();
+                Uri gmmIntentUri = Uri.parse(url);
+                Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
+                mapIntent.setPackage("com.google.android.apps.maps");
+                startActivity(mapIntent);
+
+               /* FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.fcvDetails, HistoricalSiteDirectionsFragment.class, null);
                 ft.setReorderingAllowed(true)
                         .addToBackStack(null) // name can be null
-                        .commit();
+                        .commit();*/
                //getDirectionsApi(currentSite);
             }
         });
