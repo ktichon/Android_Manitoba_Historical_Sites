@@ -272,7 +272,7 @@ public class HistoricalSiteDetailsFragment extends Fragment {
             WebView webView = (WebView) mainView.findViewById(R.id.wvInfo);
             webView.setWebViewClient(new WebViewClient());
             webView.getSettings().setJavaScriptEnabled(true);
-           // webView.getSettings().setBuiltInZoomControls(true);
+            webView.getSettings().setBuiltInZoomControls(true);
             webView.getSettings().setSupportZoom(true);
             webView.setInitialScale(200);
             //String pdf = "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf";
