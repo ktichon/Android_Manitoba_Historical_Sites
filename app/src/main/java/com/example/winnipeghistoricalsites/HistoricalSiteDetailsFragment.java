@@ -145,8 +145,18 @@ public class HistoricalSiteDetailsFragment extends Fragment {
         btnDirections = (ImageButton) mainView.findViewById(R.id.btnDirections);
         btnDirections.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                String url = "google.navigation:q=" + currentSite.location.getLatitude() + "," + currentSite.location.getLongitude();
-                Uri gmmIntentUri = Uri.parse(url);
+                //String origin = "origin=" + currentLocation.getLatitude()+","+ currentLocation.getLongitude();
+                String destination = "destination=";
+
+                destination += currentSite.location.getLatitude() + "," + currentSite.location.getLongitude();
+                String alternatives = "alternatives=false";
+
+                String departureTime = "departure_time=now";
+                String mode = "mode=driving";
+                String units = "units=metric";
+                String directionUrl = "https://www.google.com/maps/dir/?api=1&" + destination + "&" + alternatives + "&" + departureTime + "&" + mode + "&" + units;
+                //String directionUrl = "google.navigation:q=" + currentSite.location.getLatitude() + "," + currentSite.location.getLongitude();
+                Uri gmmIntentUri = Uri.parse(directionUrl);
                 Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
                 mapIntent.setPackage("com.google.android.apps.maps");
                 startActivity(mapIntent);
