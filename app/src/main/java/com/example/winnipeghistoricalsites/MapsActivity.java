@@ -205,8 +205,8 @@ public class MapsActivity extends FragmentActivity
                             newSite.streetNumber = site.getString("street_number");
                             newSite.constructionDate = ((site.has("construction_date")) ? site.getString("construction_date") : null);
 
-                            newSite.shortUrl = ((site.has("short_report_url")) ? "https:" + site.getString("short_report_url") : null);
-                            newSite.longUrl = ((site.has("long_report_url")) ? "https:" + site.getString("long_report_url") : null);
+                            newSite.shortUrl = ((site.has("short_report_url")) ?  site.getString("short_report_url") : null);
+                            newSite.longUrl = ((site.has("long_report_url")) ?  site.getString("long_report_url") : null);
 
                             //Location
                             JSONObject location = site.getJSONObject("location");

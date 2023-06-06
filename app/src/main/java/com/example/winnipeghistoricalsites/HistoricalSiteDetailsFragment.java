@@ -134,7 +134,8 @@ public class HistoricalSiteDetailsFragment extends Fragment {
         btnShort.setVisibility(View.VISIBLE);
         btnShort.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                openWebPage(currentSite.shortUrl);
+                //openWebPage(currentSite.shortUrl);
+                setWebViewContent(currentSite.shortUrl);
             }
         });
 
@@ -142,7 +143,8 @@ public class HistoricalSiteDetailsFragment extends Fragment {
         btnLong = (Button) mainView.findViewById(R.id.btnLongLink);
         btnLong.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                openWebPage(currentSite.longUrl);
+                //openWebPage(currentSite.longUrl);
+                setWebViewContent(currentSite.longUrl);
             }
         });
 
@@ -284,7 +286,9 @@ public class HistoricalSiteDetailsFragment extends Fragment {
             }
             else
             {
-                int screenHeight = Resources.getSystem().getDisplayMetrics().heightPixels;
+                setWebViewHeight(displayHeight);
+                setWebViewContent(site.shortUrl);
+                /*int screenHeight = Resources.getSystem().getDisplayMetrics().heightPixels;
                 Double maxHeightPercent = Double.parseDouble(displayHeight == DisplayHeight.MEDIUM? getString(R.string.medium_max_height_of_webview_percent): getString(R.string.full_max_height_of_webview_percent) );
 
 
@@ -313,7 +317,7 @@ public class HistoricalSiteDetailsFragment extends Fragment {
                 {
                     Toast.makeText(mainView.getContext(), "Error fetching more data:" + e.getMessage(), Toast.LENGTH_LONG).show();
                     llWebView.setVisibility(View.GONE);
-                }
+                }*/
 
             }
             diplayPlaceInfo(site);
@@ -394,6 +398,31 @@ public class HistoricalSiteDetailsFragment extends Fragment {
         params.height = maxHeight;
         params.width = ViewGroup.LayoutParams.MATCH_PARENT;
         llWebView.setLayoutParams(params);
+    }
+
+    private void setWebViewContent(String siteURL)
+    {
+        llWebView = mainView.findViewById(R.id.llWebView);
+        WebView webView = (WebView) mainView.findViewById(R.id.wvInfo);
+        webView.setWebViewClient(new WebViewClient());
+        webView.getSettings().setJavaScriptEnabled(true);
+        webView.getSettings().setBuiltInZoomControls(true);
+        webView.getSettings().setSupportZoom(true);
+        webView.setInitialScale(200);
+        //String pdf = "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf";
+
+        try {
+            //webView.loadUrl("https://drive.google.com/viewerng/viewer?embedded=true&url=" + site.shortUrl);
+            https://docs.google.com/gview?embedded=true&url=
+            webView.loadUrl("https://docs.google.com/gview?embedded=true&url=" + siteURL);
+            llWebView.setVisibility(View.VISIBLE);
+            //webView.loadUrl(site.shortUrl);
+        } catch (Error e)
+        {
+            Toast.makeText(mainView.getContext(), "Error fetching more data:" + e.getMessage(), Toast.LENGTH_LONG).show();
+            Log.e("Error", "setWebViewContent: Error fetching  url into webView \n" +  e.getMessage());
+            llWebView.setVisibility(View.GONE);
+        }
     }
 
     private void updateDisplaySize(DisplayHeight displayHeight, HistoricalSite site)
