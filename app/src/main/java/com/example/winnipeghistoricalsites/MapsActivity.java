@@ -115,83 +115,45 @@ public class MapsActivity extends FragmentActivity
                     .setReorderingAllowed(true)
                     .add(R.id.fcvMap, supportMapFragment, null)
                     .commit();
-        }
 
-        if (!Places.isInitialized()) {
-            Places.initialize(getApplicationContext(), getString(R.string.google_maps_key), Locale.CANADA);
-        }
-
-
-        //binding = ActivityMapsBinding.inflate(getLayoutInflater());
-        //setContentView(binding.getRoot());
+            if (!Places.isInitialized()) {
+                Places.initialize(getApplicationContext(), getString(R.string.google_maps_key), Locale.CANADA);
+            }
+            queue = Volley.newRequestQueue(getApplicationContext());
 
 
-       /* Errors with inflating fragment, now doing it programmatically
+
+            fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
 
-       // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);*/
 
-        queue = Volley.newRequestQueue(getApplicationContext());
-        //String baseUrl = "https://data.winnipeg.ca/resource/ptpx-kgiu.json?";
-        //Attempts to filter location not null straight from the source
-        //String testUrl = Uri.parse(baseUrl).buildUpon().appendQueryParameter("location", )
-       /* String testUrl2 = "test";
-        try {
-            testUrl2 = URLEncoder.encode("$WHERE=( $location IS NULL)","UTF-8" );
-            testUrl2 = testUrl2.replace("+", "%20");
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }*/
-        //String url = baseUrl;
+            viewModel = new ViewModelProvider(this).get(HistoricalSiteDetailsViewModel.class);
+            viewModel.getCurrentSite().observe(this, new Observer<HistoricalSite>() {
+                @Override
+                public void onChanged(HistoricalSite changedSite) {
+                    try {
+                        currentSite = changedSite;
+                        LatLng sitLocation = new LatLng(currentSite.location.getLatitude(), currentSite.location.getLongitude());
+                        mMap.animateCamera(CameraUpdateFactory.newLatLng(sitLocation));
+
+                    } catch (Exception e) {
+                        Log.e("Error", "UpdateCurrentPositonToBeCurrentSite: Error updating the map to reflect the viewmodel\n" + e.getMessage());
+                    }
 
 
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-
-       /* llDisplayInfo = findViewById(R.id.Details);
-        llDisplayInfo.setVisibility(View.GONE);
-        llPlaceInfo = findViewById(R.id.llPlaceInformation);
-        llPlaceInfo.setVisibility(View.GONE);*/
-
-        viewModel = new ViewModelProvider(this).get(HistoricalSiteDetailsViewModel.class);
-        viewModel.getCurrentSite().observe(this, new Observer<HistoricalSite>() {
-            @Override
-            public void onChanged(HistoricalSite changedSite) {
-                try {
-                    currentSite = changedSite;
-                    LatLng sitLocation = new LatLng(currentSite.location.getLatitude(), currentSite.location.getLongitude());
-                    mMap.animateCamera(CameraUpdateFactory.newLatLng(sitLocation));
-
-                } catch (Exception e) {
-                    Log.e("Error", "UpdateCurrentPositonToBeCurrentSite: Error updating the map to reflect the viewmodel\n" + e.getMessage());
                 }
+            });
 
 
+            fragmentManager = getSupportFragmentManager();
+            try {
+                JsonArrayRequest request = new JsonArrayRequest(Request.Method.GET, getString(R.string.data_url), null, fetchHistoricalData, getJsonError);
+                queue.add(request);
+            } catch (Exception e) {
+                Log.d("Error OnCreate Url", e.getMessage());
             }
-        });
-
-
-        fragmentManager = getSupportFragmentManager();
-
-
-        //Set button presses
-
-      /*  btnDirections = (ImageButton) findViewById(R.id.btnDirections);
-        btnDirections.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                getDirectionsApi(currentSite);
-            }
-        });*/
-
-
-        try {
-            JsonArrayRequest request = new JsonArrayRequest(Request.Method.GET, getString(R.string.data_url), null, fetchHistoricalData, getJsonError);
-            queue.add(request);
-        } catch (Exception e) {
-            Log.d("Error OnCreate Url", e.getMessage());
         }
+
 
     }
 
