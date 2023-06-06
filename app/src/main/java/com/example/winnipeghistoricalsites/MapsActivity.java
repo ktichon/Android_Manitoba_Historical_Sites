@@ -144,6 +144,9 @@ public class MapsActivity extends FragmentActivity
                 }
             });
 
+            //Set the default value of the details display height
+            viewModel.setCurrentDisplayHeight(DisplayHeight.MEDIUM);
+
 
             fragmentManager = getSupportFragmentManager();
             try {

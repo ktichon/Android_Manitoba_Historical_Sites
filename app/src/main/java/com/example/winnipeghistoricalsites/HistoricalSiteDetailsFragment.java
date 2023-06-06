@@ -1,16 +1,10 @@
 package com.example.winnipeghistoricalsites;
 
-import static android.content.Context.LOCATION_SERVICE;
-
-import androidx.core.content.ContextCompat;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
-import android.Manifest;
-import android.content.Context;
+import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.location.Location;
 import android.location.LocationManager;
@@ -23,7 +17,9 @@ import androidx.fragment.app.Fragment;
 
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
@@ -34,22 +30,17 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.volley.Request;
 import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.RetryPolicy;
 import com.android.volley.toolbox.Volley;
-import com.google.android.gms.maps.model.PolylineOptions;
-import com.google.android.libraries.places.api.model.PhotoMetadata;
 import com.google.android.libraries.places.api.model.Place;
 
-import org.json.JSONObject;
-
-import java.util.List;
+import kotlin.contracts.Returns;
 
 public class HistoricalSiteDetailsFragment extends Fragment {
 
     private HistoricalSiteDetailsViewModel mViewModel;
+    private LinearLayout llDetails;
     private LinearLayout llDisplayInfo;
     private LinearLayout llPlaceInfo;
     private HistoricalSite currentSite;
@@ -64,6 +55,7 @@ public class HistoricalSiteDetailsFragment extends Fragment {
     View mainView;
 
     private LinearLayout llWebView;
+    private GestureDetector mDetector;
 
     private static final String SITE_KEY = "current_historical_site_yehaw";
 
@@ -93,6 +85,7 @@ public class HistoricalSiteDetailsFragment extends Fragment {
 
     }*/
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -109,11 +102,30 @@ public class HistoricalSiteDetailsFragment extends Fragment {
         queue = Volley.newRequestQueue(mainView.getContext());
         llDisplayInfo = mainView.findViewById(R.id.Details);
         llDisplayInfo.setVisibility(View.GONE);
+
+
+
+
+
         llPlaceInfo = mainView.findViewById(R.id.llPlaceInformation);
         llPlaceInfo.setVisibility(View.GONE);
 
        /* if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED)
             locationManager = (LocationManager) mainView.getContext().getSystemService(LOCATION_SERVICE);*/
+
+
+        //Set up Gesture listener
+
+        mDetector = new GestureDetector(mainView.getContext(), new MyGestureListener());
+        llDetails = mainView.findViewById(R.id.Details);
+        llDetails.setOnTouchListener(new View.OnTouchListener() {
+            @SuppressLint("ClickableViewAccessibility")
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+
+                return mDetector.onTouchEvent(motionEvent);
+            }
+        });
 
 
         //Set button presses
@@ -191,8 +203,8 @@ public class HistoricalSiteDetailsFragment extends Fragment {
         /*mViewModel.getCurrentSite().observe(getViewLifecycleOwner(), display -> {
             // Update the list UI
         });*/
-        setLlDisplayInfo(currentSite);
-        diplayPlaceInfo(currentSite);
+        setLlDisplayInfo(currentSite, mViewModel.getCurrentDisplayHeight().getValue());
+
 
 
 
@@ -242,54 +254,72 @@ public class HistoricalSiteDetailsFragment extends Fragment {
         }
     }
 
-    public void setLlDisplayInfo(HistoricalSite site) {
+    public void setLlDisplayInfo(HistoricalSite site, DisplayHeight displayHeight) {
+        llPlaceInfo.setVisibility(View.GONE);
         llDisplayInfo.setVisibility(View.VISIBLE);
         TextView nameAndBuildDate = mainView.findViewById(R.id.tvNameAndBuild);
         String buildDate = (TextUtils.isEmpty(site.constructionDate)? "": " (" + site.constructionDate + ")");
         nameAndBuildDate.setText(site.name + buildDate);
         ((TextView) mainView.findViewById(R.id.tvAddress)).setText(site.address());
-
-        //if links are null, hide more info button
-        btnShort.setVisibility((TextUtils.isEmpty(site.shortUrl)? View.GONE: View.VISIBLE));
-        btnLong.setVisibility((TextUtils.isEmpty(site.longUrl)? View.GONE: View.VISIBLE));
-
-
-        llWebView = mainView.findViewById(R.id.llWebView);
-        if(TextUtils.isEmpty(site.shortUrl))
+        /*if(displayHeight == DisplayHeight.SMALL)
         {
-            llWebView.setVisibility(View.GONE);
+            ((LinearLayout) mainView.findViewById(R.id.llWebView)).setVisibility(View.GONE);
+            ((LinearLayout) mainView.findViewById(R.id.llMoreInfo)).setVisibility(View.GONE);
+
         }
-        else
+        else*/
+        if (!setSmall(displayHeight))
         {
-            int screenHeight = Resources.getSystem().getDisplayMetrics().heightPixels;
-            int maxHeight = (int)(screenHeight * Double.parseDouble( getString(R.string.max_height_of_webview_percent)));
 
-            ViewGroup.LayoutParams params = llWebView.getLayoutParams();
-            params.height = maxHeight;
-            params.width = ViewGroup.LayoutParams.MATCH_PARENT;
-            llWebView.setLayoutParams(params);
 
-            WebView webView = (WebView) mainView.findViewById(R.id.wvInfo);
-            webView.setWebViewClient(new WebViewClient());
-            webView.getSettings().setJavaScriptEnabled(true);
-            webView.getSettings().setBuiltInZoomControls(true);
-            webView.getSettings().setSupportZoom(true);
-            webView.setInitialScale(200);
-            //String pdf = "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf";
+            //if links are null, hide more info button
+            btnShort.setVisibility((TextUtils.isEmpty(site.shortUrl)? View.GONE: View.VISIBLE));
+            btnLong.setVisibility((TextUtils.isEmpty(site.longUrl)? View.GONE: View.VISIBLE));
 
-            try {
-                //webView.loadUrl("https://drive.google.com/viewerng/viewer?embedded=true&url=" + site.shortUrl);
-                https://docs.google.com/gview?embedded=true&url=
-                webView.loadUrl("https://docs.google.com/gview?embedded=true&url=" + site.shortUrl);
-                llWebView.setVisibility(View.VISIBLE);
-                //webView.loadUrl(site.shortUrl);
-            } catch (Error e)
+
+            llWebView = mainView.findViewById(R.id.llWebView);
+            if(TextUtils.isEmpty(site.shortUrl))
             {
-                Toast.makeText(mainView.getContext(), "Error fetching more data:" + e.getMessage(), Toast.LENGTH_LONG).show();
                 llWebView.setVisibility(View.GONE);
             }
+            else
+            {
+                int screenHeight = Resources.getSystem().getDisplayMetrics().heightPixels;
+                Double maxHeightPercent = Double.parseDouble(displayHeight == DisplayHeight.MEDIUM? getString(R.string.medium_max_height_of_webview_percent): getString(R.string.full_max_height_of_webview_percent) );
 
+
+                //int maxHeight = (int)(screenHeight * Double.parseDouble( getString(R.string.medium_max_height_of_webview_percent)));
+                int maxHeight = (int)(screenHeight * maxHeightPercent);
+                ViewGroup.LayoutParams params = llWebView.getLayoutParams();
+                params.height = maxHeight;
+                params.width = ViewGroup.LayoutParams.MATCH_PARENT;
+                llWebView.setLayoutParams(params);
+
+                WebView webView = (WebView) mainView.findViewById(R.id.wvInfo);
+                webView.setWebViewClient(new WebViewClient());
+                webView.getSettings().setJavaScriptEnabled(true);
+                webView.getSettings().setBuiltInZoomControls(true);
+                webView.getSettings().setSupportZoom(true);
+                webView.setInitialScale(200);
+                //String pdf = "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf";
+
+                try {
+                    //webView.loadUrl("https://drive.google.com/viewerng/viewer?embedded=true&url=" + site.shortUrl);
+                    https://docs.google.com/gview?embedded=true&url=
+                    webView.loadUrl("https://docs.google.com/gview?embedded=true&url=" + site.shortUrl);
+                    llWebView.setVisibility(View.VISIBLE);
+                    //webView.loadUrl(site.shortUrl);
+                } catch (Error e)
+                {
+                    Toast.makeText(mainView.getContext(), "Error fetching more data:" + e.getMessage(), Toast.LENGTH_LONG).show();
+                    llWebView.setVisibility(View.GONE);
+                }
+
+            }
+            diplayPlaceInfo(site);
         }
+
+
     }
     //Displays information from the Place google API
     public void diplayPlaceInfo(HistoricalSite site)
@@ -304,9 +334,9 @@ public class HistoricalSiteDetailsFragment extends Fragment {
                 setTextView(R.id.tvOpeningHours, (sitePlace.isOpen() == null? null: (sitePlace.isOpen()? "Open Now": "Closed") ));
                 setTextView(R.id.tvPhoneNumber, sitePlace.getPhoneNumber());
                 setTextView(R.id.tvBusinessUrl, (sitePlace.getWebsiteUri() == null? null: sitePlace.getWebsiteUri().toString()));
-                List<PhotoMetadata> allPhotos = sitePlace.getPhotoMetadatas();
+                /*List<PhotoMetadata> allPhotos = sitePlace.getPhotoMetadatas();
                 if (allPhotos != null)
-                    Toast.makeText(mainView.getContext(), allPhotos.size() + " photos found" , Toast.LENGTH_SHORT).show();
+                    Toast.makeText(mainView.getContext(), allPhotos.size() + " photos found" , Toast.LENGTH_SHORT).show();*/
                 //  PhotoMetadata firstPhoto = allPhotos.get(0);
                 llPlaceInfo.setVisibility(View.VISIBLE);
             } catch (Exception e)
@@ -336,6 +366,100 @@ public class HistoricalSiteDetailsFragment extends Fragment {
             textView.setVisibility(View.GONE);
         }
     }
+    private boolean setSmall(DisplayHeight displayHeight)
+    {
+        Boolean result = false;
+        ((LinearLayout) mainView.findViewById(R.id.llWebView)).setVisibility(View.VISIBLE);
+        ((LinearLayout) mainView.findViewById(R.id.llMoreInfo)).setVisibility(View.VISIBLE);
+        if(displayHeight == DisplayHeight.SMALL)
+        {
+            ((LinearLayout) mainView.findViewById(R.id.llWebView)).setVisibility(View.GONE);
+            ((LinearLayout) mainView.findViewById(R.id.llMoreInfo)).setVisibility(View.GONE);
+            result = true;
+        }
+
+        return result;
+    }
+
+    private void setWebViewHeight(DisplayHeight displayHeight)
+    {
+        int screenHeight = Resources.getSystem().getDisplayMetrics().heightPixels;
+        Double maxHeightPercent = Double.parseDouble(displayHeight == DisplayHeight.MEDIUM? getString(R.string.medium_max_height_of_webview_percent): getString(R.string.full_max_height_of_webview_percent) );
+
+
+        //int maxHeight = (int)(screenHeight * Double.parseDouble( getString(R.string.medium_max_height_of_webview_percent)));
+        int maxHeight = (int)(screenHeight * maxHeightPercent);
+        llWebView = mainView.findViewById(R.id.llWebView);
+        ViewGroup.LayoutParams params = llWebView.getLayoutParams();
+        params.height = maxHeight;
+        params.width = ViewGroup.LayoutParams.MATCH_PARENT;
+        llWebView.setLayoutParams(params);
+    }
+
+    private void updateDisplaySize(DisplayHeight displayHeight, HistoricalSite site)
+    {
+        if(!setSmall(displayHeight) && !TextUtils.isEmpty(site.shortUrl))
+            setWebViewHeight(displayHeight);
+    }
+
+
+    class MyGestureListener extends GestureDetector.SimpleOnGestureListener
+
+    {
+        private static final int SWIPE_THRESHOLD = 100;
+        private static final int SWIPE_VELOCITY_THRESHOLD = 100;
+
+        @Override
+        public boolean onDown(MotionEvent e) {
+
+
+
+            return true;
+
+        }
+        @Override
+        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+            Boolean result = true;
+            DisplayHeight displayHeight = mViewModel.getCurrentDisplayHeight().getValue();
+            try {
+                float distanceX = e2.getX() - e1.getX();
+                float distanceY = e2.getY() - e1.getY();
+                if (Math.abs(distanceY) > SWIPE_THRESHOLD && Math.abs(velocityY) > SWIPE_VELOCITY_THRESHOLD &&  Math.abs(distanceY) > Math.abs(distanceX))
+                {
+                    //To make sure that the newHeight has a default value
+                    DisplayHeight newHeight = displayHeight;
+                    if (distanceY > 0) {
+                        newHeight = (displayHeight == DisplayHeight.FULL? DisplayHeight.MEDIUM: DisplayHeight.SMALL);
+                    } else {
+                        newHeight = (displayHeight == DisplayHeight.SMALL? DisplayHeight.MEDIUM: DisplayHeight.FULL);
+                    }
+                    if(displayHeight != newHeight)
+                    {
+                        mViewModel.setCurrentDisplayHeight(newHeight);
+                        updateDisplaySize(newHeight, currentSite);
+                    }
+
+
+                    //setLlDisplayInfo(currentSite,newHeight);
+                    /*if (distanceY > 0) {
+                        setLlDisplayInfo(currentSite,false);
+                    } else {
+                        setLlDisplayInfo(currentSite,true);
+                    }*/
+
+
+
+                }
+
+            } catch (Exception e) {
+                Log.e("Error", "MyGestureListener: Error when implementing gestures\n" + e.getMessage());
+                result = false;
+            }
+
+            return result;
+        }
+    }
+
 
 
     /*//Gets direction infromation from the google directions api

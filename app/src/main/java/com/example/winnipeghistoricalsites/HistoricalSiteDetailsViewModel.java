@@ -10,13 +10,16 @@ public class HistoricalSiteDetailsViewModel extends ViewModel {
 
     private MutableLiveData<HistoricalSite> currentSite;
     private MutableLiveData<Location> currentLocation;
+    private MutableLiveData<DisplayHeight> currentDisplayHeight;
     private SavedStateHandle state;
+
 
     public HistoricalSiteDetailsViewModel(SavedStateHandle state)
     {
         this.state = state;
         currentSite = new MutableLiveData<HistoricalSite>();
         currentLocation = new MutableLiveData<Location>();
+        currentDisplayHeight = new MutableLiveData<DisplayHeight>();
     }
 
     public MutableLiveData<HistoricalSite> getCurrentSite() {
@@ -34,5 +37,14 @@ public class HistoricalSiteDetailsViewModel extends ViewModel {
 
     public MutableLiveData<Location> getCurrentLocation() {
         return currentLocation;
+    }
+
+    public MutableLiveData<DisplayHeight> getCurrentDisplayHeight() {
+        return currentDisplayHeight;
+    }
+
+    public void setCurrentDisplayHeight(DisplayHeight height)
+    {
+        this.currentDisplayHeight.setValue(height);
     }
 }
