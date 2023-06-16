@@ -7,22 +7,27 @@ import android.os.Parcelable;
 import com.google.android.libraries.places.api.model.Place;
 
 import java.io.Serializable;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class HistoricalSite implements Parcelable {
-    public String name;
-    public String streetName;
-    public String streetNumber;
-    public String constructionDate;
-    public String shortUrl;
-    public String longUrl;
-    public Location location;
-    public String city;
-    public String province;
-    public String placeId;
-    public String googleAddress;
-    public Place place;
+    private static final AtomicInteger count = new AtomicInteger(0);
+    private int id;
+
+    private String name;
+    private String streetName;
+    private String streetNumber;
+    private String constructionDate;
+    private String shortUrl;
+    private String longUrl;
+    private Location location;
+    private String city;
+    private String province;
+    private String placeId;
+    private String googleAddress;
+    private Place place;
 
     public HistoricalSite(String name, String streetName, String streetNumber, String constructionDate, String shortUrl, String longUrl, Location location, String city, String province) {
+        this.id = count.incrementAndGet();
         this.name = name;
         this.streetName = streetName;
         this.streetNumber = streetNumber;
@@ -34,12 +39,112 @@ public class HistoricalSite implements Parcelable {
         this.province = province;
     }
 
+    public int getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getStreetName() {
+        return streetName;
+    }
+
+    public void setStreetName(String streetName) {
+        this.streetName = streetName;
+    }
+
+    public String getStreetNumber() {
+        return streetNumber;
+    }
+
+    public void setStreetNumber(String streetNumber) {
+        this.streetNumber = streetNumber;
+    }
+
+    public String getConstructionDate() {
+        return constructionDate;
+    }
+
+    public void setConstructionDate(String constructionDate) {
+        this.constructionDate = constructionDate;
+    }
+
+    public String getShortUrl() {
+        return shortUrl;
+    }
+
+    public void setShortUrl(String shortUrl) {
+        this.shortUrl = shortUrl;
+    }
+
+    public String getLongUrl() {
+        return longUrl;
+    }
+
+    public void setLongUrl(String longUrl) {
+        this.longUrl = longUrl;
+    }
+
+    public Location getLocation() {
+        return location;
+    }
+
+    public void setLocation(Location location) {
+        this.location = location;
+    }
+
+    public String getCity() {
+        return city;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
+    }
+
+    public String getProvince() {
+        return province;
+    }
+
+    public void setProvince(String province) {
+        this.province = province;
+    }
+
+    public String getPlaceId() {
+        return placeId;
+    }
+
+    public void setPlaceId(String placeId) {
+        this.placeId = placeId;
+    }
+
+    public String getGoogleAddress() {
+        return googleAddress;
+    }
+
+    public void setGoogleAddress(String googleAddress) {
+        this.googleAddress = googleAddress;
+    }
+
+    public Place getPlace() {
+        return place;
+    }
+
+    public void setPlace(Place place) {
+        this.place = place;
+    }
+
     public HistoricalSite(String name) {
         this(name, null, null, null, null, null, null, null, null);
     }
-    public String address()
+    public String getAddress()
     {
-        return this.streetNumber + " " + this.streetName;
+        return getStreetNumber() + " " + this.getStreetName();
     }
 
 

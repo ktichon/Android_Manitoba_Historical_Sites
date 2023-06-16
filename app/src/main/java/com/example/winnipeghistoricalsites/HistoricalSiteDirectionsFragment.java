@@ -101,10 +101,10 @@ public class HistoricalSiteDirectionsFragment extends Fragment {
         {
             String origin = "origin=" + currentLocation.getLatitude()+","+ currentLocation.getLongitude();
             String destination = "destination=";
-            if (site.placeId != null)
-                destination += "place_id:" + site.placeId;
+            if (site.getPlaceId() != null)
+                destination += "place_id:" + site.getPlaceId();
             else
-                destination += site.location.getLatitude() + "," + site.location.getLongitude();
+                destination += site.getLocation().getLatitude() + "," + site.getLocation().getLongitude();
             String alternatives = "alternatives=false";
 
             String departureTime = "departure_time=now";

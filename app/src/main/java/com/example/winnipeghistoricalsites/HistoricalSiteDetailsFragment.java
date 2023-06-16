@@ -42,7 +42,7 @@ public class HistoricalSiteDetailsFragment extends Fragment {
     private HistoricalSiteDetailsViewModel mViewModel;
     private LinearLayout llDetails;
     private LinearLayout llDisplayInfo;
-    private LinearLayout llPlaceInfo;
+    //private LinearLayout llPlaceInfo;
     private HistoricalSite currentSite;
     private Button btnLong;
     private Button btnShort;
@@ -107,8 +107,8 @@ public class HistoricalSiteDetailsFragment extends Fragment {
 
 
 
-        llPlaceInfo = mainView.findViewById(R.id.llPlaceInformation);
-        llPlaceInfo.setVisibility(View.GONE);
+        /*llPlaceInfo = mainView.findViewById(R.id.llPlaceInformation);
+        llPlaceInfo.setVisibility(View.GONE);*/
 
        /* if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED)
             locationManager = (LocationManager) mainView.getContext().getSystemService(LOCATION_SERVICE);*/
@@ -135,7 +135,7 @@ public class HistoricalSiteDetailsFragment extends Fragment {
         btnShort.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 //openWebPage(currentSite.shortUrl);
-                setWebViewContent(currentSite.shortUrl);
+                setWebViewContent(currentSite.getShortUrl());
             }
         });
 
@@ -144,14 +144,14 @@ public class HistoricalSiteDetailsFragment extends Fragment {
         btnLong.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 //openWebPage(currentSite.longUrl);
-                setWebViewContent(currentSite.longUrl);
+                setWebViewContent(currentSite.getLongUrl());
             }
         });
 
         btnGoogle = (Button) mainView.findViewById(R.id.btnGoogleLink);
         btnGoogle.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                String googleSearch  = "https://www.google.com/search?q=" + currentSite.city + "+" + currentSite.address().replace(" ", "+") + "+" + currentSite.name.replace(" ", "+");
+                String googleSearch  = "https://www.google.com/search?q=" + currentSite.getCity() + "+" + currentSite.getAddress().replace(" ", "+") + "+" + currentSite.getName().replace(" ", "+");
                 openWebPage(googleSearch);
             }
         });
@@ -162,7 +162,7 @@ public class HistoricalSiteDetailsFragment extends Fragment {
                 //String origin = "origin=" + currentLocation.getLatitude()+","+ currentLocation.getLongitude();
                 String destination = "destination=";
 
-                destination += currentSite.location.getLatitude() + "," + currentSite.location.getLongitude();
+                destination += currentSite.getLocation().getLatitude() + "," + currentSite.getLocation().getLongitude();
                 String alternatives = "alternatives=false";
 
                 String departureTime = "departure_time=now";
@@ -189,11 +189,11 @@ public class HistoricalSiteDetailsFragment extends Fragment {
             @Override
             public void onChanged(Location location) {
                 try{
-                    Float distance = currentSite.location.distanceTo(location) ;
+                    Float distance = currentSite.getLocation().distanceTo(location) ;
                     String distanceText = (distance >= 1000? String.format("%.2f",distance/1000) + " km": String.format("%.2f",distance) + " m");
                     //String distanceText = String.format("%.2f",distance) + " m";
                     //((TextView) mainView.findViewById(R.id.tvDistance)).setText(distanceText + " away");
-                    ((TextView) mainView.findViewById(R.id.tvAddress)).setText(currentSite.address() + ", " + distanceText + " away");
+                    ((TextView) mainView.findViewById(R.id.tvAddress)).setText(currentSite.getAddress() + ", " + distanceText + " away");
                 } catch (Exception e)
                 {
                     Log.e("Error", "updateDistanceAway: Error updating user distance from the site\n" + e.getMessage());
@@ -236,7 +236,7 @@ public class HistoricalSiteDetailsFragment extends Fragment {
     public void openWebPage(String url) {
         //url = "https://developer.android.com/reference/android/webkit/WebView";
         if (TextUtils.isEmpty(url)) {
-            Toast.makeText(mainView.getContext(), "There is no addition information about the historic site " + currentSite.name + " in this app.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(mainView.getContext(), "There is no addition information about the historic site " + currentSite.getName() + " in this app.", Toast.LENGTH_SHORT).show();
         } else {
             /*Uri webpage = Uri.parse(url);
             Intent intent = new Intent(Intent.ACTION_VIEW, webpage);
@@ -257,12 +257,12 @@ public class HistoricalSiteDetailsFragment extends Fragment {
     }
 
     public void setLlDisplayInfo(HistoricalSite site, DisplayHeight displayHeight) {
-        llPlaceInfo.setVisibility(View.GONE);
+        //llPlaceInfo.setVisibility(View.GONE);
         llDisplayInfo.setVisibility(View.VISIBLE);
         TextView nameAndBuildDate = mainView.findViewById(R.id.tvNameAndBuild);
-        String buildDate = (TextUtils.isEmpty(site.constructionDate)? "": " (" + site.constructionDate + ")");
-        nameAndBuildDate.setText(site.name + buildDate);
-        ((TextView) mainView.findViewById(R.id.tvAddress)).setText(site.address());
+        String buildDate = (TextUtils.isEmpty(site.getConstructionDate())? "": " (" + site.getConstructionDate() + ")");
+        nameAndBuildDate.setText(site.getName() + buildDate);
+        ((TextView) mainView.findViewById(R.id.tvAddress)).setText(site.getAddress());
         /*if(displayHeight == DisplayHeight.SMALL)
         {
             ((LinearLayout) mainView.findViewById(R.id.llWebView)).setVisibility(View.GONE);
@@ -270,24 +270,25 @@ public class HistoricalSiteDetailsFragment extends Fragment {
 
         }
         else*/
-        if (!setSmall(displayHeight))
-        {
+        setSmall(displayHeight);
+
+
 
 
             //if links are null, hide more info button
-            btnShort.setVisibility((TextUtils.isEmpty(site.shortUrl)? View.GONE: View.VISIBLE));
-            btnLong.setVisibility((TextUtils.isEmpty(site.longUrl)? View.GONE: View.VISIBLE));
+            btnShort.setVisibility((TextUtils.isEmpty(site.getShortUrl())? View.GONE: View.VISIBLE));
+            btnLong.setVisibility((TextUtils.isEmpty(site.getLongUrl())? View.GONE: View.VISIBLE));
 
 
             llWebView = mainView.findViewById(R.id.llWebView);
-            if(TextUtils.isEmpty(site.shortUrl))
+            if(TextUtils.isEmpty(site.getShortUrl()))
             {
                 llWebView.setVisibility(View.GONE);
             }
             else
             {
                 setWebViewHeight(displayHeight);
-                setWebViewContent(site.shortUrl);
+                setWebViewContent(site.getShortUrl());
                 /*int screenHeight = Resources.getSystem().getDisplayMetrics().heightPixels;
                 Double maxHeightPercent = Double.parseDouble(displayHeight == DisplayHeight.MEDIUM? getString(R.string.medium_max_height_of_webview_percent): getString(R.string.full_max_height_of_webview_percent) );
 
@@ -319,14 +320,16 @@ public class HistoricalSiteDetailsFragment extends Fragment {
                     llWebView.setVisibility(View.GONE);
                 }*/
 
-            }
-            diplayPlaceInfo(site);
+
+            //diplayPlaceInfo(site);
         }
 
 
     }
+
+    //Not displaying the place info anymore, as it doesn't provide enough information
     //Displays information from the Place google API
-    public void diplayPlaceInfo(HistoricalSite site)
+   /* public void diplayPlaceInfo(HistoricalSite site)
     {
 
         if (site.place != null && site == currentSite && llDisplayInfo.getVisibility() == View.VISIBLE)
@@ -338,9 +341,9 @@ public class HistoricalSiteDetailsFragment extends Fragment {
                 setTextView(R.id.tvOpeningHours, (sitePlace.isOpen() == null? null: (sitePlace.isOpen()? "Open Now": "Closed") ));
                 setTextView(R.id.tvPhoneNumber, sitePlace.getPhoneNumber());
                 setTextView(R.id.tvBusinessUrl, (sitePlace.getWebsiteUri() == null? null: sitePlace.getWebsiteUri().toString()));
-                /*List<PhotoMetadata> allPhotos = sitePlace.getPhotoMetadatas();
+                *//*List<PhotoMetadata> allPhotos = sitePlace.getPhotoMetadatas();
                 if (allPhotos != null)
-                    Toast.makeText(mainView.getContext(), allPhotos.size() + " photos found" , Toast.LENGTH_SHORT).show();*/
+                    Toast.makeText(mainView.getContext(), allPhotos.size() + " photos found" , Toast.LENGTH_SHORT).show();*//*
                 //  PhotoMetadata firstPhoto = allPhotos.get(0);
                 llPlaceInfo.setVisibility(View.VISIBLE);
             } catch (Exception e)
@@ -355,7 +358,9 @@ public class HistoricalSiteDetailsFragment extends Fragment {
         }
         // Specify the fields to return.
 
-    }
+    }*/
+
+
     //Sets text view data if it isn't null, else hide the textview
     private void setTextView(int viewId, String viewText)
     {
@@ -370,19 +375,24 @@ public class HistoricalSiteDetailsFragment extends Fragment {
             textView.setVisibility(View.GONE);
         }
     }
-    private boolean setSmall(DisplayHeight displayHeight)
-    {
-        Boolean result = false;
-        ((LinearLayout) mainView.findViewById(R.id.llWebView)).setVisibility(View.VISIBLE);
-        ((LinearLayout) mainView.findViewById(R.id.llMoreInfo)).setVisibility(View.VISIBLE);
-        if(displayHeight == DisplayHeight.SMALL)
-        {
-            ((LinearLayout) mainView.findViewById(R.id.llWebView)).setVisibility(View.GONE);
-            ((LinearLayout) mainView.findViewById(R.id.llMoreInfo)).setVisibility(View.GONE);
-            result = true;
-        }
 
-        return result;
+    //if the display is smoll, display no links
+    private void setSmall(DisplayHeight displayHeight)
+    {
+//        Boolean result = false;
+//       // ((LinearLayout) mainView.findViewById(R.id.llWebView)).setVisibility(View.VISIBLE);
+//        ((LinearLayout) mainView.findViewById(R.id.llExtendedInfo)).setVisibility(View.VISIBLE);
+//        if(displayHeight == DisplayHeight.SMALL)
+//        {
+//            //((LinearLayout) mainView.findViewById(R.id.llWebView)).setVisibility(View.GONE);
+//            ((LinearLayout) mainView.findViewById(R.id.llExtendedInfo)).setVisibility(View.GONE);
+//            result = true;
+//        }
+        LinearLayout llExtendedInfo =  (LinearLayout) mainView.findViewById(R.id.llExtendedInfo);
+        llExtendedInfo.setVisibility(displayHeight == DisplayHeight.SMALL? View.GONE: View.VISIBLE);
+
+
+
     }
 
     private void setWebViewHeight(DisplayHeight displayHeight)
@@ -412,10 +422,11 @@ public class HistoricalSiteDetailsFragment extends Fragment {
         //String pdf = "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf";
 
         try {
-            //webView.loadUrl("https://drive.google.com/viewerng/viewer?embedded=true&url=" + site.shortUrl);
-            https://docs.google.com/gview?embedded=true&url=
-            webView.loadUrl("https://docs.google.com/gview?embedded=true&url=" + siteURL);
             llWebView.setVisibility(View.VISIBLE);
+            //webView.loadUrl("https://drive.google.com/viewerng/viewer?embedded=true&url=" + site.shortUrl);
+            //   https://docs.google.com/gview?embedded=true&url=
+            webView.loadUrl("https://docs.google.com/gview?embedded=true&url=" + siteURL);
+
             //webView.loadUrl(site.shortUrl);
         } catch (Error e)
         {
@@ -425,11 +436,12 @@ public class HistoricalSiteDetailsFragment extends Fragment {
         }
     }
 
-    private void updateDisplaySize(DisplayHeight displayHeight, HistoricalSite site)
+    /*private void updateDisplaySize(DisplayHeight displayHeight, HistoricalSite site)
     {
-        if(!setSmall(displayHeight) && !TextUtils.isEmpty(site.shortUrl))
+
+        if(!setSmall(displayHeight) && !TextUtils.isEmpty(site.getShortUrl()) && site.getShortUrl() != null)
             setWebViewHeight(displayHeight);
-    }
+    }*/
 
 
     class MyGestureListener extends GestureDetector.SimpleOnGestureListener
@@ -465,7 +477,9 @@ public class HistoricalSiteDetailsFragment extends Fragment {
                     if(displayHeight != newHeight)
                     {
                         mViewModel.setCurrentDisplayHeight(newHeight);
-                        updateDisplaySize(newHeight, currentSite);
+                        setSmall(newHeight);
+                        if (newHeight != DisplayHeight.SMALL)
+                            setWebViewHeight(newHeight);
                     }
 
 

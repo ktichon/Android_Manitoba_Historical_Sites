@@ -71,110 +71,67 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="200dp"
-            android:id="@+id/llWebView"
-            >
-            <WebView
-                android:id="@+id/wvInfo"
+            android:layout_height="wrap_content"
+            android:padding="0dp"
+            android:layout_margin="0pt"
+            android:id="@+id/llExtendedInfo"
+            android:orientation="vertical">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:id="@+id/llWebView"
+                >
+                <WebView
+                    android:id="@+id/wvInfo"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    />
+            </LinearLayout>
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                />
-        </LinearLayout>
+                android:orientation="horizontal"
+                android:gravity="center_horizontal"
+                android:id="@+id/llLinkInfo">
+                >
+                <Button
+                    android:id="@+id/btnShortLink"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAlignment="center"
+                    android:text="Short Link"
+                    android:textSize="14dp"
+                    android:layout_margin="10px"
+                    android:textAllCaps="false"
+                    />
+                <Button
+                    android:id="@+id/btnLongLink"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAlignment="center"
+                    android:text="Long Link"
 
+                    android:textSize="14dp"
+                    android:layout_margin="10px"
+                    android:textAllCaps="false"
+                    />
+                <Button
+                    android:id="@+id/btnGoogleLink"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAlignment="center"
+                    android:text="Google Link"
 
+                    android:textSize="14dp"
+                    android:layout_margin="10px"
+                    android:textAllCaps="false"
+                    />
 
-
-
-
-
-
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/llPlaceInformation"
-            android:orientation="vertical"
-            android:background="@color/cardview_shadow_start_color">
-            <TextView
-                android:id="@+id/tvBusinessStatus"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textAlignment="center"
-                android:text="Business Status"
-                android:textSize="16dp"
-                android:layout_margin="10px"
-                android:textColor="@color/cardview_dark_background"/>
-            <TextView
-                android:id="@+id/tvOpeningHours"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textAlignment="center"
-                android:text="Opening Hours"
-                android:textSize="16dp"
-                android:layout_margin="10px"
-                android:textColor="@color/cardview_dark_background"/>
-            <TextView
-                android:id="@+id/tvPhoneNumber"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textAlignment="center"
-                android:text="Phone Number"
-                android:textSize="16dp"
-                android:layout_margin="10px"
-                android:textColor="@color/cardview_dark_background"/>
-            <TextView
-                android:id="@+id/tvBusinessUrl"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textAlignment="center"
-                android:text="Business Website"
-                android:textSize="16dp"
-                android:layout_margin="10px"
-                android:textColor="@color/cardview_dark_background"/>
-
+            </LinearLayout>
 
         </LinearLayout>
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="horizontal"
-            android:gravity="center_horizontal"
-            android:id="@+id/llMoreInfo">
-            >
-            <Button
-                android:id="@+id/btnShortLink"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAlignment="center"
-                android:text="Short Link"
-                android:textSize="14dp"
-                android:layout_margin="10px"
-                android:textAllCaps="false"
-                />
-            <Button
-                android:id="@+id/btnLongLink"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAlignment="center"
-                android:text="Long Link"
 
-                android:textSize="14dp"
-                android:layout_margin="10px"
-                android:textAllCaps="false"
-                />
-            <Button
-                android:id="@+id/btnGoogleLink"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAlignment="center"
-                android:text="Google Link"
 
-                android:textSize="14dp"
-                android:layout_margin="10px"
-                android:textAllCaps="false"
-                />
-
-        </LinearLayout>
 
 
     </LinearLayout>

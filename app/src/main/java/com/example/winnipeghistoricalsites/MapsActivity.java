@@ -1,6 +1,10 @@
 package com.example.winnipeghistoricalsites;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SwitchCompat;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
@@ -15,11 +19,16 @@ import android.content.pm.PackageManager;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Looper;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.Toast;
@@ -58,8 +67,8 @@ import java.util.List;
 import java.util.Locale;
 
 
-public class MapsActivity extends FragmentActivity
-        implements OnMapReadyCallback, ActivityCompat.OnRequestPermissionsResultCallback, GoogleMap.OnMarkerClickListener {
+public class MapsActivity extends AppCompatActivity
+        implements  OnMapReadyCallback, ActivityCompat.OnRequestPermissionsResultCallback, GoogleMap.OnMarkerClickListener {
 
     private GoogleMap mMap;
     private RequestQueue queue;
@@ -72,6 +81,15 @@ public class MapsActivity extends FragmentActivity
     private Button btnShort;
     private Button btnGoogle;
     private ImageButton btnDirections;
+    private SupportMapFragment supportMapFragment;
+    private Menu menu;
+
+    private boolean cameraFollow = false;
+
+
+    //To make sure we don't add sites to the map till the map is properly loaded
+    private boolean allSitesLoaded = false;
+    private boolean mapLoaded = false;
 
     //private Location currentLocation;
     //private FusedLocationProviderClient fusedLocationProviderClient;
@@ -109,16 +127,22 @@ public class MapsActivity extends FragmentActivity
 
         if (savedInstanceState == null) {
 
-            SupportMapFragment supportMapFragment =  SupportMapFragment.newInstance();
+            supportMapFragment =  SupportMapFragment.newInstance();
             supportMapFragment.getMapAsync(this);
             getSupportFragmentManager().beginTransaction()
                     .setReorderingAllowed(true)
                     .add(R.id.fcvMap, supportMapFragment, null)
                     .commit();
 
-            if (!Places.isInitialized()) {
+            /*if (!Places.isInitialized()) {
                 Places.initialize(getApplicationContext(), getString(R.string.google_maps_key), Locale.CANADA);
             }
+*/
+            Toolbar mToolbar = findViewById(R.id.tbMain);
+
+            setSupportActionBar(mToolbar);
+
+
             queue = Volley.newRequestQueue(getApplicationContext());
 
 
@@ -133,7 +157,7 @@ public class MapsActivity extends FragmentActivity
                 public void onChanged(HistoricalSite changedSite) {
                     try {
                         currentSite = changedSite;
-                        LatLng sitLocation = new LatLng(currentSite.location.getLatitude(), currentSite.location.getLongitude());
+                        LatLng sitLocation = new LatLng(currentSite.getLocation().getLatitude(), currentSite.getLocation().getLongitude());
                         mMap.animateCamera(CameraUpdateFactory.newLatLng(sitLocation));
 
                     } catch (Exception e) {
@@ -149,12 +173,14 @@ public class MapsActivity extends FragmentActivity
 
 
             fragmentManager = getSupportFragmentManager();
+
             try {
                 JsonArrayRequest request = new JsonArrayRequest(Request.Method.GET, getString(R.string.data_url), null, fetchHistoricalData, getJsonError);
                 queue.add(request);
             } catch (Exception e) {
-                Log.d("Error OnCreate Url", e.getMessage());
+                Log.e("Error", "onCreate: Fetching city of winnipeg data from url \n" + e.getMessage());
             }
+
         }
 
 
@@ -169,10 +195,14 @@ public class MapsActivity extends FragmentActivity
      * it inside the SupportMapFragment. This method will only be triggered once the user has
      * installed Google Play services and returned to the app.
      */
+
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
         mMap.setOnMarkerClickListener(this);
+        mMap.getUiSettings().setMapToolbarEnabled(false);
+
+
 
 
         //mMap.addMarker(new MarkerOptions().position(winnipeg).title("Marker in Winnipeg"));
@@ -181,10 +211,52 @@ public class MapsActivity extends FragmentActivity
         if (getUserLocation() != null) {
             LatLng current = new LatLng(getUserLocation().getLatitude(), getUserLocation().getLongitude());
             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(current, 15));
+
         }
+        mapLoaded = true;
+        addSiteListToMap(allHistoricalSites);
 
     }
 
+
+    //Set up menu
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu, menu);
+        this.menu = menu;
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    //Resolve menu select
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        try {
+            switch (item.getItemId()) {
+                case R.id.itFollowCamera:
+                    if (this.cameraFollow)
+                    {
+                        this.cameraFollow = false;
+                        item.setIcon(R.drawable.ic_camera_not_follow);
+                    }
+                    else
+                    {
+                        this.cameraFollow = true;
+                        item.setIcon(R.drawable.ic_camera_follow);
+                    }
+
+
+                    break;
+
+
+            }
+        }
+        catch (Exception e)
+        {
+            Log.e("Error", "MenuItemSelected: Error selecting menu item\n" + e.getMessage() );
+        }
+        return super.onOptionsItemSelected(item);
+    }
 
     /**
      * Fetches all the data from the Winnipeg Open Data Historical Resources and populates the markers and sites with the data
@@ -201,7 +273,27 @@ public class MapsActivity extends FragmentActivity
                         try {
                             //Parsing fields
                             HistoricalSite newSite = new HistoricalSite(site.getString("historical_name"));
-                            newSite.streetName = site.getString("street_name");
+                            newSite.setStreetName(site.getString("street_name"));
+                            newSite.setStreetNumber(site.getString("street_number"));
+                            newSite.setConstructionDate(((site.has("construction_date")) ? site.getString("construction_date") : null));
+                            newSite.setShortUrl(((site.has("short_report_url")) ?  site.getString("short_report_url") : null));
+                            newSite.setLongUrl(((site.has("long_report_url")) ?  site.getString("long_report_url") : null));
+
+
+                            //Location
+                            JSONObject location = site.getJSONObject("location");
+                            Location newLocation = new Location("");
+                            newLocation.setLatitude(location.getDouble("latitude"));
+                            newLocation.setLongitude(location.getDouble("longitude"));
+                            newSite.setLocation(newLocation);
+                            newSite.setCity("winnipeg");
+                            newSite.setProvince("MB");
+
+
+                            //add site to list
+                            allHistoricalSites.add(newSite);
+
+                            /*newSite.streetName = site.getString("street_name");
                             newSite.streetNumber = site.getString("street_number");
                             newSite.constructionDate = ((site.has("construction_date")) ? site.getString("construction_date") : null);
 
@@ -220,7 +312,7 @@ public class MapsActivity extends FragmentActivity
                             allHistoricalSites.add(newSite);
                             Marker newMarker = mMap.addMarker(new MarkerOptions().position(new LatLng(newSite.location.getLatitude(), newSite.location.getLongitude())).title(newSite.name).snippet(newSite.address()));
                             newMarker.setTag(id);
-                            allMarkers.add(newMarker);
+                            allMarkers.add(newMarker);*/
 
 
                             //attachPlaceIdToSite(newSite,id);
@@ -239,6 +331,9 @@ public class MapsActivity extends FragmentActivity
 
             }
 
+            allSitesLoaded = true;
+            addSiteListToMap(allHistoricalSites);
+
             Toast.makeText(getApplicationContext(), "Found all " + allHistoricalSites.size() + " historic sites in Winnipeg", Toast.LENGTH_SHORT).show();
 
         }
@@ -250,18 +345,42 @@ public class MapsActivity extends FragmentActivity
         Log.e("Error", "getJsonError: Error fetching json\n" + error.getMessage());
     };
 
+    private void addSiteListToMap (List<HistoricalSite> sitesToAdd)
+    {
+        if (mapLoaded && allSitesLoaded)
+        {
+            try {
+                for (HistoricalSite site: sitesToAdd) {
+                    Marker newMarker = mMap.addMarker(new MarkerOptions().position(new LatLng(site.getLocation().getLatitude(), site.getLocation().getLongitude())).title(site.getName()).snippet(site.getAddress()));
+                    newMarker.setTag(site.getId());
+                    allMarkers.add(newMarker);
+
+                }
+            }
+            catch (Exception e)
+            {
+                Log.e("Error", "addSiteListToMap: Error attaching site to map\n" + e.getMessage());
+            }
+        }
+    }
 
     //On marker click zoom to location and display data
+    @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     public boolean onMarkerClick(Marker marker) {
         int currentSiteIndex = (int) marker.getTag();
-        currentSite = allHistoricalSites.get(currentSiteIndex);
-        viewModel.setCurrentSite(currentSite);
-        viewModel.setCurrentLocation(getUserLocation());
-        LatLng sitLocation = new LatLng(currentSite.location.getLatitude(), currentSite.location.getLongitude());
-        mMap.animateCamera(CameraUpdateFactory.newLatLng(sitLocation));
-        if (currentSite.placeId == null)
-            attachPlaceIdToSite(currentSite, currentSiteIndex);
+        HistoricalSite newCurrentSite = allHistoricalSites.stream().filter(site -> site.getId() == currentSiteIndex).findFirst().orElse(null);
+        if (newCurrentSite != null)
+        {
+            currentSite = newCurrentSite;
+
+            //currentSite = allHistoricalSites.get(currentSiteIndex);
+            viewModel.setCurrentSite(currentSite);
+            viewModel.setCurrentLocation(getUserLocation());
+            LatLng sitLocation = new LatLng(currentSite.getLocation().getLatitude(), currentSite.getLocation().getLongitude());
+            mMap.animateCamera(CameraUpdateFactory.newLatLng(sitLocation));
+        /*if (currentSite.placeId == null)
+            attachPlaceIdToSite(currentSite, currentSiteIndex);*/
 
 
 
@@ -272,31 +391,37 @@ public class MapsActivity extends FragmentActivity
             diplayPlaceInfo(currentSite);*/
 
 
-        Fragment newFragment = HistoricalSiteDetailsFragment.newInstance(currentSite);
+            Fragment newFragment = HistoricalSiteDetailsFragment.newInstance(currentSite);
 
-        fragmentManager.beginTransaction()
-                //.replace(R.id.fcvDetails, HistoricalSiteDetailsFragment.class, null)
-                .replace(R.id.fcvDetails, newFragment, null)
-                .setReorderingAllowed(true)
-                .addToBackStack(null) // name can be null
-                .commit();
+            fragmentManager.beginTransaction()
+                    //.replace(R.id.fcvDetails, HistoricalSiteDetailsFragment.class, null)
+                    .replace(R.id.fcvDetails, newFragment, null)
+                    .setReorderingAllowed(true)
+                    .addToBackStack(null) // name can be null
+                    .commit();
+        }
+        else
+            Log.e("Error", "onMarkerClick: Error getting new site");
+
 
 
         return false;
     }
 
 
+    //Removed because most Historical Sites don't have a place associated with them
+/*
     // Attaches the place id to an historicalsite
     public void attachPlaceIdToSite(HistoricalSite site, int siteIndex) {
         String addressParam = "address=" + (site.address() + " " + site.city + " " + site.province).replace(" ", "%20").replace("+", "%2B");
         String keyParam = "&key=" + getString(R.string.google_maps_key);
-        /*try {
+        *//*try {
             JSONObject idString = new JSONObject(Integer.toString(currentSiteIndex));
             JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, getString(R.string.address_To_Place_Api) + addressParam + keyParam, null, fetchPlaceId, getJsonError);
             queue.add(request);
         } catch (JSONException e) {
             e.printStackTrace();
-        }*/
+        }*//*
 
 
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
@@ -351,10 +476,11 @@ public class MapsActivity extends FragmentActivity
                     }
                 }, getJsonError);
         queue.add(jsonObjectRequest);
-    }
+    }*/
 
 
-    //Gets direction infromation from the google directions api
+    //This function does work, but displaying it is a lot of work, and I can instead send an intent to google maps
+    /*//Gets direction infromation from the google directions api
     public void getDirectionsApi(HistoricalSite site) {
         Location userLocation = getUserLocation();
         if (userLocation != null) {
@@ -417,7 +543,7 @@ public class MapsActivity extends FragmentActivity
         } else {
             Toast.makeText(this, "Please make sure that you have enabled us to access your location.", Toast.LENGTH_LONG).show();
         }
-    }
+    }*/
 
 
     //region User Location
