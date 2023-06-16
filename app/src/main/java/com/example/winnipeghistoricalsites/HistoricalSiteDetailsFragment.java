@@ -425,9 +425,14 @@ public class HistoricalSiteDetailsFragment extends Fragment {
             llWebView.setVisibility(View.VISIBLE);
             //webView.loadUrl("https://drive.google.com/viewerng/viewer?embedded=true&url=" + site.shortUrl);
             //   https://docs.google.com/gview?embedded=true&url=
-            webView.loadUrl("https://docs.google.com/gview?embedded=true&url=" + siteURL);
 
-            //webView.loadUrl(site.shortUrl);
+
+            String cutFromURL = "https://";
+            String procesedURL = "https://docs.google.com/gview?embedded=true&url=" + siteURL.substring(siteURL.indexOf(cutFromURL) + cutFromURL.length()) + "#";
+            webView.loadUrl(procesedURL);
+            //webView.loadUrl(siteURL);
+
+
         } catch (Error e)
         {
             Toast.makeText(mainView.getContext(), "Error fetching more data:" + e.getMessage(), Toast.LENGTH_LONG).show();

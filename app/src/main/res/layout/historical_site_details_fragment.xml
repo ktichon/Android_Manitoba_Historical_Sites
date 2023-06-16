@@ -99,32 +99,36 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textAlignment="center"
-                    android:text="Short Link"
+
+                    android:text="Summary"
                     android:textSize="14dp"
                     android:layout_margin="10px"
                     android:textAllCaps="false"
+                    android:background="@drawable/border"
                     />
                 <Button
                     android:id="@+id/btnLongLink"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textAlignment="center"
-                    android:text="Long Link"
+                    android:text="More Info"
 
                     android:textSize="14dp"
                     android:layout_margin="10px"
                     android:textAllCaps="false"
+                    android:background="@drawable/border"
                     />
                 <Button
                     android:id="@+id/btnGoogleLink"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textAlignment="center"
-                    android:text="Google Link"
+                    android:text="Google"
 
                     android:textSize="14dp"
                     android:layout_margin="10px"
                     android:textAllCaps="false"
+                    android:background="@drawable/border"
                     />
 
             </LinearLayout>

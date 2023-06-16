@@ -243,6 +243,7 @@ public class MapsActivity extends AppCompatActivity
                     {
                         this.cameraFollow = true;
                         item.setIcon(R.drawable.ic_camera_follow);
+                        moveCameraToLocation(getUserLocation());
                     }
 
 
@@ -257,6 +258,8 @@ public class MapsActivity extends AppCompatActivity
         }
         return super.onOptionsItemSelected(item);
     }
+
+
 
     /**
      * Fetches all the data from the Winnipeg Open Data Historical Resources and populates the markers and sites with the data
@@ -377,8 +380,9 @@ public class MapsActivity extends AppCompatActivity
             //currentSite = allHistoricalSites.get(currentSiteIndex);
             viewModel.setCurrentSite(currentSite);
             viewModel.setCurrentLocation(getUserLocation());
-            LatLng sitLocation = new LatLng(currentSite.getLocation().getLatitude(), currentSite.getLocation().getLongitude());
-            mMap.animateCamera(CameraUpdateFactory.newLatLng(sitLocation));
+            moveCameraToLocation(currentSite.getLocation());
+            /*LatLng sitLocation = new LatLng(currentSite.getLocation().getLatitude(), currentSite.getLocation().getLongitude());
+            mMap.animateCamera(CameraUpdateFactory.newLatLng(sitLocation));*/
         /*if (currentSite.placeId == null)
             attachPlaceIdToSite(currentSite, currentSiteIndex);*/
 
@@ -406,6 +410,20 @@ public class MapsActivity extends AppCompatActivity
 
 
         return false;
+    }
+
+    //Moves camera to new location
+    private void moveCameraToLocation(Location newLocation)
+    {
+        try {
+            LatLng userLatLng = new LatLng(newLocation.getLatitude(), newLocation.getLongitude());
+            mMap.animateCamera(CameraUpdateFactory.newLatLng(userLatLng));
+        }
+        catch (Exception e)
+        {
+            Log.e("Error", "moveCameraToLocation: Error moving camera to a new location\n" + e.getMessage());
+        }
+
     }
 
 
@@ -661,8 +679,7 @@ public class MapsActivity extends AppCompatActivity
                   viewModel.getCurrentLocation().setValue(newLocation);
                   if (cameraFollow && mMap != null)
                   {
-                      LatLng userLatLng = new LatLng(newLocation.getLatitude(), newLocation.getLongitude());
-                      mMap.animateCamera(CameraUpdateFactory.newLatLng(userLatLng));
+                      moveCameraToLocation(newLocation);
                   }
             }
         }

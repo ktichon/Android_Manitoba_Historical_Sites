@@ -10,7 +10,9 @@
         android:layout_height="?attr/actionBarSize"
         android:background="?attr/colorPrimary"
         android:elevation="4dp"
-        android:id="@+id/tbMain"/>
+        android:id="@+id/tbMain">
+
+    </androidx.appcompat.widget.Toolbar>
 
 
 
