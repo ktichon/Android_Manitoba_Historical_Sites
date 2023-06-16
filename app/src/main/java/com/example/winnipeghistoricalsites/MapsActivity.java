@@ -659,6 +659,11 @@ public class MapsActivity extends AppCompatActivity
             Location newLocation = locationResult.getLastLocation();
             if (newLocation != null && newLocation != viewModel.getCurrentLocation().getValue()) {
                   viewModel.getCurrentLocation().setValue(newLocation);
+                  if (cameraFollow && mMap != null)
+                  {
+                      LatLng userLatLng = new LatLng(newLocation.getLatitude(), newLocation.getLongitude());
+                      mMap.animateCamera(CameraUpdateFactory.newLatLng(userLatLng));
+                  }
             }
         }
     };
