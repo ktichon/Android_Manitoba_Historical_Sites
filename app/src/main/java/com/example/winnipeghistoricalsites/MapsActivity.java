@@ -125,6 +125,7 @@ public class MapsActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+
         if (savedInstanceState == null) {
 
             supportMapFragment =  SupportMapFragment.newInstance();
@@ -157,8 +158,9 @@ public class MapsActivity extends AppCompatActivity
                 public void onChanged(HistoricalSite changedSite) {
                     try {
                         currentSite = changedSite;
-                        LatLng sitLocation = new LatLng(currentSite.getLocation().getLatitude(), currentSite.getLocation().getLongitude());
-                        mMap.animateCamera(CameraUpdateFactory.newLatLng(sitLocation));
+                        moveCameraToLocation(currentSite.getLocation());
+                       /* LatLng sitLocation = new LatLng(currentSite.getLocation().getLatitude(), currentSite.getLocation().getLongitude());
+                        mMap.animateCamera(CameraUpdateFactory.newLatLng(sitLocation));*/
 
                     } catch (Exception e) {
                         Log.e("Error", "UpdateCurrentPositonToBeCurrentSite: Error updating the map to reflect the viewmodel\n" + e.getMessage());
@@ -210,7 +212,7 @@ public class MapsActivity extends AppCompatActivity
         enableMyLocation();
         if (getUserLocation() != null) {
             LatLng current = new LatLng(getUserLocation().getLatitude(), getUserLocation().getLongitude());
-            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(current, 15));
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(current, 15));
 
         }
         mapLoaded = true;
