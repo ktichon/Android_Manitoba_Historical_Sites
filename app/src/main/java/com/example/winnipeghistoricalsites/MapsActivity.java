@@ -479,7 +479,7 @@ public class MapsActivity extends AppCompatActivity
     private void siteSelected(HistoricalSite nextSite)
     {
         try {
-            if (currentSite != nextSite && nextSite != null)
+            if ( nextSite != null)
             {
                 currentSite = nextSite;
                 viewModel.setCurrentSite(currentSite);
