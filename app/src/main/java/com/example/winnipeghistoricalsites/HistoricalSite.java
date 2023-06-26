@@ -154,6 +154,14 @@ public class HistoricalSite implements Parcelable {
     }
 
 
+    //For the search array adapter
+    @NonNull
+    @Override
+    public String toString() {
+        return getName() + ", " + getAddress();
+    }
+
+
     /*public String displayInfo()
     {
         return address() + "\nConstruction Date: " + this.constructionDate + "\nMore info" + this.shortUrl;

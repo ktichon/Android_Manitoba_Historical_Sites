@@ -15,6 +15,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Criteria;
@@ -28,6 +29,10 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.ImageButton;
@@ -47,6 +52,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.android.volley.Request;
@@ -69,7 +75,8 @@ import java.util.Locale;
 
 
 public class MapsActivity extends AppCompatActivity
-        implements  OnMapReadyCallback, ActivityCompat.OnRequestPermissionsResultCallback, GoogleMap.OnMarkerClickListener {
+        implements  OnMapReadyCallback, ActivityCompat.OnRequestPermissionsResultCallback, GoogleMap.OnMarkerClickListener
+{
 
     private GoogleMap mMap;
     private RequestQueue queue;
@@ -84,6 +91,8 @@ public class MapsActivity extends AppCompatActivity
     private ImageButton btnDirections;
     private SupportMapFragment supportMapFragment;
     private Menu menu;
+    private ArrayAdapter<HistoricalSite> searchAdapter;
+    private AutoCompleteTextView searchSites;
 
     private boolean cameraFollow = false;
 
@@ -128,6 +137,7 @@ public class MapsActivity extends AppCompatActivity
 
 
         if (savedInstanceState == null) {
+            allHistoricalSites = new ArrayList<>();
 
             supportMapFragment =  SupportMapFragment.newInstance();
             supportMapFragment.getMapAsync(this);
@@ -141,6 +151,7 @@ public class MapsActivity extends AppCompatActivity
             }
 */
             Toolbar mToolbar = findViewById(R.id.tbMain);
+            //mToolbar.setTitle("");
 
             setSupportActionBar(mToolbar);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -152,10 +163,55 @@ public class MapsActivity extends AppCompatActivity
             }
 
 
+
+
+            searchSites = (AutoCompleteTextView) findViewById(R.id.atvSearch);
+            searchSites.setVisibility(View.INVISIBLE);
+
+            searchAdapter = new ArrayAdapter<HistoricalSite>( this, android.R.layout.select_dialog_item, allHistoricalSites);
+            searchSites.setAdapter(searchAdapter);
+
+            searchSites.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+                @RequiresApi(api = Build.VERSION_CODES.N)
+                @Override
+                public void onItemClick(AdapterView<?> sites, View view, int pos,
+                                        long id) {
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(view.getApplicationWindowToken(), 0);
+                    try {
+                        HistoricalSite foundSite = (HistoricalSite) sites.getItemAtPosition(pos);
+
+                        try {
+                            if (allMarkers!= null)
+                            {
+                                for (Marker marker : allMarkers) {
+                                    if ((int)marker.getTag() == foundSite.getId() ) { //if a marker has desired tag
+                                        marker.showInfoWindow();
+                                        onMarkerClick(marker);
+                                    }
+                                }
+                            }
+                        }
+                        catch (Exception e)
+                        {
+                            Log.e("Error", "SearchSiteAutoAdapter: Error searching through marker\n" + e.getMessage());
+                            siteSelected(foundSite);
+                        }
+
+                    } catch (Exception e) {
+                        Log.e("Error", "SearchSiteAutoAdapter: Error searching for specific site\n" + e.getMessage());
+                    }
+
+
+
+
+                }
+            });
+
+
+
             queue = Volley.newRequestQueue(getApplicationContext());
-
-
-
             fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
 
@@ -221,6 +277,12 @@ public class MapsActivity extends AppCompatActivity
         mMap = googleMap;
         mMap.setOnMarkerClickListener(this);
         mMap.getUiSettings().setMapToolbarEnabled(false);
+        LatLngBounds manitobaBounds = new LatLngBounds(
+                new LatLng(48, -102), // SW bounds
+                new LatLng(60, -89)  // NE bounds
+        );
+
+        mMap.setLatLngBoundsForCameraTarget(manitobaBounds);
 
 
 
@@ -287,7 +349,7 @@ public class MapsActivity extends AppCompatActivity
     private Response.Listener<JSONArray> fetchHistoricalData = new Response.Listener<JSONArray>() {
         @Override
         public void onResponse(JSONArray response) {
-            allHistoricalSites = new ArrayList<>();
+            allHistoricalSites.clear();
             allMarkers = new ArrayList<>();
             for (int i = 0; i < response.length(); i++) {
                 try {
@@ -357,6 +419,7 @@ public class MapsActivity extends AppCompatActivity
             allSitesLoaded = true;
             addSiteListToMap(allHistoricalSites);
 
+
             Toast.makeText(getApplicationContext(), "Found all " + allHistoricalSites.size() + " historic sites in Winnipeg", Toast.LENGTH_SHORT).show();
 
         }
@@ -379,11 +442,17 @@ public class MapsActivity extends AppCompatActivity
                     allMarkers.add(newMarker);
 
                 }
+
+                searchAdapter.notifyDataSetChanged();
+                searchSites.setVisibility(View.VISIBLE);
+
             }
             catch (Exception e)
             {
                 Log.e("Error", "addSiteListToMap: Error attaching site to map\n" + e.getMessage());
             }
+
+
         }
     }
 
@@ -391,45 +460,47 @@ public class MapsActivity extends AppCompatActivity
     @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     public boolean onMarkerClick(Marker marker) {
-        int currentSiteIndex = (int) marker.getTag();
-        HistoricalSite newCurrentSite = allHistoricalSites.stream().filter(site -> site.getId() == currentSiteIndex).findFirst().orElse(null);
-        if (newCurrentSite != null)
-        {
-            currentSite = newCurrentSite;
-
-            //currentSite = allHistoricalSites.get(currentSiteIndex);
-            viewModel.setCurrentSite(currentSite);
-            viewModel.setCurrentLocation(getUserLocation());
-            moveCameraToLocation(currentSite.getLocation());
-            /*LatLng sitLocation = new LatLng(currentSite.getLocation().getLatitude(), currentSite.getLocation().getLongitude());
-            mMap.animateCamera(CameraUpdateFactory.newLatLng(sitLocation));*/
-        /*if (currentSite.placeId == null)
-            attachPlaceIdToSite(currentSite, currentSiteIndex);*/
-
-
-
-       /* setLlDisplayInfo(currentSite);
-        if (currentSite.placeId == null)
-            attachPlaceIdToSite(currentSite, currentSiteIndex);
-        else
-            diplayPlaceInfo(currentSite);*/
-
-
-            Fragment newFragment = HistoricalSiteDetailsFragment.newInstance(currentSite);
-
-            fragmentManager.beginTransaction()
-                    //.replace(R.id.fcvDetails, HistoricalSiteDetailsFragment.class, null)
-                    .replace(R.id.fcvDetails, newFragment, null)
-                    .setReorderingAllowed(true)
-                    .addToBackStack(null) // name can be null
-                    .commit();
+        try {
+            int currentSiteIndex = (int) marker.getTag();
+            HistoricalSite newCurrentSite = allHistoricalSites.stream().filter(site -> site.getId() == currentSiteIndex).findFirst().orElse(null);
+            siteSelected(newCurrentSite);
         }
-        else
-            Log.e("Error", "onMarkerClick: Error getting new site");
+        catch (Exception e)
+        {
+            Log.e("Error", "onMarkerClick: Error getting new site\n" + e.getMessage());
+        }
+
 
 
 
         return false;
+    }
+
+    private void siteSelected(HistoricalSite nextSite)
+    {
+        try {
+            if (currentSite != nextSite && nextSite != null)
+            {
+                currentSite = nextSite;
+                viewModel.setCurrentSite(currentSite);
+                viewModel.setCurrentLocation(getUserLocation());
+                Fragment newFragment = HistoricalSiteDetailsFragment.newInstance(currentSite);
+
+                fragmentManager.beginTransaction()
+                        //.replace(R.id.fcvDetails, HistoricalSiteDetailsFragment.class, null)
+                        .replace(R.id.fcvDetails, newFragment, null)
+                        .setReorderingAllowed(true)
+                        .addToBackStack(null) // name can be null
+                        .commit();
+            }
+            moveCameraToLocation(currentSite.getLocation());
+        }
+        catch (Exception e)
+        {
+            Log.e("Error", "siteSelected: Error getting details of site" + nextSite.toString() +"\n" + e.getMessage());
+        }
+
+
     }
 
     //Moves camera to new location
@@ -704,6 +775,9 @@ public class MapsActivity extends AppCompatActivity
             }
         }
     };
+
+
+
 
 
 
