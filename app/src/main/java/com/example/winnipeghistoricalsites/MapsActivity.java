@@ -16,6 +16,7 @@ import androidx.lifecycle.ViewModelProvider;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
@@ -142,6 +143,13 @@ public class MapsActivity extends AppCompatActivity
             Toolbar mToolbar = findViewById(R.id.tbMain);
 
             setSupportActionBar(mToolbar);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                mToolbar.setTitleTextColor(getColor(R.color.cardview_dark_background));
+            }
+            else
+            {
+                mToolbar.setTitleTextColor(Color.BLACK);
+            }
 
 
             queue = Volley.newRequestQueue(getApplicationContext());
@@ -176,12 +184,22 @@ public class MapsActivity extends AppCompatActivity
 
             fragmentManager = getSupportFragmentManager();
 
-            try {
-                JsonArrayRequest request = new JsonArrayRequest(Request.Method.GET, getString(R.string.data_url), null, fetchHistoricalData, getJsonError);
-                queue.add(request);
-            } catch (Exception e) {
-                Log.e("Error", "onCreate: Fetching city of winnipeg data from url \n" + e.getMessage());
+            if(allHistoricalSites == null || allHistoricalSites.size() == 0)
+            {
+                try {
+                    JsonArrayRequest request = new JsonArrayRequest(Request.Method.GET, getString(R.string.data_url), null, fetchHistoricalData, getJsonError);
+                    queue.add(request);
+                } catch (Exception e) {
+                    Log.e("Error", "onCreate: Fetching city of winnipeg data from url \n" + e.getMessage());
+                }
             }
+            else
+            {
+                allSitesLoaded = true;
+                addSiteListToMap(allHistoricalSites);
+            }
+
+
 
         }
 

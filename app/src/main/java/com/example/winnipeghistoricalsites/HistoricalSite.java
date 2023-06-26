@@ -4,6 +4,8 @@ import android.location.Location;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import androidx.annotation.NonNull;
+
 import com.google.android.libraries.places.api.model.Place;
 
 import java.io.Serializable;
@@ -26,6 +28,8 @@ public class HistoricalSite implements Parcelable {
     private String googleAddress;
     private Place place;
 
+
+
     public HistoricalSite(String name, String streetName, String streetNumber, String constructionDate, String shortUrl, String longUrl, Location location, String city, String province) {
         this.id = count.incrementAndGet();
         this.name = name;
@@ -38,6 +42,8 @@ public class HistoricalSite implements Parcelable {
         this.city = city;
         this.province = province;
     }
+
+
 
     public int getId() {
         return id;
