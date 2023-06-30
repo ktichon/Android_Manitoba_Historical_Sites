@@ -482,7 +482,7 @@ public class HistoricalSiteDetailsFragment extends Fragment {
 
 
             String cutFromURL = "https://";
-            String processedURL = "https://docs.google.com/gview?embedded=true&url=" + siteURL.substring(siteURL.indexOf(cutFromURL) + cutFromURL.length()) + "#";
+            String processedURL = "https://docs.google.com/gview?embedded=true&url=" + siteURL.substring(siteURL.indexOf(cutFromURL) + cutFromURL.length());
 
 
             webView.loadUrl(processedURL);

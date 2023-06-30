@@ -283,6 +283,7 @@ public class MapsActivity extends AppCompatActivity
         mMap = googleMap;
         mMap.setOnMarkerClickListener(this);
         mMap.getUiSettings().setMapToolbarEnabled(false);
+        mMap.getUiSettings().setMyLocationButtonEnabled(false);
         LatLngBounds manitobaBounds = new LatLngBounds(
                 new LatLng(48, -102), // SW bounds
                 new LatLng(60, -89)  // NE bounds
