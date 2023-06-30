@@ -168,7 +168,7 @@ public class MapsActivity extends AppCompatActivity
             searchSites = (AutoCompleteTextView) findViewById(R.id.atvSearch);
             searchSites.setVisibility(View.INVISIBLE);
 
-            searchAdapter = new ArrayAdapter<HistoricalSite>( this, android.R.layout.select_dialog_item, allHistoricalSites);
+            searchAdapter = new ArrayAdapter<HistoricalSite>( this, R.layout.search_item_layout, allHistoricalSites);
             searchSites.setAdapter(searchAdapter);
 
             searchSites.setOnItemClickListener(new AdapterView.OnItemClickListener() {
