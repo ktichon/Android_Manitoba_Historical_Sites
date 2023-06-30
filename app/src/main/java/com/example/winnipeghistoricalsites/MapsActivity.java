@@ -9,6 +9,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentContainerView;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
@@ -29,6 +30,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -93,6 +95,8 @@ public class MapsActivity extends AppCompatActivity
     private Menu menu;
     private ArrayAdapter<HistoricalSite> searchAdapter;
     private AutoCompleteTextView searchSites;
+
+
 
     private boolean cameraFollow = false;
 
@@ -230,6 +234,13 @@ public class MapsActivity extends AppCompatActivity
             });
 
             //Set the default value of the details display height
+            viewModel.getCurrentDisplayHeight().observe(this, new Observer<DisplayHeight>() {
+                @Override
+                public void onChanged(DisplayHeight newHeight) {
+                    updateDisplayHeight(newHeight, viewModel.getCurrentSite().getValue());
+
+                }
+            });
             viewModel.setCurrentDisplayHeight(DisplayHeight.MEDIUM);
 
 
@@ -480,6 +491,7 @@ public class MapsActivity extends AppCompatActivity
                 viewModel.setCurrentSite(currentSite);
                 viewModel.setCurrentLocation(getUserLocation());
                 Fragment newFragment = HistoricalSiteDetailsFragment.newInstance(currentSite);
+                ((FragmentContainerView) findViewById(R.id.fcvDetails)).setVisibility(View.VISIBLE);
 
                 fragmentManager.beginTransaction()
                         //.replace(R.id.fcvDetails, HistoricalSiteDetailsFragment.class, null)
@@ -511,6 +523,55 @@ public class MapsActivity extends AppCompatActivity
         }
 
     }
+
+
+    //Updates the display height when the details is swiped on HistoricSitesDetailsFragment
+    private void updateDisplayHeight(DisplayHeight newHeight, HistoricalSite historicalSite)
+    {
+        try {
+            float mapWeight = Float.parseFloat(getString(R.string.on_details_small_map));
+            float detailWeight = Float.parseFloat(getString(R.string.on_details_small_detail));
+            if (newHeight == DisplayHeight.MEDIUM)
+            {
+                mapWeight = Float.parseFloat(getString(R.string.on_details_med_map));
+                detailWeight = Float.parseFloat(getString(R.string.on_details_med_detail));
+            }
+            if (newHeight == DisplayHeight.FULL)
+            {
+                mapWeight = Float.parseFloat(getString(R.string.on_details_big_map));
+                detailWeight = Float.parseFloat(getString(R.string.on_details_big_detail));
+            }
+
+
+
+            if (historicalSite != null)
+            {
+                try {
+                    FragmentContainerView  mapView = (FragmentContainerView) findViewById(R.id.fcvBlankSpace);
+                    FragmentContainerView detailView = (FragmentContainerView) findViewById(R.id.fcvDetails);
+                    LinearLayout.LayoutParams mapViewLayoutParams =  (LinearLayout.LayoutParams) mapView.getLayoutParams();
+                    LinearLayout.LayoutParams detailViewParams =  (LinearLayout.LayoutParams) detailView.getLayoutParams();
+                    mapViewLayoutParams.weight = mapWeight;
+                    detailViewParams.weight = detailWeight;
+                    mapView.setLayoutParams(mapViewLayoutParams);
+                    detailView.setLayoutParams(detailViewParams);
+
+
+                 }
+                catch (Exception e)
+                {
+                    Log.e("Error", "updateDisplayHeight: error updating views to new height" + e.getMessage());
+                }
+
+            }
+        }
+        catch (Exception e)
+        {
+            Log.e("Error", "updateDisplayHeight: error getting new weight values" + e.getMessage());
+        }
+
+    }
+
 
 
     //Removed because most Historical Sites don't have a place associated with them

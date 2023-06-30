@@ -33,6 +33,7 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -151,14 +152,16 @@ public class HistoricalSiteDetailsFragment extends Fragment {
                 //openWebPage(currentSite.shortUrl);
                 btnShort.setStrokeColor(ColorStateList.valueOf(activeBtnColour));
                 btnLong.setStrokeColor(ColorStateList.valueOf(restBtnColour));
-                setWebViewContent(currentSite.getShortUrl());
+                if (!TextUtils.isEmpty(currentSite.getShortUrl()))
+                    setWebViewContent(currentSite.getShortUrl());
 
             }
         });
         btnShort.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
-                openWebPage(currentSite.getShortUrl());
+                if (!TextUtils.isEmpty(currentSite.getShortUrl()))
+                    openWebPage(currentSite.getShortUrl());
                 return true;
             }
         });
@@ -170,14 +173,16 @@ public class HistoricalSiteDetailsFragment extends Fragment {
                 //openWebPage(currentSite.longUrl);
                 btnShort.setStrokeColor(ColorStateList.valueOf(restBtnColour));
                 btnLong.setStrokeColor(ColorStateList.valueOf(activeBtnColour));
-                setWebViewContent(currentSite.getLongUrl());
+                if (!TextUtils.isEmpty(currentSite.getLongUrl()))
+                    setWebViewContent(currentSite.getLongUrl());
             }
         });
 
         btnLong.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
-                openWebPage(currentSite.getLongUrl());
+                if (!TextUtils.isEmpty(currentSite.getLongUrl()))
+                    openWebPage(currentSite.getLongUrl());
                 return true;
             }
         });
@@ -324,10 +329,17 @@ public class HistoricalSiteDetailsFragment extends Fragment {
         if(TextUtils.isEmpty(site.getShortUrl()))
         {
             llWebView.setVisibility(View.GONE);
+
+            // To stop no urls from displaying blank space in the Relative Layout
+
+            LinearLayout llLinkInfo = mainView.findViewById(R.id.llLinkInfo);
+            RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) llLinkInfo.getLayoutParams();
+            params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, 0);
+
         }
         else
         {
-            setWebViewHeight(displayHeight);
+            // (displayHeight);
             setWebViewContent(site.getShortUrl());
             /*int screenHeight = Resources.getSystem().getDisplayMetrics().heightPixels;
             Double maxHeightPercent = Double.parseDouble(displayHeight == DisplayHeight.MEDIUM? getString(R.string.medium_max_height_of_webview_percent): getString(R.string.full_max_height_of_webview_percent) );
@@ -428,8 +440,8 @@ public class HistoricalSiteDetailsFragment extends Fragment {
 //            ((LinearLayout) mainView.findViewById(R.id.llExtendedInfo)).setVisibility(View.GONE);
 //            result = true;
 //        }
-        LinearLayout llExtendedInfo =  (LinearLayout) mainView.findViewById(R.id.llExtendedInfo);
-        llExtendedInfo.setVisibility(displayHeight == DisplayHeight.SMALL? View.GONE: View.VISIBLE);
+        RelativeLayout rlExtendedInfo =  (RelativeLayout) mainView.findViewById(R.id.rlExtendedInfo);
+        rlExtendedInfo.setVisibility(displayHeight == DisplayHeight.SMALL? View.GONE: View.VISIBLE);
         TextView hasMoreInfo = (TextView) mainView.findViewById(R.id.tvHasMoreInfo);
         hasMoreInfo.setVisibility(displayHeight == DisplayHeight.SMALL && !TextUtils.isEmpty(currentSite.getShortUrl())? View.VISIBLE: View.GONE);
 
@@ -438,7 +450,7 @@ public class HistoricalSiteDetailsFragment extends Fragment {
 
     }
 
-    private void setWebViewHeight(DisplayHeight displayHeight)
+    /*private void setWebViewHeight(DisplayHeight displayHeight)
     {
         int screenHeight = Resources.getSystem().getDisplayMetrics().heightPixels;
         Double maxHeightPercent = Double.parseDouble(displayHeight == DisplayHeight.MEDIUM? getString(R.string.medium_max_height_of_webview_percent): getString(R.string.full_max_height_of_webview_percent) );
@@ -451,7 +463,7 @@ public class HistoricalSiteDetailsFragment extends Fragment {
         params.height = maxHeight;
         params.width = ViewGroup.LayoutParams.MATCH_PARENT;
         llWebView.setLayoutParams(params);
-    }
+    }*/
 
     private void setWebViewContent(String siteURL)
     {
@@ -606,12 +618,20 @@ public class HistoricalSiteDetailsFragment extends Fragment {
                     } else {
                         newHeight = (displayHeight == DisplayHeight.SMALL? DisplayHeight.MEDIUM: DisplayHeight.FULL);
                     }
+
+
                     if(displayHeight != newHeight)
                     {
-                        mViewModel.setCurrentDisplayHeight(newHeight);
-                        setSmall(newHeight);
-                        if (newHeight != DisplayHeight.SMALL)
-                            setWebViewHeight(newHeight);
+                        //Added stop swiping from med to large on sites without url data
+                        if (!(TextUtils.isEmpty(currentSite.getShortUrl()) && newHeight == DisplayHeight.FULL))
+                        {
+                            mViewModel.setCurrentDisplayHeight(newHeight);
+                            setSmall(newHeight);
+                        }
+
+
+                        /*if (newHeight != DisplayHeight.SMALL)
+                            setWebViewHeight(newHeight);*/
                     }
 
 

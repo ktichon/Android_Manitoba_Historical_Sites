@@ -3,53 +3,72 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:weightSum="1"
     android:id="@+id/root">
-    <androidx.appcompat.widget.Toolbar
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="?attr/colorPrimary"
-
-        android:elevation="4dp"
-        android:id="@+id/tbMain">
-        <AutoCompleteTextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="@string/search_text"
-            android:id="@+id/atvSearch"
-            android:inputType="text"
-
-            style="@style/mainText"
-            />
-
-
-
-    </androidx.appcompat.widget.Toolbar>
-
-
-
-    <androidx.fragment.app.FragmentContainerView xmlns:android="http://schemas.android.com/apk/res/android"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/fcvMap"
-         />
+        android:orientation="vertical">
+        <androidx.appcompat.widget.Toolbar
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="?attr/colorPrimary"
+
+            android:elevation="4dp"
+            android:id="@+id/tbMain">
+            <AutoCompleteTextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/search_text"
+                android:id="@+id/atvSearch"
+                android:inputType="text"
+
+                style="@style/mainText"
+                />
+        </androidx.appcompat.widget.Toolbar>
+        <androidx.fragment.app.FragmentContainerView xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/fcvMap"
+            />
+
+    </LinearLayout>
 
 
+
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:id="@+id/llDisplaySpacing">
+
+        <androidx.fragment.app.FragmentContainerView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:id="@+id/fcvBlankSpace"
+            android:visibility="invisible"
+            android:layout_weight="1"
+            />
         <androidx.fragment.app.FragmentContainerView
             android:id="@+id/fcvDetails"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
-           >
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:visibility="gone"
+            />
+
+    </LinearLayout>
 
 
 
-        </androidx.fragment.app.FragmentContainerView>
 
 
 
 
 
 </FrameLayout>
+
+
 
 
