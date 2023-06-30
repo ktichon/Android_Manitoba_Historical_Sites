@@ -181,23 +181,18 @@ public class MapsActivity extends AppCompatActivity
                     imm.hideSoftInputFromWindow(view.getApplicationWindowToken(), 0);
                     try {
                         HistoricalSite foundSite = (HistoricalSite) sites.getItemAtPosition(pos);
+                        siteSelected(foundSite);
 
-                        try {
-                            if (allMarkers!= null)
-                            {
-                                for (Marker marker : allMarkers) {
-                                    if ((int)marker.getTag() == foundSite.getId() ) { //if a marker has desired tag
-                                        marker.showInfoWindow();
-                                        onMarkerClick(marker);
-                                    }
+                        if (allMarkers!= null)
+                        {
+                            for (Marker marker : allMarkers) {
+                                if ((int)marker.getTag() == foundSite.getId() ) { //if a marker has desired tag
+                                    marker.showInfoWindow();
                                 }
                             }
                         }
-                        catch (Exception e)
-                        {
-                            Log.e("Error", "SearchSiteAutoAdapter: Error searching through marker\n" + e.getMessage());
-                            siteSelected(foundSite);
-                        }
+
+
 
                     } catch (Exception e) {
                         Log.e("Error", "SearchSiteAutoAdapter: Error searching for specific site\n" + e.getMessage());
@@ -428,7 +423,7 @@ public class MapsActivity extends AppCompatActivity
     //Error fetching api
     private Response.ErrorListener getJsonError = error -> {
         Toast.makeText(getApplicationContext(), "Error fetching data", Toast.LENGTH_SHORT).show();
-        Log.e("Error", "getJsonError: Error fetching json\n" + error.getMessage());
+        Log.e("Error", "getJsonError: Error fetching json from url " + getString(R.string.data_url)+ "\n" + error.getMessage());
     };
 
     private void addSiteListToMap (List<HistoricalSite> sitesToAdd)

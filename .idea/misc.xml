@@ -4,6 +4,7 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="..\:/Documents/Coding/winnipeghistoricalsites/app/src/main/res/drawable-v24/ic_launcher_foreground.xml" value="0.4815384615384615" />
+        <entry key="..\:/Documents/Coding/winnipeghistoricalsites/app/src/main/res/drawable/active_border.xml" value="0.421875" />
         <entry key="..\:/Documents/Coding/winnipeghistoricalsites/app/src/main/res/drawable/border.xml" value="0.5703125" />
         <entry key="..\:/Documents/Coding/winnipeghistoricalsites/app/src/main/res/drawable/ic_baseline_directions_18_by_18.xml" value="0.4171875" />
         <entry key="..\:/Documents/Coding/winnipeghistoricalsites/app/src/main/res/drawable/ic_baseline_directions_24.xml" value="0.4815384615384615" />

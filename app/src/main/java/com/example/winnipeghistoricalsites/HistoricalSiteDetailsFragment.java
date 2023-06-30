@@ -1,14 +1,18 @@
 package com.example.winnipeghistoricalsites;
 
+import androidx.annotation.RequiresApi;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -17,25 +21,24 @@ import androidx.fragment.app.Fragment;
 
 import android.text.TextUtils;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.WebResourceError;
+import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.RequestQueue;
-import com.android.volley.RetryPolicy;
 import com.android.volley.toolbox.Volley;
-import com.google.android.libraries.places.api.model.Place;
-
-import kotlin.contracts.Returns;
+import com.google.android.material.button.MaterialButton;
 
 public class HistoricalSiteDetailsFragment extends Fragment {
 
@@ -44,15 +47,19 @@ public class HistoricalSiteDetailsFragment extends Fragment {
     private LinearLayout llDisplayInfo;
     //private LinearLayout llPlaceInfo;
     private HistoricalSite currentSite;
-    private Button btnLong;
-    private Button btnShort;
-    private Button btnGoogle;
+    private MaterialButton btnLong;
+    private MaterialButton btnShort;
+    private MaterialButton btnGoogle;
     private ImageButton btnDirections;
+    private int activeBtnColour;
+    private int restBtnColour;
     //private Location currentLocation;
     //private FusedLocationProviderClient fusedLocationProviderClient;
     LocationManager locationManager;
     private RequestQueue queue;
     View mainView;
+    WebView webView;
+    LinearLayout llLoadingInfo;
 
     private LinearLayout llWebView;
     private GestureDetector mDetector;
@@ -127,28 +134,57 @@ public class HistoricalSiteDetailsFragment extends Fragment {
             }
         });
 
+        //Set buttons
+        btnShort = (MaterialButton) mainView.findViewById(R.id.btnShortLink);
+        btnLong = (MaterialButton) mainView.findViewById(R.id.btnLongLink);
+
+        activeBtnColour = getThemeColour(R.attr.colorPrimaryVariant);
+        restBtnColour = getThemeColour(R.attr.colorOnSecondary);
+
+
+
+
 
         //Set button presses
-
-        btnShort = (Button) mainView.findViewById(R.id.btnShortLink);
-        btnShort.setVisibility(View.VISIBLE);
         btnShort.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 //openWebPage(currentSite.shortUrl);
+                btnShort.setStrokeColor(ColorStateList.valueOf(activeBtnColour));
+                btnLong.setStrokeColor(ColorStateList.valueOf(restBtnColour));
                 setWebViewContent(currentSite.getShortUrl());
+
+            }
+        });
+        btnShort.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                openWebPage(currentSite.getShortUrl());
+                return true;
             }
         });
 
 
-        btnLong = (Button) mainView.findViewById(R.id.btnLongLink);
+
         btnLong.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 //openWebPage(currentSite.longUrl);
+                btnShort.setStrokeColor(ColorStateList.valueOf(restBtnColour));
+                btnLong.setStrokeColor(ColorStateList.valueOf(activeBtnColour));
                 setWebViewContent(currentSite.getLongUrl());
             }
         });
 
-        btnGoogle = (Button) mainView.findViewById(R.id.btnGoogleLink);
+        btnLong.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                openWebPage(currentSite.getLongUrl());
+                return true;
+            }
+        });
+
+
+
+        btnGoogle = (MaterialButton) mainView.findViewById(R.id.btnGoogleLink);
         btnGoogle.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 String googleSearch  = "https://www.google.com/search?q=" + currentSite.getCity() + "+" + currentSite.getAddress().replace(" ", "+") + "+" + currentSite.getName().replace(" ", "+");
@@ -270,58 +306,62 @@ public class HistoricalSiteDetailsFragment extends Fragment {
 
         }
         else*/
+
+
+        setUpWebView();
+
         setSmall(displayHeight);
 
 
 
 
-            //if links are null, hide more info button
-            btnShort.setVisibility((TextUtils.isEmpty(site.getShortUrl())? View.GONE: View.VISIBLE));
-            btnLong.setVisibility((TextUtils.isEmpty(site.getLongUrl())? View.GONE: View.VISIBLE));
+        //if links are null, hide more info button
+        btnShort.setVisibility((TextUtils.isEmpty(site.getShortUrl())? View.GONE: View.VISIBLE));
+        btnLong.setVisibility((TextUtils.isEmpty(site.getLongUrl())? View.GONE: View.VISIBLE));
 
 
-            llWebView = mainView.findViewById(R.id.llWebView);
-            if(TextUtils.isEmpty(site.getShortUrl()))
+        llWebView = mainView.findViewById(R.id.llWebView);
+        if(TextUtils.isEmpty(site.getShortUrl()))
+        {
+            llWebView.setVisibility(View.GONE);
+        }
+        else
+        {
+            setWebViewHeight(displayHeight);
+            setWebViewContent(site.getShortUrl());
+            /*int screenHeight = Resources.getSystem().getDisplayMetrics().heightPixels;
+            Double maxHeightPercent = Double.parseDouble(displayHeight == DisplayHeight.MEDIUM? getString(R.string.medium_max_height_of_webview_percent): getString(R.string.full_max_height_of_webview_percent) );
+
+
+            //int maxHeight = (int)(screenHeight * Double.parseDouble( getString(R.string.medium_max_height_of_webview_percent)));
+            int maxHeight = (int)(screenHeight * maxHeightPercent);
+            ViewGroup.LayoutParams params = llWebView.getLayoutParams();
+            params.height = maxHeight;
+            params.width = ViewGroup.LayoutParams.MATCH_PARENT;
+            llWebView.setLayoutParams(params);
+
+            WebView webView = (WebView) mainView.findViewById(R.id.wvInfo);
+            webView.setWebViewClient(new WebViewClient());
+            webView.getSettings().setJavaScriptEnabled(true);
+            webView.getSettings().setBuiltInZoomControls(true);
+            webView.getSettings().setSupportZoom(true);
+            webView.setInitialScale(200);
+            //String pdf = "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf";
+
+            try {
+                //webView.loadUrl("https://drive.google.com/viewerng/viewer?embedded=true&url=" + site.shortUrl);
+                https://docs.google.com/gview?embedded=true&url=
+                webView.loadUrl("https://docs.google.com/gview?embedded=true&url=" + site.shortUrl);
+                llWebView.setVisibility(View.VISIBLE);
+                //webView.loadUrl(site.shortUrl);
+            } catch (Error e)
             {
+                Toast.makeText(mainView.getContext(), "Error fetching more data:" + e.getMessage(), Toast.LENGTH_LONG).show();
                 llWebView.setVisibility(View.GONE);
-            }
-            else
-            {
-                setWebViewHeight(displayHeight);
-                setWebViewContent(site.getShortUrl());
-                /*int screenHeight = Resources.getSystem().getDisplayMetrics().heightPixels;
-                Double maxHeightPercent = Double.parseDouble(displayHeight == DisplayHeight.MEDIUM? getString(R.string.medium_max_height_of_webview_percent): getString(R.string.full_max_height_of_webview_percent) );
+            }*/
 
 
-                //int maxHeight = (int)(screenHeight * Double.parseDouble( getString(R.string.medium_max_height_of_webview_percent)));
-                int maxHeight = (int)(screenHeight * maxHeightPercent);
-                ViewGroup.LayoutParams params = llWebView.getLayoutParams();
-                params.height = maxHeight;
-                params.width = ViewGroup.LayoutParams.MATCH_PARENT;
-                llWebView.setLayoutParams(params);
-
-                WebView webView = (WebView) mainView.findViewById(R.id.wvInfo);
-                webView.setWebViewClient(new WebViewClient());
-                webView.getSettings().setJavaScriptEnabled(true);
-                webView.getSettings().setBuiltInZoomControls(true);
-                webView.getSettings().setSupportZoom(true);
-                webView.setInitialScale(200);
-                //String pdf = "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf";
-
-                try {
-                    //webView.loadUrl("https://drive.google.com/viewerng/viewer?embedded=true&url=" + site.shortUrl);
-                    https://docs.google.com/gview?embedded=true&url=
-                    webView.loadUrl("https://docs.google.com/gview?embedded=true&url=" + site.shortUrl);
-                    llWebView.setVisibility(View.VISIBLE);
-                    //webView.loadUrl(site.shortUrl);
-                } catch (Error e)
-                {
-                    Toast.makeText(mainView.getContext(), "Error fetching more data:" + e.getMessage(), Toast.LENGTH_LONG).show();
-                    llWebView.setVisibility(View.GONE);
-                }*/
-
-
-            //diplayPlaceInfo(site);
+        //diplayPlaceInfo(site);
         }
 
 
@@ -390,6 +430,9 @@ public class HistoricalSiteDetailsFragment extends Fragment {
 //        }
         LinearLayout llExtendedInfo =  (LinearLayout) mainView.findViewById(R.id.llExtendedInfo);
         llExtendedInfo.setVisibility(displayHeight == DisplayHeight.SMALL? View.GONE: View.VISIBLE);
+        TextView hasMoreInfo = (TextView) mainView.findViewById(R.id.tvHasMoreInfo);
+        hasMoreInfo.setVisibility(displayHeight == DisplayHeight.SMALL && !TextUtils.isEmpty(currentSite.getShortUrl())? View.VISIBLE: View.GONE);
+
 
 
 
@@ -412,13 +455,12 @@ public class HistoricalSiteDetailsFragment extends Fragment {
 
     private void setWebViewContent(String siteURL)
     {
-        llWebView = mainView.findViewById(R.id.llWebView);
-        WebView webView = (WebView) mainView.findViewById(R.id.wvInfo);
-        webView.setWebViewClient(new WebViewClient());
-        webView.getSettings().setJavaScriptEnabled(true);
-        webView.getSettings().setBuiltInZoomControls(true);
-        webView.getSettings().setSupportZoom(true);
-        webView.setInitialScale(200);
+        String typeOfInfo = siteURL.contains("long.pdf")? "additional": "summary";
+        String loadingMessage = "Loading " + typeOfInfo + " info ..." ;
+        TextView tvLoading = (TextView) mainView.findViewById(R.id.tvLoadingUrl);
+        tvLoading.setText(loadingMessage);
+
+
         //String pdf = "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf";
 
         try {
@@ -428,18 +470,103 @@ public class HistoricalSiteDetailsFragment extends Fragment {
 
 
             String cutFromURL = "https://";
-            String procesedURL = "https://docs.google.com/gview?embedded=true&url=" + siteURL.substring(siteURL.indexOf(cutFromURL) + cutFromURL.length()) + "#";
-            webView.loadUrl(procesedURL);
+            String processedURL = "https://docs.google.com/gview?embedded=true&url=" + siteURL.substring(siteURL.indexOf(cutFromURL) + cutFromURL.length()) + "#";
+
+
+            webView.loadUrl(processedURL);
             //webView.loadUrl(siteURL);
 
 
         } catch (Error e)
         {
-            Toast.makeText(mainView.getContext(), "Error fetching more data:" + e.getMessage(), Toast.LENGTH_LONG).show();
-            Log.e("Error", "setWebViewContent: Error fetching  url into webView \n" +  e.getMessage());
+            Toast.makeText(mainView.getContext(), "Error fetching " + typeOfInfo + " data:" + e.getMessage(), Toast.LENGTH_LONG).show();
+            Log.e("Error", "setWebViewContent: Error loading " + siteURL + " into webView \n" +  e.getMessage());
             llWebView.setVisibility(View.GONE);
         }
     }
+
+    private void setUpWebView()
+    {
+        llWebView = mainView.findViewById(R.id.llWebView);
+        webView = (WebView) mainView.findViewById(R.id.wvInfo);
+        llLoadingInfo = (LinearLayout) mainView.findViewById(R.id.llLoadingInfo);
+
+        try {
+            webView.getSettings().setJavaScriptEnabled(true);
+            webView.getSettings().setBuiltInZoomControls(true);
+            webView.getSettings().setSupportZoom(true);
+            webView.setInitialScale(200);
+
+
+
+
+
+
+
+
+            webView.setWebViewClient(new WebViewClient() {
+                boolean loadingFinished = true;
+                boolean redirect = false;
+
+                //If redirect, load url again
+                @Override
+                public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
+                    if (!loadingFinished) {
+                        redirect = true;
+                    }
+
+                    loadingFinished = false;
+                    webView.loadUrl(request.getUrl().toString());
+                    return true;
+                }
+
+                @Override
+                public void onPageStarted(WebView view, String url, Bitmap favicon) {
+                    super.onPageStarted(view, url, favicon);
+                    loadingFinished = false;
+                    llLoadingInfo.setVisibility(View.VISIBLE);
+                    webView.setVisibility(View.GONE);
+
+                }
+
+                public void onPageFinished(WebView view, String url) {
+                    if (!redirect) {
+                        loadingFinished = true;
+                        llLoadingInfo.setVisibility(View.GONE);
+                        webView.setVisibility(View.VISIBLE);
+                    } else {
+                        redirect = false;
+                        Toast.makeText(mainView.getContext(), "There was error loading additional information (Redirect)", Toast.LENGTH_LONG).show();
+                    }
+                }
+
+                @RequiresApi(api = Build.VERSION_CODES.M)
+                @Override
+                public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
+                    super.onReceivedError(view, request, error);
+
+                    webView.setVisibility(View.GONE);
+                    Toast.makeText(mainView.getContext(), "There was error loading additional information", Toast.LENGTH_LONG).show();
+
+                    Log.e("Error", "setUpWebView: Error fetching  url:" + request.getUrl().toString() + "\n" +  error.getDescription());
+
+                }
+            });
+
+        }
+        catch (Exception e)
+        {
+            Log.e("Error", "setWebViewContent: Error fetching  url into webView \n" +  e.getMessage());
+        }
+
+
+
+
+    }
+
+
+
+
 
     /*private void updateDisplaySize(DisplayHeight displayHeight, HistoricalSite site)
     {
@@ -506,6 +633,14 @@ public class HistoricalSiteDetailsFragment extends Fragment {
 
             return result;
         }
+    }
+
+
+    //Gets theme colours.
+    public int getThemeColour (int themeID ) {
+        final TypedValue value = new TypedValue();
+        getContext().getTheme ().resolveAttribute (themeID, value, true);
+        return value.data;
     }
 
 

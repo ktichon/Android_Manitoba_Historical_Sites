@@ -3,8 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    tools:context=".HistoricalSiteDetailsFragment"
-    >
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".HistoricalSiteDetailsFragment">
 
     <LinearLayout
         android:orientation="vertical"
@@ -61,6 +61,16 @@
 
         </LinearLayout>
 
+        <TextView
+            android:id="@+id/tvHasMoreInfo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:text="@string/has_more"
+            style="@style/mainText"
+            android:layout_margin="5dp"
+            />
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -72,11 +82,41 @@
                 android:layout_width="match_parent"
                 android:layout_height="200dp"
                 android:id="@+id/llWebView"
+                android:orientation="vertical"
+
+
                 >
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:layout_gravity="center_vertical"
+                    android:id="@+id/llLoadingInfo"
+                    android:padding="50dp"
+                    >
+                    <TextView
+                        android:id="@+id/tvLoadingUrl"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Loading Url ..."
+                        style="@style/mainText"
+                        android:textAlignment="center"
+
+                        android:layout_margin="2dp"/>
+                    <ProgressBar
+
+                        android:layout_width="match_parent"
+                        android:layout_height="75dp"
+                        android:layout_margin="2dp"
+                        />
+
+                </LinearLayout>
+
                 <WebView
                     android:id="@+id/wvInfo"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
+                    android:visibility="gone"
                     />
             </LinearLayout>
             <LinearLayout
@@ -86,43 +126,35 @@
                 android:gravity="center_horizontal"
                 android:id="@+id/llLinkInfo">
 
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnShortLink"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textAlignment="center"
-
                     android:text="Summary"
-                    style="@style/subText"
-                    android:layout_margin="10dp"
-                    android:textAllCaps="false"
-                    android:background="@drawable/border"
-
+                    style="@style/buttonTheme"
+                    app:strokeColor="?attr/colorPrimaryVariant"
+                    app:strokeWidth="1dp"
+                    app:cornerRadius="20dp"
                     />
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnLongLink"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textAlignment="center"
+
                     android:text="More Info"
 
-                    style="@style/subText"
-                    android:layout_margin="10dp"
-                    android:textAllCaps="false"
-                    android:background="@drawable/border"
+
+                    style="@style/buttonTheme"
+                    app:strokeColor="?attr/colorOnSecondary"
+                    app:strokeWidth="1dp"
+                    app:cornerRadius="20dp"
 
                     />
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnGoogleLink"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textAlignment="center"
+
                     android:text="Google"
 
-                    style="@style/subText"
-                    android:layout_margin="10dp"
-                    android:textAllCaps="false"
-                    android:background="@drawable/border"
+                    style="@style/buttonTheme"
+                    app:strokeColor="?attr/colorOnSecondary"
+                    app:strokeWidth="1dp"
+                    app:cornerRadius="20dp"
 
 
                     />

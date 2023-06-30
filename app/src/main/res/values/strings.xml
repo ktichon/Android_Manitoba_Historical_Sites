@@ -1,12 +1,19 @@
 <resources>
+    <!-- String display text -->
     <string name="app_name">Winnipeg Historical Sites</string>
     <string name="title_activity_maps">Winnipeg Historical Sites</string>
+    <string name="nope">No Google Place Id Found :(</string>
+    <string name="search_text">Search Historical Sites ...</string>
+    <string name="has_more">Swipe up for more info</string>
+
+
+    <!-- String data -->
     <string name="data_url">https://data.winnipeg.ca/resource/ptpx-kgiu.json?</string>
     <string name="webviewUrl">webViewUrl</string>
     <string name="address_To_Place_Api_Link">https://maps.googleapis.com/maps/api/geocode/json?</string>
     <string name="directions_Api_Link">https://maps.googleapis.com/maps/api/directions/json?</string>
-    <string name="nope">No Google Place Id Found :(</string>
-    <string name="search_text">Search Historical Sites ...</string>
     <string name="medium_max_height_of_webview_percent">0.35</string>
     <string name="full_max_height_of_webview_percent">0.75</string>
+
+
 </resources>
