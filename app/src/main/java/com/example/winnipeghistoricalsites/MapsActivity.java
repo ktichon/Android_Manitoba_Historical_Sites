@@ -128,6 +128,7 @@ public class MapsActivity extends AppCompatActivity
     private FusedLocationProviderClient fusedLocationClient;
     private boolean trackingLocation;
     private boolean permissionDenied = false;
+    
 
 
     public MapsActivity(){
@@ -186,17 +187,7 @@ public class MapsActivity extends AppCompatActivity
                     try {
                         HistoricalSite foundSite = (HistoricalSite) sites.getItemAtPosition(pos);
                         siteSelected(foundSite);
-
-                        if (allMarkers!= null)
-                        {
-                            for (Marker marker : allMarkers) {
-                                if ((int)marker.getTag() == foundSite.getId() ) { //if a marker has desired tag
-                                    marker.showInfoWindow();
-                                }
-                            }
-                        }
-
-
+                        displayMarkerInfo(foundSite);
 
                     } catch (Exception e) {
                         Log.e("Error", "SearchSiteAutoAdapter: Error searching for specific site\n" + e.getMessage());
@@ -222,6 +213,7 @@ public class MapsActivity extends AppCompatActivity
                     try {
                         currentSite = changedSite;
                         moveCameraToLocation(currentSite.getLocation());
+                        displayMarkerInfo(currentSite);
                        /* LatLng sitLocation = new LatLng(currentSite.getLocation().getLatitude(), currentSite.getLocation().getLongitude());
                         mMap.animateCamera(CameraUpdateFactory.newLatLng(sitLocation));*/
 
@@ -300,6 +292,7 @@ public class MapsActivity extends AppCompatActivity
         if (getUserLocation() != null) {
             LatLng current = new LatLng(getUserLocation().getLatitude(), getUserLocation().getLongitude());
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(current, 15));
+            viewModel.getCurrentLocation().setValue(getUserLocation());
 
         }
         mapLoaded = true;
@@ -346,6 +339,21 @@ public class MapsActivity extends AppCompatActivity
             Log.e("Error", "MenuItemSelected: Error selecting menu item\n" + e.getMessage() );
         }
         return super.onOptionsItemSelected(item);
+    }
+
+
+    //Displays marker title specific historical site, used in 'Search' and on current site fragment backspace
+    // used in onCreate
+    private void displayMarkerInfo(HistoricalSite displaySite)
+    {
+        if (allMarkers!= null)
+        {
+            for (Marker marker : allMarkers) {
+                if ((int)marker.getTag() == displaySite.getId() ) { //if a marker has desired tag
+                    marker.showInfoWindow();
+                }
+            }
+        }
     }
 
 
@@ -747,6 +755,7 @@ public class MapsActivity extends AppCompatActivity
 
             fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper());
             trackingLocation = true;
+            
 
 
             return;
@@ -797,20 +806,32 @@ public class MapsActivity extends AppCompatActivity
          * Get the best and most recent location of the device, which may be null in rare
          * cases when a location is not available.
          */
+
         Location userLocation = null;
-        try {
-            // Creating a criteria object to retrieve provider
-            Criteria criteria = new Criteria();
 
-            // Getting the name of the best provider
-            String provider = locationManager.getBestProvider(criteria, true);
+        //If user location is enabled, get the user location. Else get default location (which is The Manitoba Museum)
+        if(trackingLocation) {
+            try {
+                // Creating a criteria object to retrieve provider
+                Criteria criteria = new Criteria();
 
-            // Getting Current Location
-            @SuppressLint("MissingPermission") Location location = locationManager.getLastKnownLocation(provider);
-            userLocation = location;
-        } catch (Exception e) {
-            Toast.makeText(this, "Error fetching location. Please make sure to enable location in your settings.", Toast.LENGTH_LONG).show();
-            Log.e("Error", "getUserLocation: Error fetching user location\n" + e.getMessage());
+                // Getting the name of the best provider
+                String provider = locationManager.getBestProvider(criteria, true);
+
+                // Getting Current Location
+                @SuppressLint("MissingPermission") Location location = locationManager.getLastKnownLocation(provider);
+                userLocation = location;
+            } catch (Exception e) {
+                Toast.makeText(this, "Error fetching location. Please make sure to enable location in your settings.", Toast.LENGTH_LONG).show();
+                Log.e("Error", "getUserLocation: Error fetching user location\n" + e.getMessage());
+            }
+        }
+        else
+        {
+            //The Manitoba Museum lat/long
+            userLocation = new Location("");
+            userLocation.setLatitude(49.9000253);
+            userLocation.setLongitude(-97.1386276);
         }
 
 
@@ -822,14 +843,25 @@ public class MapsActivity extends AppCompatActivity
         @Override
         public void onLocationResult(@NonNull LocationResult locationResult) {
             super.onLocationResult(locationResult);
-            Location newLocation = locationResult.getLastLocation();
-            if (newLocation != null && newLocation != viewModel.getCurrentLocation().getValue()) {
-                  viewModel.getCurrentLocation().setValue(newLocation);
-                  if (cameraFollow && mMap != null)
-                  {
-                      moveCameraToLocation(newLocation);
-                  }
+            try {
+                if (trackingLocation)
+                {
+                    Location newLocation = locationResult.getLastLocation();
+                    if (newLocation != null && newLocation != viewModel.getCurrentLocation().getValue()) {
+                        viewModel.getCurrentLocation().setValue(newLocation);
+                        if (cameraFollow && mMap != null)
+                        {
+                            moveCameraToLocation(newLocation);
+                        }
+                    }
+                }
             }
+            catch (Exception e)
+            {
+                Log.e("Error", "locationCallback: Error updating user location\n" + e.getMessage());
+            }
+
+            
         }
     };
 
