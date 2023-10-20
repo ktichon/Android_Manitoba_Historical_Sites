@@ -340,77 +340,10 @@ public class HistoricalSiteDetailsFragment extends Fragment {
         {
             // (displayHeight);
             setWebViewContent(site.getShortUrl());
-            /*int screenHeight = Resources.getSystem().getDisplayMetrics().heightPixels;
-            Double maxHeightPercent = Double.parseDouble(displayHeight == DisplayHeight.MEDIUM? getString(R.string.medium_max_height_of_webview_percent): getString(R.string.full_max_height_of_webview_percent) );
-
-
-            //int maxHeight = (int)(screenHeight * Double.parseDouble( getString(R.string.medium_max_height_of_webview_percent)));
-            int maxHeight = (int)(screenHeight * maxHeightPercent);
-            ViewGroup.LayoutParams params = llWebView.getLayoutParams();
-            params.height = maxHeight;
-            params.width = ViewGroup.LayoutParams.MATCH_PARENT;
-            llWebView.setLayoutParams(params);
-
-            WebView webView = (WebView) mainView.findViewById(R.id.wvInfo);
-            webView.setWebViewClient(new WebViewClient());
-            webView.getSettings().setJavaScriptEnabled(true);
-            webView.getSettings().setBuiltInZoomControls(true);
-            webView.getSettings().setSupportZoom(true);
-            webView.setInitialScale(200);
-            //String pdf = "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf";
-
-            try {
-                //webView.loadUrl("https://drive.google.com/viewerng/viewer?embedded=true&url=" + site.shortUrl);
-                https://docs.google.com/gview?embedded=true&url=
-                webView.loadUrl("https://docs.google.com/gview?embedded=true&url=" + site.shortUrl);
-                llWebView.setVisibility(View.VISIBLE);
-                //webView.loadUrl(site.shortUrl);
-            } catch (Error e)
-            {
-                Toast.makeText(mainView.getContext(), "Error fetching more data:" + e.getMessage(), Toast.LENGTH_LONG).show();
-                llWebView.setVisibility(View.GONE);
-            }*/
-
-
-        //diplayPlaceInfo(site);
         }
 
 
     }
-
-    //Not displaying the place info anymore, as it doesn't provide enough information
-    //Displays information from the Place google API
-   /* public void diplayPlaceInfo(HistoricalSite site)
-    {
-
-        if (site.place != null && site == currentSite && llDisplayInfo.getVisibility() == View.VISIBLE)
-        {
-            try {
-                Place sitePlace = site.place;
-                setTextView(R.id.tvBusinessStatus, (sitePlace.getBusinessStatus() == null? null: sitePlace.getBusinessStatus().toString()));
-                //setTextView(R.id.tvOpeningHours, (sitePlace.getOpeningHours() == null? null: sitePlace.getOpeningHours().toString()));
-                setTextView(R.id.tvOpeningHours, (sitePlace.isOpen() == null? null: (sitePlace.isOpen()? "Open Now": "Closed") ));
-                setTextView(R.id.tvPhoneNumber, sitePlace.getPhoneNumber());
-                setTextView(R.id.tvBusinessUrl, (sitePlace.getWebsiteUri() == null? null: sitePlace.getWebsiteUri().toString()));
-                *//*List<PhotoMetadata> allPhotos = sitePlace.getPhotoMetadatas();
-                if (allPhotos != null)
-                    Toast.makeText(mainView.getContext(), allPhotos.size() + " photos found" , Toast.LENGTH_SHORT).show();*//*
-                //  PhotoMetadata firstPhoto = allPhotos.get(0);
-                llPlaceInfo.setVisibility(View.VISIBLE);
-            } catch (Exception e)
-            {
-                Log.e("Error", "diplayPlaceInfo: Error displaying place info\n" +  e.getMessage());
-            }
-
-
-        }
-        else {
-            llPlaceInfo.setVisibility(View.GONE);
-        }
-        // Specify the fields to return.
-
-    }*/
-
 
     //Sets text view data if it isn't null, else hide the textview
     private void setTextView(int viewId, String viewText)
@@ -661,81 +594,4 @@ public class HistoricalSiteDetailsFragment extends Fragment {
         getContext().getTheme ().resolveAttribute (themeID, value, true);
         return value.data;
     }
-
-
-
-    /*//Gets direction infromation from the google directions api
-    public void getDirectionsApi(HistoricalSite site)
-    {
-        Location userLocation = mViewModel.getCurrentLocation();
-        if (userLocation != null)
-        {
-            String origin = "origin=" + userLocation.getLatitude()+","+ userLocation.getLongitude();
-            String destination = "destination=";
-            if (site.placeId != null)
-                destination += "place_id:" + site.placeId;
-            else
-                destination += site.location.getLatitude() + "," + site.location.getLongitude();
-            String alternatives = "alternatives=false";
-
-            String departureTime = "departure_time=now";
-            String mode = "mode=driving";
-            String units = "units=metric";
-            String directionUrl = getString(R.string.directions_Api_Link) + origin + "&" + destination + "&" + alternatives + "&" + departureTime + "&" + mode + "&" + units + "&key=" + getString(R.string.google_maps_key);
-
-            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
-                    (Request.Method.GET, directionUrl, null, new Response.Listener<JSONObject>() {
-
-
-                        @Override
-                        public void onResponse(JSONObject response) {
-
-
-
-                            try {
-                                String status = response.getString("status");
-                                if (status.equals( "OK"))
-                                {
-                                    //JSONArray routesArray = response.getJSONArray("routes");
-                                    JSONObject routesObject = response.getJSONArray("routes").getJSONObject(0);
-                                    JSONObject overViewPolyLineJson = routesObject.getJSONObject("overview_polyline");
-                                    String summary = routesObject.getString("summary");
-                                    JSONObject legObject = routesObject.getJSONArray("legs").getJSONObject(0);
-                                    JSONObject durationObject = legObject.getJSONObject("duration_in_traffic");
-                                    String duration = durationObject.getString("text");
-
-
-
-                                    Log.i("info", routesObject.toString());
-
-
-                                    try{
-                                        PolylineOptions directionLine = new PolylineOptions();
-
-
-                                    }catch (Exception e)
-                                    {
-                                        Log.e("Error", "getDirectionsApi: Error parcing data\n" + e.getMessage());
-                                    }
-                                }
-                                else {
-                                    Log.e("Error", "getDirectionsApi: Result Status = " + status);
-                                    Toast.makeText(mainView.getContext(), "There was an issue getting directions", Toast.LENGTH_SHORT).show();
-                                }
-
-
-
-
-
-                            }catch (Exception e) {
-                                Log.e("Error", "getDirectionsApi: Error extracting Direction data\n" + e.getMessage());
-                            }
-
-                        }
-                    }, getJsonError);
-            queue.add(jsonObjectRequest);}
-        else {
-            Toast.makeText(mainView.getContext(), "Please make sure that you have enabled us to access your location.", Toast.LENGTH_LONG).show();
-        }
-    }*/
 }
