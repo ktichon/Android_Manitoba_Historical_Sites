@@ -1,7 +1,7 @@
 <resources>
     <!-- String display text -->
-    <string name="app_name">Winnipeg Historical Sites</string>
-    <string name="title_activity_maps">Winnipeg Historical Sites</string>
+    <string name="app_name">Manitoba Historical Sites</string>
+    <string name="title_activity_maps">Manitoba Historical Sites</string>
     <string name="nope">No Google Place Id Found :(</string>
     <string name="search_text">Search Historical Sites ...</string>
     <string name="has_more">Swipe up for more info</string>

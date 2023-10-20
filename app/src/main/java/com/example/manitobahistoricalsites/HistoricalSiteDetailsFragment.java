@@ -1,4 +1,4 @@
-package com.example.winnipeghistoricalsites;
+package com.example.manitobahistoricalsites;
 
 import androidx.annotation.RequiresApi;
 import androidx.lifecycle.Observer;
@@ -7,7 +7,6 @@ import androidx.lifecycle.ViewModelProvider;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.res.ColorStateList;
-import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.location.Location;
 import android.location.LocationManager;

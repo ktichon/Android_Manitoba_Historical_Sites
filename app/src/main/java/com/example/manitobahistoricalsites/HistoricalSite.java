@@ -1,4 +1,4 @@
-package com.example.winnipeghistoricalsites;
+package com.example.manitobahistoricalsites;
 
 import android.location.Location;
 import android.os.Parcel;
@@ -8,7 +8,6 @@ import androidx.annotation.NonNull;
 
 import com.google.android.libraries.places.api.model.Place;
 
-import java.io.Serializable;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class HistoricalSite implements Parcelable {

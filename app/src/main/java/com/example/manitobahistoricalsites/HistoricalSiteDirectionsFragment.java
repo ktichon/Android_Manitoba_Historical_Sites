@@ -1,6 +1,5 @@
-package com.example.winnipeghistoricalsites;
+package com.example.manitobahistoricalsites;
 
-import android.content.res.Resources;
 import android.location.Location;
 import android.os.Bundle;
 

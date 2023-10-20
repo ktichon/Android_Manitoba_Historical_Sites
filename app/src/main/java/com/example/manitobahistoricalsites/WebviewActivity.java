@@ -1,4 +1,4 @@
-package com.example.winnipeghistoricalsites;
+package com.example.manitobahistoricalsites;
 
 import androidx.appcompat.app.AppCompatActivity;
 

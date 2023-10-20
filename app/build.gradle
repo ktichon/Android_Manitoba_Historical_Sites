@@ -7,7 +7,7 @@ android {
     compileSdk 32
 
     defaultConfig {
-        applicationId "com.example.winnipeghistoricalsites"
+        applicationId "com.example.manitobahistoricalsites"
         minSdk 21
         targetSdk 32
         versionCode 1

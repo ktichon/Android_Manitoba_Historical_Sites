@@ -1,34 +1,15 @@
-package com.example.winnipeghistoricalsites;
+package com.example.manitobahistoricalsites;
 
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
-
-
-
-
-        import android.content.Context;
-        import android.view.LayoutInflater;
-        import android.view.View;
-        import android.view.ViewGroup;
-        import android.widget.LinearLayout;
-        import android.widget.TextView;
-
-        import androidx.annotation.NonNull;
-        import androidx.cardview.widget.CardView;
-        import androidx.recyclerview.widget.RecyclerView;
-
-     
-
-        import java.util.List;
 
 public class DirectionStepAdapter extends RecyclerView.Adapter<DirectionStepAdapter.ViewHolder>{
     Context context;

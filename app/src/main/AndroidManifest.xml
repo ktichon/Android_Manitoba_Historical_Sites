@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.winnipeghistoricalsites">
+    package="com.example.manitobahistoricalsites">
     <!--
          The ACCESS_COARSE/FINE_LOCATION permissions are not required to use
          Google Maps Android API v2, but you must specify either coarse or fine
@@ -28,7 +28,7 @@
         android:theme="@style/AppTheme"
         >
         <activity
-            android:name=".WebviewActivity"
+            android:name="com.example.manitobahistoricalsites.WebviewActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
         <uses-library android:name="org.apache.http.legacy" android:required="false"/>
@@ -48,7 +48,7 @@
             android:value="@integer/google_play_services_version" />
 
         <activity
-            android:name=".MapsActivity"
+            android:name="com.example.manitobahistoricalsites.MapsActivity"
             android:exported="true"
             android:label="@string/title_activity_maps"
             android:screenOrientation="portrait"
