@@ -17,4 +17,36 @@ public class SiteSource {
         this.info = info;
         this.import_date = import_date;
     }
+
+    public int getSource_id() {
+        return source_id;
+    }
+
+    public void setSource_id(int source_id) {
+        this.source_id = source_id;
+    }
+
+    public int getSite_id() {
+        return site_id;
+    }
+
+    public void setSite_id(int site_id) {
+        this.site_id = site_id;
+    }
+
+    public String getInfo() {
+        return info;
+    }
+
+    public void setInfo(String info) {
+        this.info = info;
+    }
+
+    public String getImport_date() {
+        return import_date;
+    }
+
+    public void setImport_date(String import_date) {
+        this.import_date = import_date;
+    }
 }

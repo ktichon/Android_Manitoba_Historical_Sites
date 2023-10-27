@@ -17,4 +17,36 @@ public class SiteType {
         this.type = type;
         this.import_date = import_date;
     }
+
+    public int getSiteType_id() {
+        return siteType_id;
+    }
+
+    public void setSiteType_id(int siteType_id) {
+        this.siteType_id = siteType_id;
+    }
+
+    public int getSite_id() {
+        return site_id;
+    }
+
+    public void setSite_id(int site_id) {
+        this.site_id = site_id;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public String getImport_date() {
+        return import_date;
+    }
+
+    public void setImport_date(String import_date) {
+        this.import_date = import_date;
+    }
 }
