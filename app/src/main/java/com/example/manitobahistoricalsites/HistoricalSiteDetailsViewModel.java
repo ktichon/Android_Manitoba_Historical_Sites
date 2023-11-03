@@ -1,32 +1,53 @@
 package com.example.manitobahistoricalsites;
 
+import android.content.Context;
 import android.location.Location;
 
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.SavedStateHandle;
 import androidx.lifecycle.ViewModel;
 
+import com.example.manitobahistoricalsites.Database.HistoricalSiteDatabase;
+import com.example.manitobahistoricalsites.Database.ManitobaHistoricalSite;
+
+import java.util.List;
+
+import io.reactivex.Maybe;
+
 public class HistoricalSiteDetailsViewModel extends ViewModel {
 
-    private MutableLiveData<HistoricalSite> currentSite;
+    private MutableLiveData<ManitobaHistoricalSite> currentSite;
     private MutableLiveData<Location> currentLocation;
     private MutableLiveData<DisplayHeight> currentDisplayHeight;
     private SavedStateHandle state;
+
+    private HistoricalSiteDatabase historicalSiteDatabase;
 
 
     public HistoricalSiteDetailsViewModel(SavedStateHandle state)
     {
         this.state = state;
-        currentSite = new MutableLiveData<HistoricalSite>();
+        currentSite = new MutableLiveData<ManitobaHistoricalSite>();
         currentLocation = new MutableLiveData<Location>();
         currentDisplayHeight = new MutableLiveData<DisplayHeight>();
     }
 
-    public MutableLiveData<HistoricalSite> getCurrentSite() {
+    public void setHistoricalSiteDatabase(Context context) {
+        this.historicalSiteDatabase = HistoricalSiteDatabase.getInstance(context);
+    }
+
+
+
+
+    public HistoricalSiteDatabase getHistoricalSiteDatabase() {
+        return historicalSiteDatabase;
+    }
+
+    public MutableLiveData<ManitobaHistoricalSite> getCurrentSite() {
         return currentSite;
     }
 
-    public void setCurrentSite(HistoricalSite site)
+    public void setCurrentSite(ManitobaHistoricalSite site)
     {
         this.currentSite.setValue(site);
     }

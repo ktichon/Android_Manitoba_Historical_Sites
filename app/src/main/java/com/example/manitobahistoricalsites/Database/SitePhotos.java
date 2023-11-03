@@ -1,5 +1,6 @@
 package com.example.manitobahistoricalsites.Database;
 
+import androidx.annotation.NonNull;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
@@ -7,6 +8,7 @@ import androidx.room.PrimaryKey;
 public class SitePhotos {
     @PrimaryKey
     public int photo_id;
+
     public int site_id;
     public String photo_name;
     public String photo_url;

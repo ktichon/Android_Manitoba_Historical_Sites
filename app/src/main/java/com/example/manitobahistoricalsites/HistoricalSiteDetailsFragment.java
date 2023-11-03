@@ -38,6 +38,7 @@ import android.widget.Toast;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
+import com.example.manitobahistoricalsites.Database.ManitobaHistoricalSite;
 import com.google.android.material.button.MaterialButton;
 
 public class HistoricalSiteDetailsFragment extends Fragment {
@@ -67,9 +68,9 @@ public class HistoricalSiteDetailsFragment extends Fragment {
     private static final String SITE_KEY = "current_historical_site_yehaw";
 
     //Allows historical site to be passed in away the allows back-button
-    public static HistoricalSiteDetailsFragment newInstance(HistoricalSite site) {
+    public static HistoricalSiteDetailsFragment newInstance(int site_id) {
         Bundle args = new Bundle();
-        args.putParcelable(SITE_KEY, site);
+        args.putInt(SITE_KEY, site_id);
         HistoricalSiteDetailsFragment fragment = new HistoricalSiteDetailsFragment();
         fragment.setArguments(args);
         return fragment;
@@ -100,11 +101,11 @@ public class HistoricalSiteDetailsFragment extends Fragment {
         mViewModel = new ViewModelProvider(getActivity()).get(HistoricalSiteDetailsViewModel.class);
 
         //currentSite = mViewModel.getCurrentSite().getValue();
-        currentSite  = (HistoricalSite) getArguments().getParcelable(SITE_KEY);
-        if (mViewModel.getCurrentSite().getValue() != currentSite)
+        int site_id  =  getArguments().getInt(SITE_KEY);
+        /*if (mViewModel.getCurrentSite().getValue() != currentSite)
         {
             mViewModel.setCurrentSite(currentSite);
-        }
+        }*/
 
         queue = Volley.newRequestQueue(mainView.getContext());
         llDisplayInfo = mainView.findViewById(R.id.Details);
@@ -138,8 +139,8 @@ public class HistoricalSiteDetailsFragment extends Fragment {
         btnShort = (MaterialButton) mainView.findViewById(R.id.btnShortLink);
         btnLong = (MaterialButton) mainView.findViewById(R.id.btnLongLink);
 
-        activeBtnColour = getThemeColour(R.attr.colorPrimaryVariant);
-        restBtnColour = getThemeColour(R.attr.colorOnSecondary);
+        activeBtnColour = getThemeColour(com.google.android.material.R.attr.colorPrimaryVariant);
+        restBtnColour = getThemeColour(com.google.android.material.R.attr.colorOnSecondary);
 
 
 

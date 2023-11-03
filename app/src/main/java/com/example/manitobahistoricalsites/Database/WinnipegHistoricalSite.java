@@ -1,5 +1,6 @@
 package com.example.manitobahistoricalsites.Database;
 
+import androidx.annotation.NonNull;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
@@ -13,7 +14,10 @@ public class WinnipegHistoricalSite {
     public String constructionDate;
     public String shortUrl;
     public String longUrl;
+
+
     public double latitude;
+
     public double longitude;
     public String city;
     public String province;

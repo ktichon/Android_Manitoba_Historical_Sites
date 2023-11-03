@@ -12,6 +12,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
+
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -38,6 +39,7 @@ import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.android.volley.toolbox.JsonArrayRequest;
+import com.example.manitobahistoricalsites.Database.ManitobaHistoricalSite;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
@@ -63,6 +65,11 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.schedulers.Schedulers;
+
+
 
 public class MapsActivity extends AppCompatActivity
         implements  OnMapReadyCallback, ActivityCompat.OnRequestPermissionsResultCallback, GoogleMap.OnMarkerClickListener
@@ -71,10 +78,11 @@ public class MapsActivity extends AppCompatActivity
     private GoogleMap mMap;
     private RequestQueue queue;
     private List<HistoricalSite> allHistoricalSites;
+    private List<ManitobaHistoricalSite> allManitobaHistoricalSites;
     private List<Marker> allMarkers;
     private LinearLayout llDisplayInfo;
     private LinearLayout llPlaceInfo;
-    private HistoricalSite currentSite;
+    private ManitobaHistoricalSite currentSite;
     private Button btnLong;
     private Button btnShort;
     private Button btnGoogle;
@@ -116,7 +124,8 @@ public class MapsActivity extends AppCompatActivity
     private FusedLocationProviderClient fusedLocationClient;
     private boolean trackingLocation;
     private boolean permissionDenied = false;
-    
+
+    private final CompositeDisposable mDisposable = new CompositeDisposable();
 
 
     public MapsActivity(){
@@ -127,126 +136,181 @@ public class MapsActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_maps);
+        fragmentManager = getSupportFragmentManager();
 
 
-        if (savedInstanceState == null) {
-            allHistoricalSites = new ArrayList<>();
 
-            supportMapFragment =  SupportMapFragment.newInstance();
-            supportMapFragment.getMapAsync(this);
-            getSupportFragmentManager().beginTransaction()
-                    .setReorderingAllowed(true)
-                    .add(R.id.fcvMap, supportMapFragment, null)
-                    .commit();
 
-            /*if (!Places.isInitialized()) {
-                Places.initialize(getApplicationContext(), getString(R.string.google_maps_key), Locale.CANADA);
-            }
+        allManitobaHistoricalSites = new ArrayList<>();
+
+//        supportMapFragment =  SupportMapFragment.newInstance();
+//        supportMapFragment.getMapAsync(this);
+//        getSupportFragmentManager().beginTransaction()
+//                .setReorderingAllowed(true)
+//                .add(R.id.fcvMap, supportMapFragment, null)
+//                .commit();
+
+
+
+        /*if (!Places.isInitialized()) {
+            Places.initialize(getApplicationContext(), getString(R.string.google_maps_key), Locale.CANADA);
+        }
 */
-            Toolbar mToolbar = findViewById(R.id.tbMain);
-            //mToolbar.setTitle("");
+        Toolbar mToolbar = findViewById(R.id.tbMain);
+        //mToolbar.setTitle("");
 
-            setSupportActionBar(mToolbar);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                mToolbar.setTitleTextColor(getColor(R.color.cardview_dark_background));
-            }
-            else
-            {
-                mToolbar.setTitleTextColor(Color.BLACK);
-            }
-
-
-
-
-            searchSites = (AutoCompleteTextView) findViewById(R.id.atvSearch);
-            searchSites.setVisibility(View.INVISIBLE);
-
-            searchAdapter = new ArrayAdapter<HistoricalSite>( this, R.layout.search_item_layout, allHistoricalSites);
-            searchSites.setAdapter(searchAdapter);
-
-            searchSites.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-
-                @RequiresApi(api = Build.VERSION_CODES.N)
-                @Override
-                public void onItemClick(AdapterView<?> sites, View view, int pos,
-                                        long id) {
-                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                    imm.hideSoftInputFromWindow(view.getApplicationWindowToken(), 0);
-                    try {
-                        HistoricalSite foundSite = (HistoricalSite) sites.getItemAtPosition(pos);
-                        siteSelected(foundSite);
-                        displayMarkerInfo(foundSite);
-
-                    } catch (Exception e) {
-                        Log.e("Error", "SearchSiteAutoAdapter: Error searching for specific site\n" + e.getMessage());
-                    }
-
-
-
-
-                }
-            });
-
-
-
-            queue = Volley.newRequestQueue(getApplicationContext());
-            fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-
-
-
-            viewModel = new ViewModelProvider(this).get(HistoricalSiteDetailsViewModel.class);
-            viewModel.getCurrentSite().observe(this, new Observer<HistoricalSite>() {
-                @Override
-                public void onChanged(HistoricalSite changedSite) {
-                    try {
-                        currentSite = changedSite;
-                        moveCameraToLocation(currentSite.getLocation());
-                        displayMarkerInfo(currentSite);
-                       /* LatLng sitLocation = new LatLng(currentSite.getLocation().getLatitude(), currentSite.getLocation().getLongitude());
-                        mMap.animateCamera(CameraUpdateFactory.newLatLng(sitLocation));*/
-
-                    } catch (Exception e) {
-                        Log.e("Error", "UpdateCurrentPositonToBeCurrentSite: Error updating the map to reflect the viewmodel\n" + e.getMessage());
-                    }
-
-
-                }
-            });
-
-            //Set the default value of the details display height
-            viewModel.getCurrentDisplayHeight().observe(this, new Observer<DisplayHeight>() {
-                @Override
-                public void onChanged(DisplayHeight newHeight) {
-                    updateDisplayHeight(newHeight, viewModel.getCurrentSite().getValue());
-
-                }
-            });
-            viewModel.setCurrentDisplayHeight(DisplayHeight.MEDIUM);
-
-
-            fragmentManager = getSupportFragmentManager();
-
-            if(allHistoricalSites == null || allHistoricalSites.size() == 0)
-            {
-                try {
-                    JsonArrayRequest request = new JsonArrayRequest(Request.Method.GET, getString(R.string.data_url), null, fetchHistoricalData, getJsonError);
-                    queue.add(request);
-                } catch (Exception e) {
-                    Log.e("Error", "onCreate: Fetching city of winnipeg data from url \n" + e.getMessage());
-                }
-            }
-            else
-            {
-                allSitesLoaded = true;
-                addSiteListToMap(allHistoricalSites);
-            }
-
-
-
+        setSupportActionBar(mToolbar);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            mToolbar.setTitleTextColor(getColor(androidx.cardview.R.color.cardview_dark_background));
+        }
+        else
+        {
+            mToolbar.setTitleTextColor(Color.BLACK);
         }
 
 
+
+
+        searchSites = (AutoCompleteTextView) findViewById(R.id.atvSearch);
+        searchSites.setVisibility(View.INVISIBLE);
+
+        searchAdapter = new ArrayAdapter<HistoricalSite>( this, R.layout.search_item_layout, allHistoricalSites);
+        searchSites.setAdapter(searchAdapter);
+
+        searchSites.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+            @RequiresApi(api = Build.VERSION_CODES.N)
+            @Override
+            public void onItemClick(AdapterView<?> sites, View view, int pos,
+                                    long id) {
+                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(view.getApplicationWindowToken(), 0);
+                try {
+                    ManitobaHistoricalSite foundSite = (ManitobaHistoricalSite) sites.getItemAtPosition(pos);
+                    siteSelected(foundSite);
+                    displayMarkerInfo(foundSite.getSite_id());
+
+                } catch (Exception e) {
+                    Log.e("Error", "SearchSiteAutoAdapter: Error searching for specific site\n" + e.getMessage());
+                }
+
+
+
+
+            }
+        });
+
+
+
+        queue = Volley.newRequestQueue(getApplicationContext());
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+
+
+
+        viewModel = new ViewModelProvider(this).get(HistoricalSiteDetailsViewModel.class);
+        viewModel.setHistoricalSiteDatabase(getApplicationContext());
+        viewModel.getCurrentSite().observe(this, new Observer<ManitobaHistoricalSite>() {
+            @Override
+            public void onChanged(ManitobaHistoricalSite changedSite) {
+                try {
+                    currentSite = changedSite;
+                    moveCameraToLocation(currentSite.getLocation());
+                    displayMarkerInfo(currentSite.getSite_id());
+                   /* LatLng sitLocation = new LatLng(currentSite.getLocation().getLatitude(), currentSite.getLocation().getLongitude());
+                    mMap.animateCamera(CameraUpdateFactory.newLatLng(sitLocation));*/
+
+                } catch (Exception e) {
+                    Log.e("Error", "UpdateCurrentPositonToBeCurrentSite: Error updating the map to reflect the viewmodel\n" + e.getMessage());
+                }
+
+
+            }
+        });
+
+        //Set the default value of the details display height
+        viewModel.getCurrentDisplayHeight().observe(this, new Observer<DisplayHeight>() {
+            @Override
+            public void onChanged(DisplayHeight newHeight) {
+                updateDisplayHeight(newHeight, viewModel.getCurrentSite().getValue());
+
+            }
+        });
+        viewModel.setCurrentDisplayHeight(DisplayHeight.MEDIUM);
+        loadMap();
+        loadManitobaHistoricalSiteData();
+
+
+
+
+        /*if(allHistoricalSites == null || allHistoricalSites.size() == 0)
+        {
+            try {
+                int test = 0;
+               //JsonArrayRequest request = new JsonArrayRequest(Request.Method.GET, getString(R.string.data_url), null, fetchHistoricalData, getJsonError);
+               // queue.add(request);
+            } catch (Exception e) {
+                Log.e("Error", "onCreate: Fetching city of winnipeg data from url \n" + e.getMessage());
+            }
+        }
+        else
+        {
+            allSitesLoaded = true;
+            addSiteListToMap(allHistoricalSites);
+        }*/
+
+
+
+
+
+
     }
+
+    //Loads map if not already loaded
+    public void loadMap()
+    {
+        if (mMap == null) {
+            supportMapFragment =  SupportMapFragment.newInstance();
+            supportMapFragment.getMapAsync(this);
+            getSupportFragmentManager().beginTransaction()
+               .setReorderingAllowed(true)
+               .add(R.id.fcvMap, supportMapFragment, null)
+               .commit();
+        }
+
+    }
+
+    //Loads the data from the .db file
+    public void loadManitobaHistoricalSiteData()
+    {
+        mDisposable.add(
+                viewModel.getHistoricalSiteDatabase().manitobaHistoricalSiteDao().loadAllManitobaHistoricalSites()
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe( manitobaHistoricalSites -> saveSitesToApp( manitobaHistoricalSites),
+                                throwable ->  Toast.makeText(getApplicationContext(), "Error fetching data", Toast.LENGTH_SHORT).show()
+                        )
+        );
+    }
+
+    //Signals that the sites are loaded and stored in variable list
+    public void saveSitesToApp (List<ManitobaHistoricalSite> sites )
+    {
+        this.allManitobaHistoricalSites = sites;
+        this.allSitesLoaded = true;
+        int total = allManitobaHistoricalSites.size();
+        Toast.makeText(getApplicationContext(), "Found all " + allManitobaHistoricalSites.size() + " historic sites in Manitoba", Toast.LENGTH_SHORT).show();
+
+    }
+
+
+
+
+
+
+
+
+
 
     /**
      * Manipulates the map once available.
@@ -284,7 +348,7 @@ public class MapsActivity extends AppCompatActivity
 
         }
         mapLoaded = true;
-        addSiteListToMap(allHistoricalSites);
+        //addSiteListToMap(allHistoricalSites);
 
     }
 
@@ -302,24 +366,16 @@ public class MapsActivity extends AppCompatActivity
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         try {
-            switch (item.getItemId()) {
-                case R.id.itFollowCamera:
-                    if (this.cameraFollow)
-                    {
-                        this.cameraFollow = false;
-                        item.setIcon(R.drawable.ic_camera_not_follow);
-                    }
-                    else
-                    {
-                        this.cameraFollow = true;
-                        item.setIcon(R.drawable.ic_camera_follow);
-                        moveCameraToLocation(getUserLocation());
-                    }
 
-
-                    break;
-
-
+            if (item.getItemId() == R.id.itFollowCamera) {
+                if (this.cameraFollow) {
+                    this.cameraFollow = false;
+                    item.setIcon(R.drawable.ic_camera_not_follow);
+                } else {
+                    this.cameraFollow = true;
+                    item.setIcon(R.drawable.ic_camera_follow);
+                    moveCameraToLocation(getUserLocation());
+                }
             }
         }
         catch (Exception e)
@@ -332,12 +388,12 @@ public class MapsActivity extends AppCompatActivity
 
     //Displays marker title specific historical site, used in 'Search' and on current site fragment backspace
     // used in onCreate
-    private void displayMarkerInfo(HistoricalSite displaySite)
+    private void displayMarkerInfo(int displayId)
     {
         if (allMarkers!= null)
         {
             for (Marker marker : allMarkers) {
-                if ((int)marker.getTag() == displaySite.getId() ) { //if a marker has desired tag
+                if ((int)marker.getTag() == displayId ) { //if a marker has desired tag
                     marker.showInfoWindow();
                 }
             }
@@ -346,10 +402,12 @@ public class MapsActivity extends AppCompatActivity
 
 
 
+
+
     /**
      * Fetches all the data from the Winnipeg Open Data Historical Resources and populates the markers and sites with the data
      */
-    private Response.Listener<JSONArray> fetchHistoricalData = new Response.Listener<JSONArray>() {
+    /*private Response.Listener<JSONArray> fetchHistoricalData = new Response.Listener<JSONArray>() {
         @Override
         public void onResponse(JSONArray response) {
             allHistoricalSites.clear();
@@ -381,7 +439,7 @@ public class MapsActivity extends AppCompatActivity
                             //add site to list
                             allHistoricalSites.add(newSite);
 
-                            /*newSite.streetName = site.getString("street_name");
+                            *//*newSite.streetName = site.getString("street_name");
                             newSite.streetNumber = site.getString("street_number");
                             newSite.constructionDate = ((site.has("construction_date")) ? site.getString("construction_date") : null);
 
@@ -400,7 +458,7 @@ public class MapsActivity extends AppCompatActivity
                             allHistoricalSites.add(newSite);
                             Marker newMarker = mMap.addMarker(new MarkerOptions().position(new LatLng(newSite.location.getLatitude(), newSite.location.getLongitude())).title(newSite.name).snippet(newSite.address()));
                             newMarker.setTag(id);
-                            allMarkers.add(newMarker);*/
+                            allMarkers.add(newMarker);*//*
 
 
                             //attachPlaceIdToSite(newSite,id);
@@ -426,7 +484,7 @@ public class MapsActivity extends AppCompatActivity
             Toast.makeText(getApplicationContext(), "Found all " + allHistoricalSites.size() + " historic sites in Winnipeg", Toast.LENGTH_SHORT).show();
 
         }
-    };
+    };*/
 
     //Error fetching api
     private Response.ErrorListener getJsonError = error -> {
@@ -434,20 +492,20 @@ public class MapsActivity extends AppCompatActivity
         Log.e("Error", "getJsonError: Error fetching json from url " + getString(R.string.data_url)+ "\n" + error.getMessage());
     };
 
-    private void addSiteListToMap (List<HistoricalSite> sitesToAdd)
+    private void addSiteListToMap (List<ManitobaHistoricalSite> sitesToAdd)
     {
-        if (mapLoaded && allSitesLoaded)
-        {
-            try {
-                for (HistoricalSite site: sitesToAdd) {
-                    Marker newMarker = mMap.addMarker(new MarkerOptions().position(new LatLng(site.getLocation().getLatitude(), site.getLocation().getLongitude())).title(site.getName()).snippet(site.getAddress()));
-                    newMarker.setTag(site.getId());
+        try {
+                allMarkers.clear();
+                for (ManitobaHistoricalSite site: sitesToAdd) {
+                    Marker newMarker = mMap.addMarker(new MarkerOptions().position(new LatLng(site.getLatitude(), site.getLongitude())).title(site.getName()).snippet(site.getAddress()));
+                    newMarker.setTag(site.getSite_id());
                     allMarkers.add(newMarker);
 
                 }
 
-                searchAdapter.notifyDataSetChanged();
-                searchSites.setVisibility(View.VISIBLE);
+                //Will add search bar back in later
+                /*searchAdapter.notifyDataSetChanged();
+                searchSites.setVisibility(View.VISIBLE);*/
 
             }
             catch (Exception e)
@@ -456,7 +514,7 @@ public class MapsActivity extends AppCompatActivity
             }
 
 
-        }
+
     }
 
     //On marker click zoom to location and display data
@@ -465,7 +523,7 @@ public class MapsActivity extends AppCompatActivity
     public boolean onMarkerClick(Marker marker) {
         try {
             int currentSiteIndex = (int) marker.getTag();
-            HistoricalSite newCurrentSite = allHistoricalSites.stream().filter(site -> site.getId() == currentSiteIndex).findFirst().orElse(null);
+            ManitobaHistoricalSite newCurrentSite = allManitobaHistoricalSites.stream().filter(site -> site.getSite_id() == currentSiteIndex).findFirst().orElse(null);
             siteSelected(newCurrentSite);
         }
         catch (Exception e)
@@ -479,15 +537,16 @@ public class MapsActivity extends AppCompatActivity
         return false;
     }
 
-    private void siteSelected(HistoricalSite nextSite)
+    private void siteSelected(ManitobaHistoricalSite nextSite)
     {
         try {
-            if ( nextSite != null)
+            //removed for testing
+            /*if ( nextSite != null)
             {
                 currentSite = nextSite;
                 viewModel.setCurrentSite(currentSite);
                 viewModel.setCurrentLocation(getUserLocation());
-                Fragment newFragment = HistoricalSiteDetailsFragment.newInstance(currentSite);
+                Fragment newFragment = HistoricalSiteDetailsFragment.newInstance(currentSite.getSite_id());
                 ((FragmentContainerView) findViewById(R.id.fcvDetails)).setVisibility(View.VISIBLE);
 
                 fragmentManager.beginTransaction()
@@ -496,7 +555,7 @@ public class MapsActivity extends AppCompatActivity
                         .setReorderingAllowed(true)
                         .addToBackStack(null) // name can be null
                         .commit();
-            }
+            }*/
             moveCameraToLocation(currentSite.getLocation());
         }
         catch (Exception e)
@@ -523,7 +582,7 @@ public class MapsActivity extends AppCompatActivity
 
 
     //Updates the display height when the details is swiped on HistoricSitesDetailsFragment
-    private void updateDisplayHeight(DisplayHeight newHeight, HistoricalSite historicalSite)
+    private void updateDisplayHeight(DisplayHeight newHeight, ManitobaHistoricalSite historicalSite)
     {
         try {
             float mapWeight = Float.parseFloat(getString(R.string.on_details_small_map));
@@ -541,7 +600,7 @@ public class MapsActivity extends AppCompatActivity
 
 
 
-            if (historicalSite != null)
+            if (historicalSite!= null)
             {
                 try {
                     FragmentContainerView  mapView = (FragmentContainerView) findViewById(R.id.fcvBlankSpace);
@@ -582,8 +641,17 @@ public class MapsActivity extends AppCompatActivity
     @Override
     protected void onResume() {
         super.onResume();
+
+        if (mMap == null)
+            loadMap();
         if (trackingLocation)
             enableMyLocation();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        mDisposable.clear();
     }
 
     //Location Permissions

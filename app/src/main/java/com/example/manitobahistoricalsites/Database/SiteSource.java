@@ -1,5 +1,6 @@
 package com.example.manitobahistoricalsites.Database;
 
+import androidx.annotation.NonNull;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
