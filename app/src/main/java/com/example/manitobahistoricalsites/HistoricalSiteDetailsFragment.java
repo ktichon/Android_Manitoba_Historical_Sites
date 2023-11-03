@@ -39,7 +39,14 @@ import android.widget.Toast;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
 import com.example.manitobahistoricalsites.Database.ManitobaHistoricalSite;
+import com.example.manitobahistoricalsites.Database.SiteType;
 import com.google.android.material.button.MaterialButton;
+
+import java.util.List;
+
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.schedulers.Schedulers;
 
 public class HistoricalSiteDetailsFragment extends Fragment {
 
@@ -47,7 +54,7 @@ public class HistoricalSiteDetailsFragment extends Fragment {
     private LinearLayout llDetails;
     private LinearLayout llDisplayInfo;
     //private LinearLayout llPlaceInfo;
-    private HistoricalSite currentSite;
+
     private MaterialButton btnLong;
     private MaterialButton btnShort;
     private MaterialButton btnGoogle;
@@ -64,6 +71,11 @@ public class HistoricalSiteDetailsFragment extends Fragment {
 
     private LinearLayout llWebView;
     private GestureDetector mDetector;
+
+    private ManitobaHistoricalSite currentSite;
+
+    private final CompositeDisposable mDisposable = new CompositeDisposable();
+
 
     private static final String SITE_KEY = "current_historical_site_yehaw";
 
@@ -246,7 +258,31 @@ public class HistoricalSiteDetailsFragment extends Fragment {
         /*mViewModel.getCurrentSite().observe(getViewLifecycleOwner(), display -> {
             // Update the list UI
         });*/
-        setLlDisplayInfo(currentSite, mViewModel.getCurrentDisplayHeight().getValue());
+
+
+        //setLlDisplayInfo(currentSite, mViewModel.getCurrentDisplayHeight().getValue());
+
+        //Get Site info
+        mDisposable.add(
+                mViewModel.getHistoricalSiteDatabase().manitobaHistoricalSiteDao().getManitobaHistoricalSite(site_id)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe( manitobaHistoricalSites -> displayHistoricalSiteInfo( manitobaHistoricalSites),
+                                throwable ->  Toast.makeText(getContext(), "Error fetching data", Toast.LENGTH_SHORT).show()
+                        ));
+
+        //Get Site types
+        mDisposable.add(
+                mViewModel.getHistoricalSiteDatabase().siteTypeDao().getAllSiteTypesForSite(site_id)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe( siteTypes -> displaySiteType( siteTypes),
+                                throwable ->  Toast.makeText(getContext(), "Error fetching data", Toast.LENGTH_SHORT).show()
+                        ));
+
+
+
+
 
 
 
@@ -255,23 +291,28 @@ public class HistoricalSiteDetailsFragment extends Fragment {
 
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
+
+    //Gets and displays info for Manitoba Historical Site
+    public void displayHistoricalSiteInfo(ManitobaHistoricalSite site)
+    {
+        currentSite = site;
     }
 
-    @Override
-    public void onPause() {
-        try {
-            super.onPause();
-
-        } catch (Exception e)
-        {
-            Log.e("Error", "Display Details On Pause:" + e.getMessage());
-            super.onPause();
+    //Gets and displays info for Manitoba Historical Site
+    public void displaySiteType(List<SiteType> siteTypes)
+    {
+        String types = "";
+        for (SiteType type: siteTypes) {
+            types = types + ", " + type.getType();
         }
-
+        types = types.substring(2);
+        
     }
+
+
+
+
+
 
     //Opens the web view activity and display the short or long link
     public void openWebPage(String url) {
@@ -510,15 +551,29 @@ public class HistoricalSiteDetailsFragment extends Fragment {
     }
 
 
+    @Override
+    public void onStop() {
+        super.onStop();
+        mDisposable.clear();
+    }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+    }
 
+    @Override
+    public void onPause() {
+        try {
+            super.onPause();
 
-    /*private void updateDisplaySize(DisplayHeight displayHeight, HistoricalSite site)
-    {
+        } catch (Exception e)
+        {
+            Log.e("Error", "Display Details On Pause:" + e.getMessage());
+            super.onPause();
+        }
 
-        if(!setSmall(displayHeight) && !TextUtils.isEmpty(site.getShortUrl()) && site.getShortUrl() != null)
-            setWebViewHeight(displayHeight);
-    }*/
+    }
 
 
     class MyGestureListener extends GestureDetector.SimpleOnGestureListener

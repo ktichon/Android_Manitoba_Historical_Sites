@@ -98,8 +98,8 @@ public class MapsActivity extends AppCompatActivity
 
 
     //To make sure we don't add sites to the map till the map is properly loaded
-    private boolean allSitesLoaded = false;
-    private boolean mapLoaded = false;
+    /*private boolean allSitesLoaded = false;
+    private boolean mapLoaded = false;*/
 
     //private Location currentLocation;
     //private FusedLocationProviderClient fusedLocationProviderClient;
@@ -143,6 +143,7 @@ public class MapsActivity extends AppCompatActivity
 
 
         allManitobaHistoricalSites = new ArrayList<>();
+        allMarkers = new ArrayList<>();
 
 //        supportMapFragment =  SupportMapFragment.newInstance();
 //        supportMapFragment.getMapAsync(this);
@@ -237,8 +238,9 @@ public class MapsActivity extends AppCompatActivity
             }
         });
         viewModel.setCurrentDisplayHeight(DisplayHeight.MEDIUM);
-        loadMap();
         loadManitobaHistoricalSiteData();
+        loadMap();
+
 
 
 
@@ -265,93 +267,6 @@ public class MapsActivity extends AppCompatActivity
 
 
     }
-
-    //Loads map if not already loaded
-    public void loadMap()
-    {
-        if (mMap == null) {
-            supportMapFragment =  SupportMapFragment.newInstance();
-            supportMapFragment.getMapAsync(this);
-            getSupportFragmentManager().beginTransaction()
-               .setReorderingAllowed(true)
-               .add(R.id.fcvMap, supportMapFragment, null)
-               .commit();
-        }
-
-    }
-
-    //Loads the data from the .db file
-    public void loadManitobaHistoricalSiteData()
-    {
-        mDisposable.add(
-                viewModel.getHistoricalSiteDatabase().manitobaHistoricalSiteDao().loadAllManitobaHistoricalSites()
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe( manitobaHistoricalSites -> saveSitesToApp( manitobaHistoricalSites),
-                                throwable ->  Toast.makeText(getApplicationContext(), "Error fetching data", Toast.LENGTH_SHORT).show()
-                        )
-        );
-    }
-
-    //Signals that the sites are loaded and stored in variable list
-    public void saveSitesToApp (List<ManitobaHistoricalSite> sites )
-    {
-        this.allManitobaHistoricalSites = sites;
-        this.allSitesLoaded = true;
-        int total = allManitobaHistoricalSites.size();
-        Toast.makeText(getApplicationContext(), "Found all " + allManitobaHistoricalSites.size() + " historic sites in Manitoba", Toast.LENGTH_SHORT).show();
-
-    }
-
-
-
-
-
-
-
-
-
-
-    /**
-     * Manipulates the map once available.
-     * This callback is triggered when the map is ready to be used.
-     * This is where we can add markers or lines, add listeners or move the camera. In this case,
-     * we just add a marker near Sydney, Australia.
-     * If Google Play services is not installed on the device, the user will be prompted to install
-     * it inside the SupportMapFragment. This method will only be triggered once the user has
-     * installed Google Play services and returned to the app.
-     */
-
-    @Override
-    public void onMapReady(GoogleMap googleMap) {
-        mMap = googleMap;
-        mMap.setOnMarkerClickListener(this);
-        mMap.getUiSettings().setMapToolbarEnabled(false);
-        mMap.getUiSettings().setMyLocationButtonEnabled(false);
-        LatLngBounds manitobaBounds = new LatLngBounds(
-                new LatLng(48, -102), // SW bounds
-                new LatLng(60, -89)  // NE bounds
-        );
-
-        mMap.setLatLngBoundsForCameraTarget(manitobaBounds);
-
-
-
-
-        //mMap.addMarker(new MarkerOptions().position(winnipeg).title("Marker in Winnipeg"));
-        //mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(winnipeg, 15));
-        enableMyLocation();
-        if (getUserLocation() != null) {
-            LatLng current = new LatLng(getUserLocation().getLatitude(), getUserLocation().getLongitude());
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(current, 15));
-            viewModel.getCurrentLocation().setValue(getUserLocation());
-
-        }
-        mapLoaded = true;
-        //addSiteListToMap(allHistoricalSites);
-
-    }
-
 
     //Set up menu
     @Override
@@ -385,19 +300,166 @@ public class MapsActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
+    //Loads map if not already loaded
+    public void loadMap()
+    {
+        if (mMap == null) {
+            supportMapFragment =  SupportMapFragment.newInstance();
+            supportMapFragment.getMapAsync(this);
+            getSupportFragmentManager().beginTransaction()
+               .setReorderingAllowed(true)
+               .add(R.id.fcvMap, supportMapFragment, null)
+               .commit();
+        }
+
+    }
+
+    //Loads the data from the .db file
+    public void loadManitobaHistoricalSiteData()
+    {
+        mDisposable.add(
+                viewModel.getHistoricalSiteDatabase().manitobaHistoricalSiteDao().loadAllManitobaHistoricalSites()
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe( manitobaHistoricalSites -> saveSitesToApp( manitobaHistoricalSites),
+                                throwable ->  Toast.makeText(getApplicationContext(), "Error fetching data", Toast.LENGTH_SHORT).show()
+                        )
+        );
+    }
+
+    //Signals that the sites are loaded and stored in variable list
+    public void saveSitesToApp (List<ManitobaHistoricalSite> sites )
+    {
+        try {
+            allMarkers.clear();
+            allManitobaHistoricalSites = sites;
+
+            int total = allManitobaHistoricalSites.size();
+            Toast.makeText(getApplicationContext(), "Found all " + allManitobaHistoricalSites.size() + " historic sites in Manitoba", Toast.LENGTH_SHORT).show();
+            if (mMap != null)
+            {
+                addSiteListToMap(allManitobaHistoricalSites);
+
+            }
+        }
+       catch (Exception e)
+       {
+           Toast.makeText(getApplicationContext(), "Error storing data", Toast.LENGTH_SHORT).show();
+       }
+
+    }
+
+
+
+
+
+
+
+
+
+
+    /**
+     * Manipulates the map once available.
+     * This callback is triggered when the map is ready to be used.
+     * This is where we can add markers or lines, add listeners or move the camera. In this case,
+     * we just add a marker near Sydney, Australia.
+     * If Google Play services is not installed on the device, the user will be prompted to install
+     * it inside the SupportMapFragment. This method will only be triggered once the user has
+     * installed Google Play services and returned to the app.
+     */
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        try {
+            mMap = googleMap;
+            mMap.setOnMarkerClickListener(this);
+            //mMap.getUiSettings().setMapToolbarEnabled(false);
+            //mMap.getUiSettings().setMyLocationButtonEnabled(false);
+            LatLngBounds manitobaBounds = new LatLngBounds(
+                    new LatLng(48, -102), // SW bounds
+                    new LatLng(60, -89)  // NE bounds
+            );
+
+            mMap.setLatLngBoundsForCameraTarget(manitobaBounds);
+
+
+
+
+            //mMap.addMarker(new MarkerOptions().position(winnipeg).title("Marker in Winnipeg"));
+            //mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(winnipeg, 15));
+            enableMyLocation();
+            if (getUserLocation() != null) {
+                LatLng current = new LatLng(getUserLocation().getLatitude(), getUserLocation().getLongitude());
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(current, 15));
+                viewModel.getCurrentLocation().setValue(getUserLocation());
+
+            }
+
+            if (allManitobaHistoricalSites.size() > 0)
+            {
+                addSiteListToMap(allManitobaHistoricalSites);
+            }
+        }
+
+        catch (Exception e)
+        {
+            Toast.makeText(getApplicationContext(), "Error displaying map", Toast.LENGTH_SHORT).show();
+        }
+
+
+
+    }
+
+    //Adds the markers to the map
+    private void addSiteListToMap (List<ManitobaHistoricalSite> sitesToAdd)
+    {
+        try {
+
+            for (ManitobaHistoricalSite site: sitesToAdd) {
+                Marker newMarker = mMap.addMarker(new MarkerOptions().position(new LatLng(site.getLatitude(), site.getLongitude())).title(site.getName()).snippet(site.getAddress()));
+                newMarker.setTag(site.getSite_id());
+                allMarkers.add(newMarker);
+
+            }
+            Toast.makeText(getApplicationContext(), "All sites have been added to the map", Toast.LENGTH_SHORT).show();
+
+            //Will add search bar back in later
+                /*searchAdapter.notifyDataSetChanged();
+                searchSites.setVisibility(View.VISIBLE);*/
+
+        }
+        catch (Exception e)
+        {
+            Log.e("Error", "addSiteListToMap: Error attaching site to map\n" + e.getMessage());
+        }
+
+
+
+    }
+
+
+
+
 
     //Displays marker title specific historical site, used in 'Search' and on current site fragment backspace
     // used in onCreate
     private void displayMarkerInfo(int displayId)
     {
-        if (allMarkers!= null)
-        {
-            for (Marker marker : allMarkers) {
-                if ((int)marker.getTag() == displayId ) { //if a marker has desired tag
-                    marker.showInfoWindow();
+        try {
+            if (allMarkers!= null)
+            {
+                for (Marker marker : allMarkers) {
+                    if ((int)marker.getTag() == displayId ) { //if a marker has desired tag
+                        marker.showInfoWindow();
+                    }
                 }
             }
         }
+        catch (Exception e)
+        {
+            Toast.makeText(getApplicationContext(), "Error getting marker info", Toast.LENGTH_SHORT).show();
+        }
+
     }
 
 
@@ -492,30 +554,7 @@ public class MapsActivity extends AppCompatActivity
         Log.e("Error", "getJsonError: Error fetching json from url " + getString(R.string.data_url)+ "\n" + error.getMessage());
     };
 
-    private void addSiteListToMap (List<ManitobaHistoricalSite> sitesToAdd)
-    {
-        try {
-                allMarkers.clear();
-                for (ManitobaHistoricalSite site: sitesToAdd) {
-                    Marker newMarker = mMap.addMarker(new MarkerOptions().position(new LatLng(site.getLatitude(), site.getLongitude())).title(site.getName()).snippet(site.getAddress()));
-                    newMarker.setTag(site.getSite_id());
-                    allMarkers.add(newMarker);
 
-                }
-
-                //Will add search bar back in later
-                /*searchAdapter.notifyDataSetChanged();
-                searchSites.setVisibility(View.VISIBLE);*/
-
-            }
-            catch (Exception e)
-            {
-                Log.e("Error", "addSiteListToMap: Error attaching site to map\n" + e.getMessage());
-            }
-
-
-
-    }
 
     //On marker click zoom to location and display data
     @RequiresApi(api = Build.VERSION_CODES.N)
