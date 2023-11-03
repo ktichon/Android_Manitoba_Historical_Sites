@@ -20,8 +20,9 @@ public interface SiteTypeDao {
     public Completable deleteSiteTypes(SiteType siteType);
 
     @Query("SELECT * FROM siteType")
-    Maybe<List<SiteType>> getAllSiteTypes();
+    public Maybe<List<SiteType>> getAllSiteTypes();
 
     @Query("SELECT * FROM siteType WHERE site_id = :site_id ")
-    Maybe<List<SiteType>> getAllSiteTypesForSite(int site_id);
+    public Maybe<List<SiteType>> getAllSiteTypesForSite(int site_id);
+
 }

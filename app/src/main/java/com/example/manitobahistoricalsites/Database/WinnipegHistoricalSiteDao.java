@@ -20,8 +20,8 @@ public interface WinnipegHistoricalSiteDao {
     public Completable deleteWinnipegHistoricalSite(WinnipegHistoricalSite winnipegHistoricalSite);
 
     @Query("SELECT * FROM WinnipegHistoricalSite")
-    Maybe<List<WinnipegHistoricalSite>> getAllWinnipegHistoricalSites();
+    public Maybe<List<WinnipegHistoricalSite>> getAllWinnipegHistoricalSites();
 
     @Query("SELECT * FROM WinnipegHistoricalSite WHERE site_id = :site_id ")
-    Maybe<List<WinnipegHistoricalSite>> getAllWinnipegHistoricalSitesForSite(int site_id);
+    public Maybe<List<WinnipegHistoricalSite>> getAllWinnipegHistoricalSitesForSite(int site_id);
 }

@@ -189,7 +189,7 @@ public class MapsActivity extends AppCompatActivity
                 imm.hideSoftInputFromWindow(view.getApplicationWindowToken(), 0);
                 try {
                     ManitobaHistoricalSite foundSite = (ManitobaHistoricalSite) sites.getItemAtPosition(pos);
-                    siteSelected(foundSite);
+                    siteSelected(foundSite.getSite_id(), foundSite.getLocation());
                     displayMarkerInfo(foundSite.getSite_id());
 
                 } catch (Exception e) {
@@ -561,9 +561,13 @@ public class MapsActivity extends AppCompatActivity
     @Override
     public boolean onMarkerClick(Marker marker) {
         try {
-            int currentSiteIndex = (int) marker.getTag();
-            ManitobaHistoricalSite newCurrentSite = allManitobaHistoricalSites.stream().filter(site -> site.getSite_id() == currentSiteIndex).findFirst().orElse(null);
-            siteSelected(newCurrentSite);
+            int nextSiteIndex = (int) marker.getTag();
+            Location siteLocation = new Location("");
+            siteLocation.setLatitude(marker.getPosition().latitude);
+            siteLocation.setLongitude(marker.getPosition().longitude);
+
+            //ManitobaHistoricalSite newCurrentSite = allManitobaHistoricalSites.stream().filter(site -> site.getSite_id() == currentSiteIndex).findFirst().orElse(null);
+            siteSelected(nextSiteIndex,siteLocation);
         }
         catch (Exception e)
         {
@@ -576,16 +580,15 @@ public class MapsActivity extends AppCompatActivity
         return false;
     }
 
-    private void siteSelected(ManitobaHistoricalSite nextSite)
+    private void siteSelected(int nextSiteId, Location newLocation)
     {
         try {
             //removed for testing
-            /*if ( nextSite != null)
-            {
-                currentSite = nextSite;
-                viewModel.setCurrentSite(currentSite);
+
+                /*currentSite = nextSite;
+                viewModel.setCurrentSite(currentSite);*/
                 viewModel.setCurrentLocation(getUserLocation());
-                Fragment newFragment = HistoricalSiteDetailsFragment.newInstance(currentSite.getSite_id());
+                Fragment newFragment = HistoricalSiteDetailsFragment.newInstance(nextSiteId);
                 ((FragmentContainerView) findViewById(R.id.fcvDetails)).setVisibility(View.VISIBLE);
 
                 fragmentManager.beginTransaction()
@@ -594,12 +597,12 @@ public class MapsActivity extends AppCompatActivity
                         .setReorderingAllowed(true)
                         .addToBackStack(null) // name can be null
                         .commit();
-            }*/
-            moveCameraToLocation(currentSite.getLocation());
+
+            moveCameraToLocation(newLocation);
         }
         catch (Exception e)
         {
-            Log.e("Error", "siteSelected: Error getting details of site" + nextSite.toString() +"\n" + e.getMessage());
+            Log.e("Error", "siteSelected: Error getting details of site id" + nextSiteId +"\n" + e.getMessage());
         }
 
 

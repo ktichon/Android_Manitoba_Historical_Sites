@@ -12,14 +12,26 @@
 
 
         <TextView
-            android:id="@+id/tvNameAndBuild"
+            android:id="@+id/tvName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textAlignment="center"
 
             android:text="Name"
             style="@style/mainText"
-            android:layout_margin="10dp"/>
+            android:layout_marginBottom="5dp"
+            android:layout_marginTop="10dp"
+            />
+
+    <TextView
+        android:id="@+id/tvTypes"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAlignment="center"
+        android:text="Types/types"
+        style="@style/subText"
+        android:layout_margin="0dp"
+        />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -47,6 +59,7 @@
                     android:layout_margin="10dp"
                     />
 
+
             <ImageButton
                 android:id="@+id/btnDirections"
                 android:layout_width="wrap_content"
@@ -57,6 +70,8 @@
 
         </LinearLayout>
 
+
+
         <TextView
             android:id="@+id/tvHasMoreInfo"
             android:layout_width="match_parent"
@@ -66,103 +81,24 @@
             style="@style/mainText"
             android:layout_margin="5dp"
             />
-
-        <RelativeLayout
+        <androidx.core.widget.NestedScrollView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="0dp"
-            android:layout_margin="0pt"
-            android:id="@+id/rlExtendedInfo">
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:id="@+id/llWebView"
-                android:orientation="vertical"
-                android:layout_above="@+id/llLinkInfo"
-
-
-
-                >
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="vertical"
-                    android:layout_gravity="center_vertical"
-                    android:id="@+id/llLoadingInfo"
-                    android:padding="50dp"
-                    >
-                    <TextView
-                        android:id="@+id/tvLoadingUrl"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Loading Url ..."
-                        style="@style/mainText"
-                        android:textAlignment="center"
-
-                        android:layout_margin="2dp"/>
-                    <ProgressBar
-
-                        android:layout_width="match_parent"
-                        android:layout_height="75dp"
-                        android:layout_margin="2dp"
-                        />
-
-                </LinearLayout>
-
-                <WebView
-                    android:id="@+id/wvInfo"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:visibility="gone"
-                    />
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/llLinkInfo"
+            android:id="@+id/nsvMoreInfo">
+            <TextView
+                android:id="@+id/tvDescription"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_alignParentBottom="true"
-                android:layout_marginBottom="2dp"
-                android:gravity="center_horizontal"
-                android:orientation="horizontal">
+                android:textAlignment="center"
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnShortLink"
-                    style="@style/buttonTheme"
-                    android:text="Summary"
-                    app:cornerRadius="20dp"
-                    app:strokeColor="?attr/colorPrimaryVariant"
-                    app:strokeWidth="1dp" />
+                android:text="description \nText\nBla"
+                style="@style/subText"
+                android:layout_margin="15dp"
+                />
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnLongLink"
-
-                    style="@style/buttonTheme"
+        </androidx.core.widget.NestedScrollView>
 
 
-                    android:text="More Info"
-                    app:cornerRadius="20dp"
-                    app:strokeColor="?attr/colorOnSecondary"
-                    app:strokeWidth="1dp"
-
-                    />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnGoogleLink"
-
-                    style="@style/buttonTheme"
-
-                    android:text="Google"
-                    app:cornerRadius="20dp"
-                    app:strokeColor="?attr/colorOnSecondary"
-                    app:strokeWidth="1dp"
-
-
-                    />
-
-            </LinearLayout>
-
-        </RelativeLayout>
 
 
 

@@ -20,10 +20,10 @@ public interface SitePhotosDao {
     public Completable deleteSitePhoto(SitePhotos sitePhotos);
 
     @Query("SELECT * FROM sitePhotos")
-    Maybe<List<SitePhotos>> getAllSitePhotos();
+    public Maybe<List<SitePhotos>> getAllSitePhotos();
 
     @Query("SELECT * FROM sitePhotos WHERE site_id = :site_id ")
-    Maybe<List<SitePhotos>> getAllSitePhotosForSite(int site_id);
+    public Maybe<List<SitePhotos>> getAllSitePhotosForSite(int site_id);
 
 
 }

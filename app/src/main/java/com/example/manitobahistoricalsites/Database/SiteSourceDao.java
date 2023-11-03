@@ -20,8 +20,8 @@ public interface SiteSourceDao {
     public Completable deleteSiteSource(SiteSource siteSource);
 
     @Query("SELECT * FROM siteSource")
-    Maybe<List<SiteSource>> getAllSiteSources();
+    public Maybe<List<SiteSource>> getAllSiteSources();
 
     @Query("SELECT * FROM siteSource WHERE site_id = :site_id ")
-    Maybe<List<SiteSource>> getAllSiteSourcesForSite(int site_id);
+    public Maybe<List<SiteSource>> getAllSiteSourcesForSite(int site_id);
 }

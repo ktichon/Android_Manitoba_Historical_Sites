@@ -4,6 +4,7 @@ import android.location.Location;
 
 import androidx.annotation.NonNull;
 import androidx.room.Entity;
+import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
 @Entity
@@ -22,6 +23,12 @@ public class ManitobaHistoricalSite {
     public String site_url;
     public String import_date;
 
+
+    @Ignore
+    public Location location;
+
+
+
     public ManitobaHistoricalSite(int site_id, String name, String address, double latitude, double longitude, String province, String municipality, String description, String site_url, String import_date) {
         this.site_id = site_id;
         this.name = name;
@@ -33,6 +40,9 @@ public class ManitobaHistoricalSite {
         this.description = description;
         this.site_url = site_url;
         this.import_date = import_date;
+        this.location =  new Location("");
+        this.location.setLatitude(getLatitude());
+        this.location.setLongitude(getLongitude());
     }
 
     public String getName() {
@@ -107,6 +117,14 @@ public class ManitobaHistoricalSite {
         this.site_url = site_url;
     }
 
+    public Location getLocation() {
+        return location;
+    }
+
+    public void setLocation(Location location) {
+        this.location = location;
+    }
+
     public String getImport_date() {
         return import_date;
     }
@@ -115,11 +133,5 @@ public class ManitobaHistoricalSite {
         this.import_date = import_date;
     }
 
-    public Location getLocation()
-    {
-        Location siteLocation = new Location("");
-        siteLocation.setLatitude(getLatitude());
-        siteLocation.setLongitude(getLongitude());
-        return  siteLocation;
-    }
+
 }
