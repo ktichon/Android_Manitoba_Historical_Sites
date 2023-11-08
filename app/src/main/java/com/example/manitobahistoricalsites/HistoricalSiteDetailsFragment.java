@@ -204,18 +204,7 @@ public class HistoricalSiteDetailsFragment extends Fragment {
         mViewModel.getCurrentLocation().observe(getViewLifecycleOwner(), new Observer<Location>() {
             @Override
             public void onChanged(Location location) {
-                try{
-                    Float distance = currentSite.getLocation().distanceTo(location) ;
-                    String distanceText = (distance >= 1000? String.format("%.2f",distance/1000) + " km": String.format("%.2f",distance) + " m");
-                    //String distanceText = String.format("%.2f",distance) + " m";
-                    //((TextView) mainView.findViewById(R.id.tvDistance)).setText(distanceText + " away");
-                    ((TextView) mainView.findViewById(R.id.tvAddress)).setText(currentSite.getAddress() + ", " + distanceText + " away");
-                } catch (Exception e)
-                {
-                    Log.e("Error", "updateDistanceAway: Error updating user distance from the site\n" + e.getMessage());
-                }
-
-
+                displaySiteAddressAndDistance(location);
             }
         } );
         /*mViewModel.getCurrentSite().observe(getViewLifecycleOwner(), display -> {
@@ -254,9 +243,13 @@ public class HistoricalSiteDetailsFragment extends Fragment {
         mViewModel.setCurrentSite(currentSite);
         llDisplayInfo.setVisibility(View.VISIBLE);
         tvName.setText(site.getName());
-        ((TextView) mainView.findViewById(R.id.tvAddress)).setText(site.getAddress());
+        displaySiteAddressAndDistance(mViewModel.getCurrentLocation().getValue());
+        ((TextView) mainView.findViewById(R.id.tvMuni)).setText(site.getMunicipality() + ", " + site.getProvince());
         setSmall(mViewModel.getCurrentDisplayHeight().getValue());
-        ((TextView) mainView.findViewById(R.id.tvDescription)).setText(site.getDescription());
+
+        //Hopefully makes the description more readable
+        String formattedDescription = site.getDescription().replace("\n", "\n\n");
+        ((TextView) mainView.findViewById(R.id.tvDescription)).setText(formattedDescription);
 
 
     }
@@ -383,6 +376,23 @@ public class HistoricalSiteDetailsFragment extends Fragment {
 
 
 
+    }
+
+    //Displays site address and its distance from the user location
+    private void displaySiteAddressAndDistance (Location userLocation)
+    {
+        try{
+            if (userLocation != null)
+            {
+                Float distance = currentSite.getLocation().distanceTo(userLocation) ;
+                String distanceText = (distance >= 1000? String.format("%.2f",distance/1000) + " km": String.format("%.2f",distance) + " m");
+                ((TextView) mainView.findViewById(R.id.tvAddress)).setText(currentSite.getAddress() + ", " + distanceText + " away");
+            }
+
+        } catch (Exception e)
+        {
+            Log.e("Error", "updateDistanceAway: Error updating user distance from the site\n" + e.getMessage());
+        }
     }
 
     /*private void setWebViewHeight(DisplayHeight displayHeight)
@@ -569,9 +579,9 @@ public class HistoricalSiteDetailsFragment extends Fragment {
                     //To make sure that the newHeight has a default value
                     DisplayHeight newHeight = displayHeight;
                     if (distanceY > 0) {
-                        newHeight = (displayHeight == DisplayHeight.FULL? DisplayHeight.MEDIUM: DisplayHeight.SMALL);
+                        newHeight =  DisplayHeight.SMALL;
                     } else {
-                        newHeight = (displayHeight == DisplayHeight.SMALL? DisplayHeight.MEDIUM: DisplayHeight.FULL);
+                        newHeight =  DisplayHeight.FULL;
                     }
 
 

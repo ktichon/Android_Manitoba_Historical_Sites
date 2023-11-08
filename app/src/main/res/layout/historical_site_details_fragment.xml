@@ -6,11 +6,14 @@
     android:layout_gravity="bottom"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:id="@+id/Details"
-    android:background="@drawable/border">
-
-
+    android:layout_height="match_parent"
+    android:id="@+id/detailsContainer"
+    android:background="@drawable/straight_border">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/Details"
+        android:orientation="vertical">
         <TextView
             android:id="@+id/tvName"
             android:layout_width="match_parent"
@@ -23,15 +26,15 @@
             android:layout_marginTop="10dp"
             />
 
-    <TextView
-        android:id="@+id/tvTypes"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textAlignment="center"
-        android:text="Types/types"
-        style="@style/subText"
-        android:layout_margin="0dp"
-        />
+        <TextView
+            android:id="@+id/tvTypes"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:text="Types/types"
+            style="@style/subText"
+            android:layout_margin="0dp"
+            />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -49,15 +52,15 @@
                 android:layout_margin="10dp"
                 />
 
-                <TextView
-                    android:id="@+id/tvDistance"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textAlignment="center"
-                    android:text=""
-                    style="@style/subText"
-                    android:layout_margin="10dp"
-                    />
+            <TextView
+                android:id="@+id/tvDistance"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAlignment="center"
+                android:text=""
+                style="@style/subText"
+                android:layout_margin="10dp"
+                />
 
 
             <ImageButton
@@ -69,6 +72,17 @@
 
 
         </LinearLayout>
+        <TextView
+            android:id="@+id/tvMuni"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:text="Municiplaty"
+            style="@style/subText"
+            android:layout_marginTop="0dp"
+            android:layout_marginBottom="10dp"
+
+            />
 
 
 
@@ -84,12 +98,14 @@
         <androidx.core.widget.NestedScrollView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/nsvMoreInfo">
+            android:id="@+id/nsvMoreInfo"
+            android:background="@drawable/rounded_border">
             <TextView
+
                 android:id="@+id/tvDescription"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textAlignment="center"
+
 
                 android:text="description \nText\nBla"
                 style="@style/subText"
@@ -97,6 +113,11 @@
                 />
 
         </androidx.core.widget.NestedScrollView>
+
+    </LinearLayout>
+
+
+
 
 
 

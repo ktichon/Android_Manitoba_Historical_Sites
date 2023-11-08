@@ -1,54 +1,37 @@
-<FrameLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:id="@+id/root">
-    <LinearLayout
+    android:id="@+id/root"
+    >
+    <androidx.appcompat.widget.Toolbar
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
-        <androidx.appcompat.widget.Toolbar
+        android:layout_height="wrap_content"
+        android:background="?attr/colorPrimary"
+        android:layout_alignParentTop="true"
+
+        android:elevation="4dp"
+        android:id="@+id/tbMain">
+        <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="?attr/colorPrimary"
+            android:text="@string/app_name" android:textSize="20dp"/>
 
-            android:elevation="4dp"
-            android:id="@+id/tbMain">
-            <AutoCompleteTextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="@string/search_text"
-                android:id="@+id/atvSearch"
-                android:inputType="text"
-
-                style="@style/mainText"
-                />
-        </androidx.appcompat.widget.Toolbar>
-        <androidx.fragment.app.FragmentContainerView xmlns:android="http://schemas.android.com/apk/res/android"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/fcvMap"
-            />
-
-    </LinearLayout>
-
-
-
-
+    </androidx.appcompat.widget.Toolbar>
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tbMain"
         android:orientation="vertical"
         android:id="@+id/llDisplaySpacing">
 
-        <androidx.fragment.app.FragmentContainerView
+        <androidx.fragment.app.FragmentContainerView xmlns:android="http://schemas.android.com/apk/res/android"
             android:layout_width="match_parent"
+            android:id="@+id/fcvMap"
             android:layout_height="0dp"
-            android:id="@+id/fcvBlankSpace"
-            android:visibility="invisible"
-            android:layout_weight="1"
+            android:layout_weight="3"
             />
         <androidx.fragment.app.FragmentContainerView
             android:id="@+id/fcvDetails"
@@ -60,14 +43,8 @@
 
     </LinearLayout>
 
+</RelativeLayout>
 
-
-
-
-
-
-
-</FrameLayout>
 
 
 

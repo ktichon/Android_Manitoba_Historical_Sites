@@ -134,4 +134,11 @@ public class ManitobaHistoricalSite {
     }
 
 
+    @Override
+    public String toString() {
+        return getName() + ", " +  getAddress();
+    }
+
+
+
 }

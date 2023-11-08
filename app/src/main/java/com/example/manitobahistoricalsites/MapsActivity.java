@@ -76,20 +76,20 @@ public class MapsActivity extends AppCompatActivity
 {
 
     private GoogleMap mMap;
-    private RequestQueue queue;
+    //private RequestQueue queue;
     private List<HistoricalSite> allHistoricalSites;
     private List<ManitobaHistoricalSite> allManitobaHistoricalSites;
     private List<Marker> allMarkers;
-    private LinearLayout llDisplayInfo;
-    private LinearLayout llPlaceInfo;
+    //private LinearLayout llDisplayInfo;
+   // private LinearLayout llPlaceInfo;
     private ManitobaHistoricalSite currentSite;
-    private Button btnLong;
+    /*private Button btnLong;
     private Button btnShort;
     private Button btnGoogle;
-    private ImageButton btnDirections;
+    private ImageButton btnDirections;*/
     private SupportMapFragment supportMapFragment;
     private Menu menu;
-    private ArrayAdapter<HistoricalSite> searchAdapter;
+    private ArrayAdapter<ManitobaHistoricalSite> searchAdapter;
     private AutoCompleteTextView searchSites;
 
 
@@ -172,11 +172,11 @@ public class MapsActivity extends AppCompatActivity
 
 
 
-
+        /*
         searchSites = (AutoCompleteTextView) findViewById(R.id.atvSearch);
         searchSites.setVisibility(View.INVISIBLE);
 
-        searchAdapter = new ArrayAdapter<HistoricalSite>( this, R.layout.search_item_layout, allHistoricalSites);
+        searchAdapter = new ArrayAdapter<ManitobaHistoricalSite>( this, R.layout.search_item_layout, allManitobaHistoricalSites);
         searchSites.setAdapter(searchAdapter);
 
         searchSites.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -200,11 +200,11 @@ public class MapsActivity extends AppCompatActivity
 
 
             }
-        });
+        });*/
 
 
 
-        queue = Volley.newRequestQueue(getApplicationContext());
+        //queue = Volley.newRequestQueue(getApplicationContext());
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
 
@@ -237,7 +237,7 @@ public class MapsActivity extends AppCompatActivity
 
             }
         });
-        viewModel.setCurrentDisplayHeight(DisplayHeight.MEDIUM);
+        viewModel.setCurrentDisplayHeight(DisplayHeight.SMALL);
         loadManitobaHistoricalSiteData();
         loadMap();
 
@@ -395,7 +395,7 @@ public class MapsActivity extends AppCompatActivity
 
             }
 
-            if (allManitobaHistoricalSites.size() > 0)
+            if (allManitobaHistoricalSites != null && allManitobaHistoricalSites.size() > 0)
             {
                 addSiteListToMap(allManitobaHistoricalSites);
             }
@@ -629,11 +629,6 @@ public class MapsActivity extends AppCompatActivity
         try {
             float mapWeight = Float.parseFloat(getString(R.string.on_details_small_map));
             float detailWeight = Float.parseFloat(getString(R.string.on_details_small_detail));
-            if (newHeight == DisplayHeight.MEDIUM)
-            {
-                mapWeight = Float.parseFloat(getString(R.string.on_details_med_map));
-                detailWeight = Float.parseFloat(getString(R.string.on_details_med_detail));
-            }
             if (newHeight == DisplayHeight.FULL)
             {
                 mapWeight = Float.parseFloat(getString(R.string.on_details_big_map));
@@ -645,7 +640,7 @@ public class MapsActivity extends AppCompatActivity
             if (historicalSite!= null)
             {
                 try {
-                    FragmentContainerView  mapView = (FragmentContainerView) findViewById(R.id.fcvBlankSpace);
+                    FragmentContainerView  mapView = (FragmentContainerView) findViewById(R.id.fcvMap);
                     FragmentContainerView detailView = (FragmentContainerView) findViewById(R.id.fcvDetails);
                     LinearLayout.LayoutParams mapViewLayoutParams =  (LinearLayout.LayoutParams) mapView.getLayoutParams();
                     LinearLayout.LayoutParams detailViewParams =  (LinearLayout.LayoutParams) detailView.getLayoutParams();
