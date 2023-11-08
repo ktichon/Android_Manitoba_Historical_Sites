@@ -220,19 +220,16 @@ public class HistoricalSiteDetailsFragment extends Fragment {
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe( manitobaHistoricalSites -> displayHistoricalSiteInfo( manitobaHistoricalSites),
-                                throwable ->  Toast.makeText(getContext(), "Error fetching data", Toast.LENGTH_SHORT).show()
+                                throwable ->  Toast.makeText(getContext(), "Error retrieving site data", Toast.LENGTH_SHORT).show()
                         ));
-        mDisposable.add(
-                mViewModel.getHistoricalSiteDatabase().manitobaHistoricalSiteDao().getManitobaHistoricalSite(site_id)
-                        .subscribeOn(Schedulers.io())
 
-
-        );
 
         mDisposable.add(mViewModel.getHistoricalSiteDatabase().siteTypeDao().getAllSiteTypesForSite(site_id)
-                .subscribeOn()
-
-        );
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe( siteTypes -> displaySiteType( siteTypes),
+                        throwable ->  Toast.makeText(getContext(), "Error retrieving site types", Toast.LENGTH_SHORT).show()
+                ));
 
 
 
@@ -250,17 +247,24 @@ public class HistoricalSiteDetailsFragment extends Fragment {
     //Gets and displays info for Manitoba Historical Site
     public void displayHistoricalSiteInfo(ManitobaHistoricalSite site)
     {
-        currentSite = site;
-        mViewModel.setCurrentSite(currentSite);
-        llDisplayInfo.setVisibility(View.VISIBLE);
-        tvName.setText(site.getName());
-        displaySiteAddressAndDistance(mViewModel.getCurrentLocation().getValue());
-        ((TextView) mainView.findViewById(R.id.tvMuni)).setText(site.getMunicipality() + ", " + site.getProvince());
-        setSmall(mViewModel.getCurrentDisplayHeight().getValue());
+        try {
+            currentSite = site;
+            mViewModel.setCurrentSite(currentSite);
+            llDisplayInfo.setVisibility(View.VISIBLE);
+            tvName.setText(site.getName());
+            displaySiteAddressAndDistance(mViewModel.getCurrentLocation().getValue());
+            ((TextView) mainView.findViewById(R.id.tvMuni)).setText(site.getMunicipality() + ", " + site.getProvince());
+            setSmall(mViewModel.getCurrentDisplayHeight().getValue());
 
-        //Hopefully makes the description more readable
-        String formattedDescription = site.getDescription().replace("\n", "\n\n");
-        ((TextView) mainView.findViewById(R.id.tvDescription)).setText(formattedDescription);
+            //Hopefully makes the description more readable
+            String formattedDescription = site.getDescription().replace("\n", "\n\n");
+            ((TextView) mainView.findViewById(R.id.tvDescription)).setText(formattedDescription);
+        }
+        catch (Exception e)
+        {
+            Log.e("Error", "displayHistoricalSiteInfo: Error displaying site info\n" + e.getMessage());
+        }
+
 
 
     }
@@ -268,11 +272,26 @@ public class HistoricalSiteDetailsFragment extends Fragment {
     //Gets and displays info for Manitoba Historical Site
     public void displaySiteType(List<SiteType> siteTypes)
     {
-        String types = "";
-        for (SiteType type: siteTypes) {
-            types = types + ", " + type.getType();
+        try {
+            if (siteTypes != null && siteTypes.size() > 0)
+            {
+                String allTypes = "";
+                for (SiteType type: siteTypes) {
+                    allTypes = allTypes  + type.getType().replace("%2f", " or ") + "/";
+                }
+                String displayTypes = allTypes.substring(0, allTypes.length() - 1);
+
+                ((TextView) mainView.findViewById(R.id.tvTypes)).setText(displayTypes);
+
+
+            }
         }
-        types = types.substring(2);
+        catch (Exception e)
+        {
+            Log.e("Error", "displaySiteType: Error displaying site types\n" + e.getMessage());
+        }
+
+
         
     }
 
