@@ -9,7 +9,7 @@ import androidx.room.Query;
 import java.util.List;
 
 import io.reactivex.rxjava3.core.Completable;
-import io.reactivex.rxjava3.core.Maybe;
+import io.reactivex.Maybe;
 
 @Dao
 public interface SitePhotosDao {

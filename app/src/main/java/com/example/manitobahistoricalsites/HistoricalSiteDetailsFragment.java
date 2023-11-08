@@ -67,7 +67,7 @@ public class HistoricalSiteDetailsFragment extends Fragment {
     //private Location currentLocation;
     //private FusedLocationProviderClient fusedLocationProviderClient;
     LocationManager locationManager;
-    private RequestQueue queue;
+    //private RequestQueue queue;
     View mainView;
     WebView webView;
     LinearLayout llLoadingInfo;
@@ -122,7 +122,7 @@ public class HistoricalSiteDetailsFragment extends Fragment {
             mViewModel.setCurrentSite(currentSite);
         }*/
 
-        queue = Volley.newRequestQueue(mainView.getContext());
+        //queue = Volley.newRequestQueue(mainView.getContext());
         llDisplayInfo = mainView.findViewById(R.id.Details);
         llDisplayInfo.setVisibility(View.GONE);
 
@@ -222,6 +222,17 @@ public class HistoricalSiteDetailsFragment extends Fragment {
                         .subscribe( manitobaHistoricalSites -> displayHistoricalSiteInfo( manitobaHistoricalSites),
                                 throwable ->  Toast.makeText(getContext(), "Error fetching data", Toast.LENGTH_SHORT).show()
                         ));
+        mDisposable.add(
+                mViewModel.getHistoricalSiteDatabase().manitobaHistoricalSiteDao().getManitobaHistoricalSite(site_id)
+                        .subscribeOn(Schedulers.io())
+
+
+        );
+
+        mDisposable.add(mViewModel.getHistoricalSiteDatabase().siteTypeDao().getAllSiteTypesForSite(site_id)
+                .subscribeOn()
+
+        );
 
 
 
