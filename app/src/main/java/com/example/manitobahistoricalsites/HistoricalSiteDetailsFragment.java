@@ -18,6 +18,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.viewpager2.widget.ViewPager2;
 
 import android.text.TextUtils;
 import android.util.Log;
@@ -40,6 +41,7 @@ import android.widget.Toast;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
 import com.example.manitobahistoricalsites.Database.ManitobaHistoricalSite;
+import com.example.manitobahistoricalsites.Database.SitePhotos;
 import com.example.manitobahistoricalsites.Database.SiteType;
 import com.google.android.material.button.MaterialButton;
 
@@ -78,6 +80,8 @@ public class HistoricalSiteDetailsFragment extends Fragment {
     private ManitobaHistoricalSite currentSite;
 
     private final CompositeDisposable mDisposable = new CompositeDisposable();
+
+    private ViewPager2 viewPager2;
 
 
     private static final String SITE_KEY = "current_historical_site_yehaw";
@@ -231,6 +235,13 @@ public class HistoricalSiteDetailsFragment extends Fragment {
                         throwable ->  Toast.makeText(getContext(), "Error retrieving site types", Toast.LENGTH_SHORT).show()
                 ));
 
+        mDisposable.add(mViewModel.getHistoricalSiteDatabase().sitePhotosDao().getAllSitePhotosForSite(site_id)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe( sitePhotos -> displaySitePhoto( sitePhotos),
+                        throwable ->  Toast.makeText(getContext(), "Error retrieving site photos", Toast.LENGTH_SHORT).show()
+                ));
+
 
 
 
@@ -277,9 +288,9 @@ public class HistoricalSiteDetailsFragment extends Fragment {
             {
                 String allTypes = "";
                 for (SiteType type: siteTypes) {
-                    allTypes = allTypes  + type.getType().replace("%2f", " or ") + "/";
+                    allTypes = allTypes  + type.getType() + "/";
                 }
-                String displayTypes = allTypes.substring(0, allTypes.length() - 1);
+                String displayTypes = allTypes.substring(0, allTypes.length() - 1).replace("%2F", " or ");
 
                 ((TextView) mainView.findViewById(R.id.tvTypes)).setText(displayTypes);
 
@@ -293,6 +304,18 @@ public class HistoricalSiteDetailsFragment extends Fragment {
 
 
         
+    }
+
+    public void displaySitePhoto(List<SitePhotos> sitePhotos)
+    {
+        viewPager2 = mainView.findViewById(R.id.viewpager);
+        try {
+            viewPager2.setAdapter(new SiteImagesAdapter(sitePhotos, viewPager2));
+        }
+        catch (Exception e)
+        {
+            Log.e("Error", "displaySitePhoto: Error displaying site photos\n" + e.getMessage());
+        }
     }
 
 
