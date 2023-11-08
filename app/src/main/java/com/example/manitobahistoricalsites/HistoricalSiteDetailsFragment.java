@@ -1,18 +1,14 @@
 package com.example.manitobahistoricalsites;
 
-import androidx.annotation.RequiresApi;
 import androidx.core.widget.NestedScrollView;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.content.res.ColorStateList;
-import android.graphics.Bitmap;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -28,22 +24,16 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.webkit.WebResourceError;
-import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
-import android.webkit.WebViewClient;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.volley.RequestQueue;
-import com.android.volley.toolbox.Volley;
 import com.example.manitobahistoricalsites.Database.ManitobaHistoricalSite;
 import com.example.manitobahistoricalsites.Database.SitePhotos;
+import com.example.manitobahistoricalsites.Database.SiteSource;
 import com.example.manitobahistoricalsites.Database.SiteType;
-import com.google.android.material.button.MaterialButton;
 
 import java.util.List;
 
@@ -176,7 +166,7 @@ public class HistoricalSiteDetailsFragment extends Fragment {
 
 
 
-        btnDirections = (ImageButton) mainView.findViewById(R.id.btnDirections);
+       /* btnDirections = (ImageButton) mainView.findViewById(R.id.btnDirections);
         btnDirections.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 //String origin = "origin=" + currentLocation.getLatitude()+","+ currentLocation.getLongitude();
@@ -195,20 +185,20 @@ public class HistoricalSiteDetailsFragment extends Fragment {
                 mapIntent.setPackage("com.google.android.apps.maps");
                 startActivity(mapIntent);
 
-               /* FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.fcvDetails, HistoricalSiteDirectionsFragment.class, null);
+               *//* FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.fcvDetails, HistoricalSiteDirectionsFragment.class, null);
                 ft.setReorderingAllowed(true)
                         .addToBackStack(null) // name can be null
-                        .commit();*/
+                        .commit();*//*
                //getDirectionsApi(currentSite);
             }
-        });
+        });*/
 
 
         // Updates the "# away" textbox whenever the location changes
         mViewModel.getCurrentLocation().observe(getViewLifecycleOwner(), new Observer<Location>() {
             @Override
             public void onChanged(Location location) {
-                displaySiteAddressAndDistance(location);
+                displaySiteDistance(location);
             }
         } );
         /*mViewModel.getCurrentSite().observe(getViewLifecycleOwner(), display -> {
@@ -242,6 +232,13 @@ public class HistoricalSiteDetailsFragment extends Fragment {
                         throwable ->  Toast.makeText(getContext(), "Error retrieving site photos", Toast.LENGTH_SHORT).show()
                 ));
 
+        mDisposable.add(mViewModel.getHistoricalSiteDatabase().siteSourceDao().getAllSiteSourcesForSite(site_id)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe( siteSources -> displaySiteSources( siteSources),
+                        throwable ->  Toast.makeText(getContext(), "Error retrieving site sources", Toast.LENGTH_SHORT).show()
+                ));
+
 
 
 
@@ -263,8 +260,8 @@ public class HistoricalSiteDetailsFragment extends Fragment {
             mViewModel.setCurrentSite(currentSite);
             llDisplayInfo.setVisibility(View.VISIBLE);
             tvName.setText(site.getName());
-            displaySiteAddressAndDistance(mViewModel.getCurrentLocation().getValue());
-            ((TextView) mainView.findViewById(R.id.tvMuni)).setText(site.getMunicipality() + ", " + site.getProvince());
+            displaySiteDistance(mViewModel.getCurrentLocation().getValue());
+            ((TextView) mainView.findViewById(R.id.tvAddress)).setText(site.getAddress() + ", " +site.getMunicipality());
             setSmall(mViewModel.getCurrentDisplayHeight().getValue());
 
             //Hopefully makes the description more readable
@@ -306,11 +303,29 @@ public class HistoricalSiteDetailsFragment extends Fragment {
         
     }
 
+    //Sets up the ViewPager to use the site photos
     public void displaySitePhoto(List<SitePhotos> sitePhotos)
     {
         viewPager2 = mainView.findViewById(R.id.viewpager);
         try {
             viewPager2.setAdapter(new SiteImagesAdapter(sitePhotos, viewPager2));
+        }
+        catch (Exception e)
+        {
+            Log.e("Error", "displaySitePhoto: Error displaying site photos\n" + e.getMessage());
+        }
+    }
+
+    //Displays the site sources
+    public void displaySiteSources(List<SiteSource> siteSources)
+    {
+        try {
+            String displaySource = "";
+            for (SiteSource source: siteSources)
+            {
+                displaySource  = displaySource + source.getInfo() + " \n\n";
+            }
+            ((TextView) mainView.findViewById(R.id.tvSourceInfo)).setText(displaySource);
         }
         catch (Exception e)
         {
@@ -431,15 +446,15 @@ public class HistoricalSiteDetailsFragment extends Fragment {
 
     }
 
-    //Displays site address and its distance from the user location
-    private void displaySiteAddressAndDistance (Location userLocation)
+    //Displays site distance from the user location
+    private void displaySiteDistance(Location userLocation)
     {
         try{
             if (userLocation != null)
             {
                 Float distance = currentSite.getLocation().distanceTo(userLocation) ;
                 String distanceText = (distance >= 1000? String.format("%.2f",distance/1000) + " km": String.format("%.2f",distance) + " m");
-                ((TextView) mainView.findViewById(R.id.tvAddress)).setText(currentSite.getAddress() + ", " + distanceText + " away");
+                ((TextView) mainView.findViewById(R.id.tvDistance)).setText( distanceText + " away");
             }
 
         } catch (Exception e)

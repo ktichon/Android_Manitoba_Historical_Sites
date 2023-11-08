@@ -36,53 +36,27 @@
             android:layout_margin="0dp"
             />
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center">
-
-            <TextView
-                android:id="@+id/tvAddress"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAlignment="center"
-                android:text="Address"
-                style="@style/subText"
-                android:layout_margin="10dp"
-                />
-
-            <TextView
-                android:id="@+id/tvDistance"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAlignment="center"
-                android:text=""
-                style="@style/subText"
-                android:layout_margin="10dp"
-                />
-
-
-            <ImageButton
-                android:id="@+id/btnDirections"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/ic_baseline_directions_18_by_18"
-                android:contentDescription="Directions"/>
-
-
-        </LinearLayout>
         <TextView
-            android:id="@+id/tvMuni"
+        android:id="@+id/tvAddress"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAlignment="center"
+        android:text="Address"
+        style="@style/subText"
+        android:layout_marginTop="5dp"
+            android:layout_marginBottom="0dp"
+        />
+
+        <TextView
+            android:id="@+id/tvDistance"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textAlignment="center"
-            android:text="Municiplaty"
-            style="@style/subText"
+            android:text="Distance"
             android:layout_marginTop="0dp"
             android:layout_marginBottom="10dp"
-
             />
+
 
 
 
@@ -122,6 +96,23 @@
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:layout_margin="5dp"/>
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Sources: "
+                    style="@style/mainText"
+                    android:layout_marginTop="10dp"
+
+                    android:id="@+id/tvSourceTitle"/>
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    style="@style/subText"
+                    android:layout_margin="5dp"
+                    android:id="@+id/tvSourceInfo"
+                    android:text="souce info\nMore souces"
+                    />
+
 
             </LinearLayout>
 
