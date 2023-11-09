@@ -14,17 +14,43 @@
         android:layout_height="match_parent"
         android:id="@+id/Details"
         android:orientation="vertical">
-        <TextView
-            android:id="@+id/tvName"
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textAlignment="center"
+            android:orientation="horizontal"
+            android:layout_margin="5dp">
+            <TextView
+                android:id="@+id/tvName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAlignment="center"
 
-            android:text="Name"
-            style="@style/titleText"
-            android:layout_marginBottom="5dp"
-            android:layout_marginTop="10dp"
-            />
+
+                android:layout_weight="0.8"
+
+
+                android:text="Name"
+                style="@style/titleText"
+
+
+                />
+            <androidx.appcompat.widget.AppCompatButton
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:background="@drawable/close_button"
+                android:layout_gravity="center_vertical"
+                android:contentDescription="Close Current Site"
+                android:id="@+id/btnClose"
+
+
+                />
+
+        </LinearLayout>
+
+
+
+
 
         <TextView
             android:id="@+id/tvTypes"
@@ -43,8 +69,7 @@
         android:textAlignment="center"
         android:text="Address"
         style="@style/mainText"
-        android:layout_marginTop="5dp"
-            android:layout_marginBottom="0dp"
+
         />
 
         <TextView
@@ -54,7 +79,6 @@
             android:textAlignment="center"
             android:text="mainText"
             android:layout_marginTop="0dp"
-            android:layout_marginBottom="5dp"
             />
 
 

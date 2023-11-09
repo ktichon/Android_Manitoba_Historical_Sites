@@ -1,5 +1,6 @@
 package com.example.manitobahistoricalsites;
 
+import androidx.appcompat.widget.AppCompatButton;
 import androidx.core.widget.NestedScrollView;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
@@ -48,6 +49,7 @@ public class HistoricalSiteDetailsFragment extends Fragment {
     //Declared as long click links to Manitoba Historical Society Site
     private TextView tvName;
 
+    //Declared to allow user to click to expand/collapse more info
     private TextView tvShowMoreInfo;
 
 
@@ -59,6 +61,8 @@ public class HistoricalSiteDetailsFragment extends Fragment {
     private final CompositeDisposable mDisposable = new CompositeDisposable();
 
     private ViewPager2 viewPager2;
+
+    private AppCompatButton btnClose;
 
 
     private static final String SITE_KEY = "current_historical_site_yehaw";
@@ -141,6 +145,16 @@ public class HistoricalSiteDetailsFragment extends Fragment {
                 mViewModel.setFullScreen(newFullScreen);
                 setSmall(newFullScreen);
 
+            }
+        });
+
+
+        btnClose = (AppCompatButton)   mainView.findViewById(R.id.btnClose);
+        btnClose.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mViewModel.setFullScreen(null);
+                //mViewModel.setCurrentSite(null);
             }
         });
 
@@ -361,6 +375,7 @@ public class HistoricalSiteDetailsFragment extends Fragment {
         super.onResume();
         if (currentSite != null)
         {
+            mViewModel.setFullScreen(false);
             displayHistoricalSiteInfo(currentSite);
         }
 

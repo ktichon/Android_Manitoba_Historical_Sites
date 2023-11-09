@@ -588,6 +588,7 @@ public class MapsActivity extends AppCompatActivity
                 /*currentSite = nextSite;
                 viewModel.setCurrentSite(currentSite);*/
                 viewModel.setCurrentLocation(getUserLocation());
+                viewModel.setFullScreen(false);
                 Fragment newFragment = HistoricalSiteDetailsFragment.newInstance(nextSiteId);
                 ((FragmentContainerView) findViewById(R.id.fcvDetails)).setVisibility(View.VISIBLE);
 
@@ -629,11 +630,16 @@ public class MapsActivity extends AppCompatActivity
         try {
             float mapWeight = Float.parseFloat(getString(R.string.on_details_small_map));
             float detailWeight = Float.parseFloat(getString(R.string.on_details_small_detail));
-            if (fullScreen)
+            if (fullScreen == null)
+            {
+                mapWeight = Float.parseFloat(getString(R.string.on_details_big_detail));
+                detailWeight = Float.parseFloat(getString(R.string.on_details_big_map));
+            } else if (fullScreen)
             {
                 mapWeight = Float.parseFloat(getString(R.string.on_details_big_map));
                 detailWeight = Float.parseFloat(getString(R.string.on_details_big_detail));
             }
+
 
 
 
