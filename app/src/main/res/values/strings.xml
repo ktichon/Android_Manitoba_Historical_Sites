@@ -4,7 +4,8 @@
     <string name="title_activity_maps">Manitoba Historical Sites</string>
     <string name="nope">No Google Place Id Found :(</string>
     <string name="search_text">Search Historical Sites ...</string>
-    <string name="has_more">Swipe up for more info</string>
+    <string name="show_more">Click here to show more info</string>
+    <string name="show_less">Click here to show less info</string>
 
 
     <!-- String data -->

@@ -7,7 +7,6 @@ import androidx.lifecycle.ViewModelProvider;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.location.Location;
-import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 
@@ -24,8 +23,6 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.webkit.WebView;
-import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -46,25 +43,15 @@ public class HistoricalSiteDetailsFragment extends Fragment {
     private HistoricalSiteDetailsViewModel mViewModel;
     private LinearLayout llDetails;
     private LinearLayout llDisplayInfo;
-    //private LinearLayout llPlaceInfo;
 
+
+    //Declared as long click links to Manitoba Historical Society Site
     private TextView tvName;
 
-    /*private MaterialButton btnLong;
-    private MaterialButton btnShort;
-    private MaterialButton btnGoogle;*/
-    private ImageButton btnDirections;
-    /*private int activeBtnColour;
-    private int restBtnColour;*/
-    //private Location currentLocation;
-    //private FusedLocationProviderClient fusedLocationProviderClient;
-    LocationManager locationManager;
-    //private RequestQueue queue;
-    View mainView;
-    WebView webView;
-    LinearLayout llLoadingInfo;
+    private TextView tvShowMoreInfo;
 
-    private LinearLayout llWebView;
+
+    View mainView;
     private GestureDetector mDetector;
 
     private ManitobaHistoricalSite currentSite;
@@ -109,26 +96,12 @@ public class HistoricalSiteDetailsFragment extends Fragment {
         mainView = view;
         mViewModel = new ViewModelProvider(getActivity()).get(HistoricalSiteDetailsViewModel.class);
 
-        //currentSite = mViewModel.getCurrentSite().getValue();
-        int site_id  =  getArguments().getInt(SITE_KEY);
-        /*if (mViewModel.getCurrentSite().getValue() != currentSite)
-        {
-            mViewModel.setCurrentSite(currentSite);
-        }*/
 
-        //queue = Volley.newRequestQueue(mainView.getContext());
+        int site_id  =  getArguments().getInt(SITE_KEY);
+
         llDisplayInfo = mainView.findViewById(R.id.Details);
         llDisplayInfo.setVisibility(View.GONE);
 
-
-
-
-
-        /*llPlaceInfo = mainView.findViewById(R.id.llPlaceInformation);
-        llPlaceInfo.setVisibility(View.GONE);*/
-
-       /* if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED)
-            locationManager = (LocationManager) mainView.getContext().getSystemService(LOCATION_SERVICE);*/
 
 
         //Set up Gesture listener
@@ -145,14 +118,8 @@ public class HistoricalSiteDetailsFragment extends Fragment {
         });
 
 
+        //Set button presses to link to Manitoba Historical Society Site
         tvName = (TextView) mainView.findViewById(R.id.tvName);
-
-
-
-
-
-        //Set button presses
-
         tvName.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
@@ -164,34 +131,25 @@ public class HistoricalSiteDetailsFragment extends Fragment {
 
 
 
-
-
-       /* btnDirections = (ImageButton) mainView.findViewById(R.id.btnDirections);
-        btnDirections.setOnClickListener(new View.OnClickListener() {
+        //Set up way to expand and collapse the more info (without swiping)
+        tvShowMoreInfo = (TextView) mainView.findViewById(R.id.tvShowMoreInfo);
+        tvShowMoreInfo.setOnClickListener(new View.OnClickListener() {
+            @Override
             public void onClick(View v) {
-                //String origin = "origin=" + currentLocation.getLatitude()+","+ currentLocation.getLongitude();
-                String destination = "destination=";
+                Boolean oldFullScreen = mViewModel.getFullScreen().getValue();
+                Boolean newFullScreen = !oldFullScreen;
+                mViewModel.setFullScreen(newFullScreen);
+                setSmall(newFullScreen);
 
-                destination += currentSite.getLocation().getLatitude() + "," + currentSite.getLocation().getLongitude();
-                String alternatives = "alternatives=false";
-
-                String departureTime = "departure_time=now";
-                String mode = "mode=driving";
-                String units = "units=metric";
-                String directionUrl = "https://www.google.com/maps/dir/?api=1&" + destination + "&" + alternatives + "&" + departureTime + "&" + mode + "&" + units;
-                //String directionUrl = "google.navigation:q=" + currentSite.location.getLatitude() + "," + currentSite.location.getLongitude();
-                Uri gmmIntentUri = Uri.parse(directionUrl);
-                Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
-                mapIntent.setPackage("com.google.android.apps.maps");
-                startActivity(mapIntent);
-
-               *//* FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.fcvDetails, HistoricalSiteDirectionsFragment.class, null);
-                ft.setReorderingAllowed(true)
-                        .addToBackStack(null) // name can be null
-                        .commit();*//*
-               //getDirectionsApi(currentSite);
             }
-        });*/
+        });
+
+
+
+
+
+
+
 
 
         // Updates the "# away" textbox whenever the location changes
@@ -201,12 +159,7 @@ public class HistoricalSiteDetailsFragment extends Fragment {
                 displaySiteDistance(location);
             }
         } );
-        /*mViewModel.getCurrentSite().observe(getViewLifecycleOwner(), display -> {
-            // Update the list UI
-        });*/
 
-
-        //setLlDisplayInfo(currentSite, mViewModel.getCurrentDisplayHeight().getValue());
 
         //Get Site info
         mDisposable.add(
@@ -262,7 +215,7 @@ public class HistoricalSiteDetailsFragment extends Fragment {
             tvName.setText(site.getName());
             displaySiteDistance(mViewModel.getCurrentLocation().getValue());
             ((TextView) mainView.findViewById(R.id.tvAddress)).setText(site.getAddress() + ", " +site.getMunicipality());
-            setSmall(mViewModel.getCurrentDisplayHeight().getValue());
+            setSmall(mViewModel.getFullScreen().getValue());
 
             //Hopefully makes the description more readable
             String formattedDescription = site.getDescription().replace("\n", "\n\n");
@@ -344,17 +297,6 @@ public class HistoricalSiteDetailsFragment extends Fragment {
         if (TextUtils.isEmpty(url)) {
             Toast.makeText(mainView.getContext(), "There is no addition information about the historic site " + currentSite.getName() + " in this app.", Toast.LENGTH_SHORT).show();
         } else {
-            /*Uri webpage = Uri.parse(url);
-            Intent intent = new Intent(Intent.ACTION_VIEW, webpage);
-
-            if (intent.resolveActivity(getPackageManager()) != null) {
-                startActivity(intent);*/
-
-            /*Intent intent = new Intent(getApplicationContext(), WebviewActivity.class);
-            intent.putExtra(getString(R.string.webviewUrl), url);
-            startActivity(intent);*/
-
-            //Better and easier to pull up link in browser than in my own webview
             Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
             startActivity(browserIntent);
 
@@ -362,52 +304,7 @@ public class HistoricalSiteDetailsFragment extends Fragment {
         }
     }
 
-    /*public void setLlDisplayInfo(HistoricalSite site, DisplayHeight displayHeight) {
-        //llPlaceInfo.setVisibility(View.GONE);
-        llDisplayInfo.setVisibility(View.VISIBLE);
 
-        //String buildDate = (TextUtils.isEmpty(site.getConstructionDate())? "": " (" + site.getConstructionDate() + ")");
-        tvName.setText(site.getName());
-        ((TextView) mainView.findViewById(R.id.tvAddress)).setText(site.getAddress());
-        *//*if(displayHeight == DisplayHeight.SMALL)
-        {
-            ((LinearLayout) mainView.findViewById(R.id.llWebView)).setVisibility(View.GONE);
-            ((LinearLayout) mainView.findViewById(R.id.llMoreInfo)).setVisibility(View.GONE);
-
-        }
-        else*//*
-
-
-        setUpWebView();
-
-        setSmall(displayHeight);
-
-
-
-
-
-
-
-        llWebView = mainView.findViewById(R.id.llWebView);
-        if(TextUtils.isEmpty(site.getShortUrl()))
-        {
-            llWebView.setVisibility(View.GONE);
-
-            // To stop no urls from displaying blank space in the Relative Layout
-
-            LinearLayout llLinkInfo = mainView.findViewById(R.id.llLinkInfo);
-            RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) llLinkInfo.getLayoutParams();
-            params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, 0);
-
-        }
-        else
-        {
-            // (displayHeight);
-            setWebViewContent(site.getShortUrl());
-        }
-
-
-    }*/
 
     //Sets text view data if it isn't null, else hide the textview
     private void setTextView(int viewId, String viewText)
@@ -425,25 +322,14 @@ public class HistoricalSiteDetailsFragment extends Fragment {
     }
 
     //if the display is smoll, display no links
-    private void setSmall(DisplayHeight displayHeight)
+    private void setSmall(Boolean fullScreen)
     {
-//        Boolean result = false;
-//       // ((LinearLayout) mainView.findViewById(R.id.llWebView)).setVisibility(View.VISIBLE);
-//        ((LinearLayout) mainView.findViewById(R.id.llExtendedInfo)).setVisibility(View.VISIBLE);
-//        if(displayHeight == DisplayHeight.SMALL)
-//        {
-//            //((LinearLayout) mainView.findViewById(R.id.llWebView)).setVisibility(View.GONE);
-//            ((LinearLayout) mainView.findViewById(R.id.llExtendedInfo)).setVisibility(View.GONE);
-//            result = true;
-//        }
+//
         NestedScrollView nsvMoreInfo =  (NestedScrollView) mainView.findViewById(R.id.nsvMoreInfo);
-        nsvMoreInfo.setVisibility(displayHeight == DisplayHeight.SMALL? View.GONE: View.VISIBLE);
-        TextView hasMoreInfo = (TextView) mainView.findViewById(R.id.tvHasMoreInfo);
-        hasMoreInfo.setVisibility(displayHeight == DisplayHeight.SMALL? View.VISIBLE: View.GONE);
-
-
-
-
+        nsvMoreInfo.setVisibility(fullScreen?View.VISIBLE : View.GONE );
+        tvShowMoreInfo.setText(fullScreen?  R.string.show_less : R.string.show_more);
+        int showInfoArrow = fullScreen? R.drawable.arrow_down : R.drawable.arrow_up;
+        tvShowMoreInfo.setCompoundDrawablesWithIntrinsicBounds(0, 0, showInfoArrow, 0);
     }
 
     //Displays site distance from the user location
@@ -462,132 +348,6 @@ public class HistoricalSiteDetailsFragment extends Fragment {
             Log.e("Error", "updateDistanceAway: Error updating user distance from the site\n" + e.getMessage());
         }
     }
-
-    /*private void setWebViewHeight(DisplayHeight displayHeight)
-    {
-        int screenHeight = Resources.getSystem().getDisplayMetrics().heightPixels;
-        Double maxHeightPercent = Double.parseDouble(displayHeight == DisplayHeight.MEDIUM? getString(R.string.medium_max_height_of_webview_percent): getString(R.string.full_max_height_of_webview_percent) );
-
-
-        //int maxHeight = (int)(screenHeight * Double.parseDouble( getString(R.string.medium_max_height_of_webview_percent)));
-        int maxHeight = (int)(screenHeight * maxHeightPercent);
-        llWebView = mainView.findViewById(R.id.llWebView);
-        ViewGroup.LayoutParams params = llWebView.getLayoutParams();
-        params.height = maxHeight;
-        params.width = ViewGroup.LayoutParams.MATCH_PARENT;
-        llWebView.setLayoutParams(params);
-    }*/
-
-   /* private void setWebViewContent(String siteURL)
-    {
-        String typeOfInfo = siteURL.contains("long.pdf")? "additional": "summary";
-        String loadingMessage = "Loading " + typeOfInfo + " info ..." ;
-        TextView tvLoading = (TextView) mainView.findViewById(R.id.tvLoadingUrl);
-        tvLoading.setText(loadingMessage);
-
-
-        //String pdf = "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf";
-
-        try {
-            llWebView.setVisibility(View.VISIBLE);
-            //webView.loadUrl("https://drive.google.com/viewerng/viewer?embedded=true&url=" + site.shortUrl);
-            //   https://docs.google.com/gview?embedded=true&url=
-
-
-            String cutFromURL = "https://";
-            String processedURL = "https://docs.google.com/gview?embedded=true&url=" + siteURL.substring(siteURL.indexOf(cutFromURL) + cutFromURL.length());
-
-
-            webView.loadUrl(processedURL);
-            //webView.loadUrl(siteURL);
-
-
-        } catch (Error e)
-        {
-            Toast.makeText(mainView.getContext(), "Error fetching " + typeOfInfo + " data:" + e.getMessage(), Toast.LENGTH_LONG).show();
-            Log.e("Error", "setWebViewContent: Error loading " + siteURL + " into webView \n" +  e.getMessage());
-            llWebView.setVisibility(View.GONE);
-        }
-    }
-
-    private void setUpWebView()
-    {
-        llWebView = mainView.findViewById(R.id.llWebView);
-        webView = (WebView) mainView.findViewById(R.id.wvInfo);
-        llLoadingInfo = (LinearLayout) mainView.findViewById(R.id.llLoadingInfo);
-
-        try {
-            webView.getSettings().setJavaScriptEnabled(true);
-            webView.getSettings().setBuiltInZoomControls(true);
-            webView.getSettings().setSupportZoom(true);
-            webView.setInitialScale(200);
-
-
-
-
-
-
-
-
-            webView.setWebViewClient(new WebViewClient() {
-                boolean loadingFinished = true;
-                boolean redirect = false;
-
-                //If redirect, load url again
-                @Override
-                public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
-                    if (!loadingFinished) {
-                        redirect = true;
-                    }
-
-                    loadingFinished = false;
-                    webView.loadUrl(request.getUrl().toString());
-                    return true;
-                }
-
-                @Override
-                public void onPageStarted(WebView view, String url, Bitmap favicon) {
-                    super.onPageStarted(view, url, favicon);
-                    loadingFinished = false;
-                    llLoadingInfo.setVisibility(View.VISIBLE);
-                    webView.setVisibility(View.GONE);
-
-                }
-
-                public void onPageFinished(WebView view, String url) {
-                    if (!redirect) {
-                        loadingFinished = true;
-                        llLoadingInfo.setVisibility(View.GONE);
-                        webView.setVisibility(View.VISIBLE);
-                    } else {
-                        redirect = false;
-                        Toast.makeText(mainView.getContext(), "There was error loading additional information (Redirect)", Toast.LENGTH_LONG).show();
-                    }
-                }
-
-                @RequiresApi(api = Build.VERSION_CODES.M)
-                @Override
-                public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
-                    super.onReceivedError(view, request, error);
-
-                    webView.setVisibility(View.GONE);
-                    Toast.makeText(mainView.getContext(), "There was error loading additional information", Toast.LENGTH_LONG).show();
-
-                    Log.e("Error", "setUpWebView: Error fetching  url:" + request.getUrl().toString() + "\n" +  error.getDescription());
-
-                }
-            });
-
-        }
-        catch (Exception e)
-        {
-            Log.e("Error", "setWebViewContent: Error fetching  url into webView \n" +  e.getMessage());
-        }
-
-
-
-
-    }*/
 
 
     @Override
@@ -629,54 +389,33 @@ public class HistoricalSiteDetailsFragment extends Fragment {
 
         @Override
         public boolean onDown(MotionEvent e) {
-
-
-
             return true;
-
         }
+
+        //Allows user to swipe up or down to expand/collapse the more info
         @Override
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
             Boolean result = true;
-            DisplayHeight displayHeight = mViewModel.getCurrentDisplayHeight().getValue();
+            Boolean oldFullScreen = mViewModel.getFullScreen().getValue();
             try {
                 float distanceX = e2.getX() - e1.getX();
                 float distanceY = e2.getY() - e1.getY();
                 if (Math.abs(distanceY) > SWIPE_THRESHOLD && Math.abs(velocityY) > SWIPE_VELOCITY_THRESHOLD &&  Math.abs(distanceY) > Math.abs(distanceX))
                 {
                     //To make sure that the newHeight has a default value
-                    DisplayHeight newHeight = displayHeight;
+                    boolean newFullScreen = oldFullScreen;
                     if (distanceY > 0) {
-                        newHeight =  DisplayHeight.SMALL;
+                        newFullScreen = false;
                     } else {
-                        newHeight =  DisplayHeight.FULL;
+                        newFullScreen = true;
                     }
 
-
-                    if(displayHeight != newHeight)
+                    if(oldFullScreen != newFullScreen)
                     {
-
-                        mViewModel.setCurrentDisplayHeight(newHeight);
-                        setSmall(newHeight);
-
-
-
-                        /*if (newHeight != DisplayHeight.SMALL)
-                            setWebViewHeight(newHeight);*/
+                        mViewModel.setFullScreen(newFullScreen);
+                        setSmall(newFullScreen);
                     }
-
-
-                    //setLlDisplayInfo(currentSite,newHeight);
-                    /*if (distanceY > 0) {
-                        setLlDisplayInfo(currentSite,false);
-                    } else {
-                        setLlDisplayInfo(currentSite,true);
-                    }*/
-
-
-
                 }
-
             } catch (Exception e) {
                 Log.e("Error", "MyGestureListener: Error when implementing gestures\n" + e.getMessage());
                 result = false;

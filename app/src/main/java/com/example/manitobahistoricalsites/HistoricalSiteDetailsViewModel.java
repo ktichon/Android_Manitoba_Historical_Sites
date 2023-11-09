@@ -18,7 +18,7 @@ public class HistoricalSiteDetailsViewModel extends ViewModel {
 
     private MutableLiveData<ManitobaHistoricalSite> currentSite;
     private MutableLiveData<Location> currentLocation;
-    private MutableLiveData<DisplayHeight> currentDisplayHeight;
+    private MutableLiveData<Boolean> fullScreen;
     private SavedStateHandle state;
 
     private HistoricalSiteDatabase historicalSiteDatabase;
@@ -27,9 +27,9 @@ public class HistoricalSiteDetailsViewModel extends ViewModel {
     public HistoricalSiteDetailsViewModel(SavedStateHandle state)
     {
         this.state = state;
-        currentSite = new MutableLiveData<ManitobaHistoricalSite>();
-        currentLocation = new MutableLiveData<Location>();
-        currentDisplayHeight = new MutableLiveData<DisplayHeight>();
+        this.currentSite = new MutableLiveData<ManitobaHistoricalSite>();
+        this.currentLocation = new MutableLiveData<Location>();
+        this.fullScreen = new MutableLiveData<Boolean>();
     }
 
     public void setHistoricalSiteDatabase(Context context) {
@@ -60,12 +60,12 @@ public class HistoricalSiteDetailsViewModel extends ViewModel {
         return currentLocation;
     }
 
-    public MutableLiveData<DisplayHeight> getCurrentDisplayHeight() {
-        return currentDisplayHeight;
+    public MutableLiveData<Boolean> getFullScreen() {
+        return fullScreen;
     }
 
-    public void setCurrentDisplayHeight(DisplayHeight height)
+    public void setFullScreen(Boolean fullScreen)
     {
-        this.currentDisplayHeight.setValue(height);
+        this.fullScreen.setValue(fullScreen);
     }
 }

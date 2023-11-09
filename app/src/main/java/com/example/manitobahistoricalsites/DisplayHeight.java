@@ -1,6 +1,6 @@
 package com.example.manitobahistoricalsites;
 
-public enum DisplayHeight {
+/*public enum DisplayHeight {
     SMALL,
     FULL
-}
+}*/

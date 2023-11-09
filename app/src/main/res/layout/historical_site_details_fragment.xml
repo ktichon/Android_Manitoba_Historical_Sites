@@ -21,7 +21,7 @@
             android:textAlignment="center"
 
             android:text="Name"
-            style="@style/mainText"
+            style="@style/titleText"
             android:layout_marginBottom="5dp"
             android:layout_marginTop="10dp"
             />
@@ -32,7 +32,7 @@
             android:layout_height="wrap_content"
             android:textAlignment="center"
             android:text="Types/types"
-            style="@style/subText"
+            style="@style/mainText"
             android:layout_margin="0dp"
             />
 
@@ -42,7 +42,7 @@
         android:layout_height="wrap_content"
         android:textAlignment="center"
         android:text="Address"
-        style="@style/subText"
+        style="@style/mainText"
         android:layout_marginTop="5dp"
             android:layout_marginBottom="0dp"
         />
@@ -52,20 +52,22 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textAlignment="center"
-            android:text="Distance"
+            android:text="mainText"
             android:layout_marginTop="0dp"
-            android:layout_marginBottom="10dp"
+            android:layout_marginBottom="5dp"
             />
 
 
 
 
         <TextView
-            android:id="@+id/tvHasMoreInfo"
-            android:layout_width="match_parent"
+            android:id="@+id/tvShowMoreInfo"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
             android:textAlignment="center"
-            android:text="@string/has_more"
+            android:text="@string/show_more"
+            android:drawableRight="@drawable/arrow_up"
             style="@style/mainText"
             android:layout_margin="5dp"
             />
@@ -79,6 +81,12 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:padding="10dp">
+                <androidx.viewpager2.widget.ViewPager2
+                    android:id="@+id/viewpager"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_margin="5dp"/>
                 <TextView
 
                     android:id="@+id/tvDescription"
@@ -90,12 +98,7 @@
                     style="@style/subText"
                     android:layout_margin="5dp"
                     />
-                <androidx.viewpager2.widget.ViewPager2
-                    android:id="@+id/viewpager"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_margin="5dp"/>
+
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"

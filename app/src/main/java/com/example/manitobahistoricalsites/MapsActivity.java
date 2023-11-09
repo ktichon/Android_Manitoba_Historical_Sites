@@ -230,14 +230,14 @@ public class MapsActivity extends AppCompatActivity
         });
 
         //Set the default value of the details display height
-        viewModel.getCurrentDisplayHeight().observe(this, new Observer<DisplayHeight>() {
+        viewModel.getFullScreen().observe(this, new Observer<Boolean>() {
             @Override
-            public void onChanged(DisplayHeight newHeight) {
-                updateDisplayHeight(newHeight, viewModel.getCurrentSite().getValue());
+            public void onChanged(Boolean fullscreen) {
+                updateDisplayHeight(fullscreen, viewModel.getCurrentSite().getValue());
 
             }
         });
-        viewModel.setCurrentDisplayHeight(DisplayHeight.SMALL);
+        viewModel.setFullScreen(false);
         loadManitobaHistoricalSiteData();
         loadMap();
 
@@ -624,12 +624,12 @@ public class MapsActivity extends AppCompatActivity
 
 
     //Updates the display height when the details is swiped on HistoricSitesDetailsFragment
-    private void updateDisplayHeight(DisplayHeight newHeight, ManitobaHistoricalSite historicalSite)
+    private void updateDisplayHeight(Boolean fullScreen, ManitobaHistoricalSite historicalSite)
     {
         try {
             float mapWeight = Float.parseFloat(getString(R.string.on_details_small_map));
             float detailWeight = Float.parseFloat(getString(R.string.on_details_small_detail));
-            if (newHeight == DisplayHeight.FULL)
+            if (fullScreen)
             {
                 mapWeight = Float.parseFloat(getString(R.string.on_details_big_map));
                 detailWeight = Float.parseFloat(getString(R.string.on_details_big_detail));

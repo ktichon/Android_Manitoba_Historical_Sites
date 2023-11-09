@@ -6,6 +6,10 @@
 
 
     </style>
+    <style name="titleText" parent="AppTheme">
+        <item name="android:textSize">18sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
     <style name="mainText" parent="AppTheme">
         <item name="android:textSize">16sp</item>
 
