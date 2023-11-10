@@ -7,8 +7,7 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/detailsContainer"
-    android:background="@drawable/straight_border">
+    android:id="@+id/detailsContainer">
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -88,7 +87,7 @@
             android:id="@+id/tvShowMoreInfo"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
+            android:layout_gravity="center"
             android:textAlignment="center"
             android:text="@string/show_more"
             android:drawableRight="@drawable/arrow_up"
@@ -97,9 +96,10 @@
             />
         <androidx.core.widget.NestedScrollView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:id="@+id/nsvMoreInfo"
-            android:background="@drawable/rounded_border">
+            android:background="@drawable/rounded_border"
+            android:layout_margin="10dp">
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
