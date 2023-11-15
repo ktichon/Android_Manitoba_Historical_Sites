@@ -275,7 +275,7 @@ public class HistoricalSiteDetailsFragment extends Fragment {
     {
         viewPager2 = mainView.findViewById(R.id.viewpager);
         try {
-            viewPager2.setAdapter(new SiteImagesAdapter(sitePhotos, viewPager2));
+            viewPager2.setAdapter(new SiteImagesAdapter(sitePhotos, viewPager2, getContext()));
         }
         catch (Exception e)
         {

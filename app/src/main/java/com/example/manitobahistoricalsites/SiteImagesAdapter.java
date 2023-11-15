@@ -1,5 +1,7 @@
 package com.example.manitobahistoricalsites;
 
+import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -23,11 +25,13 @@ public class SiteImagesAdapter extends RecyclerView.Adapter<SiteImagesAdapter.Vi
 
     List<SitePhotos> sitePhotos;
     ViewPager2 viewPager2;
+    Context context;
 
-    public SiteImagesAdapter (List<SitePhotos> sitePhotos, ViewPager2 viewPager2)
+    public SiteImagesAdapter (List<SitePhotos> sitePhotos, ViewPager2 viewPager2, Context context)
     {
         this.sitePhotos = sitePhotos;
         this.viewPager2 = viewPager2;
+        this.context = context;
     }
 
     @NonNull
@@ -42,7 +46,9 @@ public class SiteImagesAdapter extends RecyclerView.Adapter<SiteImagesAdapter.Vi
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         SitePhotos currentPhoto = sitePhotos.get(position);
-        holder.tvSiteImageInfo.setText(currentPhoto.info);
+        holder.setTvSiteImageInfo(currentPhoto.info);
+        String imageCount = String.valueOf(position + 1) + "/" + String.valueOf(getItemCount());
+        holder.setTvImageCount(imageCount);
 
         Picasso.Builder builder = new Picasso.Builder(viewPager2.getContext());
         builder.listener(new Picasso.Listener()
@@ -52,8 +58,24 @@ public class SiteImagesAdapter extends RecyclerView.Adapter<SiteImagesAdapter.Vi
                 Log.e("Error", "Picasso: Error displaying site photos " + currentPhoto.getPhoto_url() +"\n" + e.getMessage());
             }
         });
-        builder.build().load(currentPhoto.photo_url).error(R.drawable.baseline_error_outline_24)
+        builder.build().load(currentPhoto.getPhoto_url()).error(R.drawable.baseline_error_outline_50)
                 .into(holder.imageView);
+
+        holder.imageView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                try{
+                    Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(currentPhoto.getPhoto_url()));
+                    context.startActivity(browserIntent);
+                }
+                catch (Exception e)
+                {
+                    Log.e("Error", "SiteImageAdapter: Error launching photo url\n" + e.getMessage());
+                }
+
+                return false;
+            }
+        });
         /*Picasso.get().load(currentPhoto.photo_url).error(R.drawable.baseline_error_outline_24)
                 .into(holder.imageView);*/
         //holder.setImageView(currentPhoto.photo_url);
@@ -73,12 +95,15 @@ public class SiteImagesAdapter extends RecyclerView.Adapter<SiteImagesAdapter.Vi
 
         ImageView imageView;
         TextView tvSiteImageInfo;
+
+        TextView tvImageCount;
         //TextView tvEpithet;
 
         public ViewHolder(@NonNull View view) {
             super(view);
             imageView = view.findViewById(R.id.ivSiteImage);
             tvSiteImageInfo = view.findViewById(R.id.tvSiteImageInfo);
+            tvImageCount = view.findViewById(R.id.tvImageCount);
             //tvEpithet = view.findViewById(R.id.tvDisplayEpithet);
         }
         public void setImageView(String url)
@@ -89,6 +114,11 @@ public class SiteImagesAdapter extends RecyclerView.Adapter<SiteImagesAdapter.Vi
         public  void setTvSiteImageInfo(String info)
         {
             tvSiteImageInfo.setText(info);
+        }
+
+        public  void setTvImageCount(String info)
+        {
+            tvImageCount.setText(info);
         }
 
 
