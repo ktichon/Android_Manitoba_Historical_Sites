@@ -18,7 +18,9 @@ public class HistoricalSiteDetailsViewModel extends ViewModel {
 
     private MutableLiveData<ManitobaHistoricalSite> currentSite;
     private MutableLiveData<Location> currentLocation;
-    private MutableLiveData<Boolean> fullScreen;
+    private MutableLiveData< DisplayMode>  displayMode;
+    private MutableLiveData<SiteFilter> siteFiler;
+
     private SavedStateHandle state;
 
     private HistoricalSiteDatabase historicalSiteDatabase;
@@ -29,7 +31,9 @@ public class HistoricalSiteDetailsViewModel extends ViewModel {
         this.state = state;
         this.currentSite = new MutableLiveData<ManitobaHistoricalSite>();
         this.currentLocation = new MutableLiveData<Location>();
-        this.fullScreen = new MutableLiveData<Boolean>();
+        this.displayMode = new MutableLiveData<DisplayMode>();
+        this.siteFiler = new MutableLiveData<SiteFilter>();
+
     }
 
     public void setHistoricalSiteDatabase(Context context) {
@@ -60,12 +64,21 @@ public class HistoricalSiteDetailsViewModel extends ViewModel {
         return currentLocation;
     }
 
-    public MutableLiveData<Boolean> getFullScreen() {
-        return fullScreen;
+    public MutableLiveData< DisplayMode> getDisplayMode() {
+        return displayMode;
     }
 
-    public void setFullScreen(Boolean fullScreen)
+    public void setDisplayMode( DisplayMode  displayMode)
     {
-        this.fullScreen.setValue(fullScreen);
+        this.displayMode.setValue( displayMode);
+    }
+
+    public MutableLiveData<SiteFilter> getSiteFilters() {
+        return siteFiler;
+    }
+
+    public void setSiteFilters(SiteFilter siteFiler)
+    {
+        this.siteFiler.setValue(siteFiler);
     }
 }

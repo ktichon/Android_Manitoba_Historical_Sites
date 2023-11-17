@@ -14,10 +14,13 @@ public class ManitobaHistoricalSite {
     public String name;
     public String address;
 
+    public String main_type;
+
     public double latitude;
 
     public double longitude;
     public String province;
+
     public String municipality;
     public String description;
     public String site_url;
@@ -29,10 +32,11 @@ public class ManitobaHistoricalSite {
 
 
 
-    public ManitobaHistoricalSite(int site_id, String name, String address, double latitude, double longitude, String province, String municipality, String description, String site_url, String import_date) {
+    public ManitobaHistoricalSite(int site_id, String name, String address, String main_type, double latitude, double longitude, String province, String municipality, String description, String site_url, String import_date) {
         this.site_id = site_id;
         this.name = name;
         this.address = address;
+        this.main_type = main_type;
         this.latitude = latitude;
         this.longitude = longitude;
         this.province = province;
@@ -44,6 +48,8 @@ public class ManitobaHistoricalSite {
         this.location.setLatitude(getLatitude());
         this.location.setLongitude(getLongitude());
     }
+
+
 
     public String getName() {
         return name;
@@ -67,6 +73,14 @@ public class ManitobaHistoricalSite {
 
     public void setAddress(String address) {
         this.address = address;
+    }
+
+    public String getMain_type() {
+        return main_type;
+    }
+
+    public void setMain_type(String main_type) {
+        this.main_type = main_type;
     }
 
     public double getLatitude() {

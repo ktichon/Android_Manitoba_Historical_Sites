@@ -229,15 +229,35 @@ public class MapsActivity extends AppCompatActivity
             }
         });
 
+
+
         //Set the default value of the details display height
-        viewModel.getFullScreen().observe(this, new Observer<Boolean>() {
+        viewModel.setDisplayMode(DisplayMode.FullMap);
+        viewModel.getDisplayMode().observe(this, new Observer<DisplayMode>() {
             @Override
-            public void onChanged(Boolean fullscreen) {
-                updateDisplayHeight(fullscreen, viewModel.getCurrentSite().getValue());
+            public void onChanged(DisplayMode displayMode) {
+                updateDisplayHeight(displayMode);
 
             }
         });
-        viewModel.setFullScreen(false);
+
+
+
+
+
+        viewModel.setSiteFilters(new SiteFilter());
+        viewModel.getSiteFilters().observe(this, new Observer<SiteFilter>() {
+            @Override
+            public void onChanged(SiteFilter siteFilter) {
+                if (siteFilter.isAllMunicipalities())
+                {
+                    loadManitobaHistoricalSiteData();
+                }
+                else {
+                    loadManitobaHistoricalSiteDataMunicipalityFilter(siteFilter.getMunicipalityFilter());
+                }
+            }
+        });
         loadManitobaHistoricalSiteData();
         loadMap();
 
@@ -291,6 +311,18 @@ public class MapsActivity extends AppCompatActivity
                     item.setIcon(R.drawable.ic_camera_follow);
                     moveCameraToLocation(getUserLocation());
                 }
+            } else if (item.getItemId() == R.id.itFilters) {
+                ((FragmentContainerView) findViewById(R.id.fcvOtherPages)).setVisibility(View.VISIBLE);
+                viewModel.setDisplayMode(DisplayMode.OtherPages);
+
+                fragmentManager.beginTransaction()
+                        //.replace(R.id.fcvDetails, HistoricalSiteDetailsFragment.class, null)
+                        .replace(R.id.fcvOtherPages, FilterFragment.class, null)
+                        .setReorderingAllowed(true)
+                        .addToBackStack(null) // name can be null
+                        .commit();
+
+
             }
         }
         catch (Exception e)
@@ -323,6 +355,19 @@ public class MapsActivity extends AppCompatActivity
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe( manitobaHistoricalSites -> saveSitesToApp( manitobaHistoricalSites),
                                 throwable ->  Toast.makeText(getApplicationContext(), "Error fetching data", Toast.LENGTH_SHORT).show()
+                        )
+        );
+    }
+
+
+    public void loadManitobaHistoricalSiteDataMunicipalityFilter( List<String> municipalities)
+    {
+        mDisposable.add(
+                viewModel.getHistoricalSiteDatabase().manitobaHistoricalSiteDao().loadManitobaHistoricalSitesFilterMunicipality(municipalities)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe( manitobaHistoricalSites -> saveSitesToApp( manitobaHistoricalSites),
+                                throwable ->  Toast.makeText(getApplicationContext(), "Error fetching data from specified municipalities", Toast.LENGTH_SHORT).show()
                         )
         );
     }
@@ -414,6 +459,8 @@ public class MapsActivity extends AppCompatActivity
     private void addSiteListToMap (List<ManitobaHistoricalSite> sitesToAdd)
     {
         try {
+            //Removes all markers from map before adding new ones
+            mMap.clear();
 
             for (ManitobaHistoricalSite site: sitesToAdd) {
                 Marker newMarker = mMap.addMarker(new MarkerOptions().position(new LatLng(site.getLatitude(), site.getLongitude())).title(site.getName()).snippet(site.getAddress()));
@@ -588,9 +635,8 @@ public class MapsActivity extends AppCompatActivity
                 /*currentSite = nextSite;
                 viewModel.setCurrentSite(currentSite);*/
                 viewModel.setCurrentLocation(getUserLocation());
-                viewModel.setFullScreen(false);
+                viewModel.setDisplayMode(DisplayMode.SiteAndMap);
                 Fragment newFragment = HistoricalSiteDetailsFragment.newInstance(nextSiteId);
-                ((FragmentContainerView) findViewById(R.id.fcvDetails)).setVisibility(View.VISIBLE);
 
                 fragmentManager.beginTransaction()
                         //.replace(R.id.fcvDetails, HistoricalSiteDetailsFragment.class, null)
@@ -625,48 +671,64 @@ public class MapsActivity extends AppCompatActivity
 
 
     //Updates the display height when the details is swiped on HistoricSitesDetailsFragment
-    private void updateDisplayHeight(Boolean fullScreen, ManitobaHistoricalSite historicalSite)
+    private void updateDisplayHeight(DisplayMode displayMode)
     {
         try {
-            float mapWeight = Float.parseFloat(getString(R.string.on_details_small_map));
-            float detailWeight = Float.parseFloat(getString(R.string.on_details_small_detail));
-            if (fullScreen == null)
+            float mapWeight = 0;
+            float detailWeight = 0;
+            float otherPagesWeight = 0;
+
+            //Sets the layout_weight for the active fragment container
+            switch (displayMode)
             {
-                mapWeight = Float.parseFloat(getString(R.string.on_details_big_detail));
-                detailWeight = Float.parseFloat(getString(R.string.on_details_big_map));
-            } else if (fullScreen)
-            {
-                mapWeight = Float.parseFloat(getString(R.string.on_details_big_map));
-                detailWeight = Float.parseFloat(getString(R.string.on_details_big_detail));
+                case FullMap:
+                    mapWeight = 1;
+                    break;
+                case FullSiteDetail:
+                    detailWeight = 1;
+                    break;
+                case OtherPages:
+                    otherPagesWeight = 1;
+                    break;
+
+                case SiteAndMap:
+                    mapWeight = Float.parseFloat(getString(R.string.display_both_map));
+                    detailWeight = Float.parseFloat(getString(R.string.display_both_details));
+                    break;
+
             }
 
 
 
 
-            if (historicalSite!= null)
+
+
+            try {
+                FragmentContainerView  mapView = (FragmentContainerView) findViewById(R.id.fcvMap);
+                FragmentContainerView detailView = (FragmentContainerView) findViewById(R.id.fcvDetails);
+                FragmentContainerView otherPagesView = (FragmentContainerView) findViewById(R.id.fcvOtherPages) ;
+                LinearLayout.LayoutParams mapViewLayoutParams =  (LinearLayout.LayoutParams) mapView.getLayoutParams();
+                LinearLayout.LayoutParams detailViewParams =  (LinearLayout.LayoutParams) detailView.getLayoutParams();
+                LinearLayout.LayoutParams otherPagesViewParams =  (LinearLayout.LayoutParams) otherPagesView.getLayoutParams();
+                mapViewLayoutParams.weight = mapWeight;
+                detailViewParams.weight = detailWeight;
+                otherPagesViewParams.weight = otherPagesWeight;
+                mapView.setLayoutParams(mapViewLayoutParams);
+                detailView.setLayoutParams(detailViewParams);
+                otherPagesView.setLayoutParams(otherPagesViewParams);
+
+
+             }
+            catch (Exception e)
             {
-                try {
-                    FragmentContainerView  mapView = (FragmentContainerView) findViewById(R.id.fcvMap);
-                    FragmentContainerView detailView = (FragmentContainerView) findViewById(R.id.fcvDetails);
-                    LinearLayout.LayoutParams mapViewLayoutParams =  (LinearLayout.LayoutParams) mapView.getLayoutParams();
-                    LinearLayout.LayoutParams detailViewParams =  (LinearLayout.LayoutParams) detailView.getLayoutParams();
-                    mapViewLayoutParams.weight = mapWeight;
-                    detailViewParams.weight = detailWeight;
-                    mapView.setLayoutParams(mapViewLayoutParams);
-                    detailView.setLayoutParams(detailViewParams);
-
-
-                 }
-                catch (Exception e)
-                {
-                    Log.e("Error", "updateDisplayHeight: error updating views to new height" + e.getMessage());
-                }
-
+                Log.e("Error", "updateDisplayHeight: error updating the fragmentContainers to new height" + e.getMessage());
             }
+
+
         }
         catch (Exception e)
         {
-            Log.e("Error", "updateDisplayHeight: error getting new weight values" + e.getMessage());
+            Log.e("Error", "updateDisplayHeight: error getting new fragmentContainers weight values" + e.getMessage());
         }
 
     }
@@ -689,6 +751,11 @@ public class MapsActivity extends AppCompatActivity
             loadMap();
         if (trackingLocation)
             enableMyLocation();
+        if (mMap != null && getUserLocation() != null)
+        {
+            LatLng current = new LatLng(getUserLocation().getLatitude(), getUserLocation().getLongitude());
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(current, 15));
+        }
     }
 
     @Override

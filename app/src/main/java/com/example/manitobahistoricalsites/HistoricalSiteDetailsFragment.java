@@ -140,20 +140,23 @@ public class HistoricalSiteDetailsFragment extends Fragment {
         tvShowMoreInfo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Boolean oldFullScreen = mViewModel.getFullScreen().getValue();
-                Boolean newFullScreen = !oldFullScreen;
-                mViewModel.setFullScreen(newFullScreen);
-                setSmall(newFullScreen);
+                DisplayMode oldDisplayMode = mViewModel.getDisplayMode().getValue();
+
+                //If Display is Full Site, then set to Site and Map. Else the display must already be Site and Map, so set it to Full Site
+                DisplayMode newDisplaymode = (oldDisplayMode == DisplayMode.FullSiteDetail? DisplayMode.SiteAndMap: DisplayMode.FullSiteDetail);
+
+                mViewModel.setDisplayMode(newDisplaymode);
+                setSmall(newDisplaymode);
 
             }
         });
 
-
+        //Close button, on click sets the map fragment to full screen
         btnClose = (AppCompatButton)   mainView.findViewById(R.id.btnClose);
         btnClose.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mViewModel.setFullScreen(null);
+                mViewModel.setDisplayMode(DisplayMode.FullMap);
                 //mViewModel.setCurrentSite(null);
             }
         });
@@ -228,8 +231,11 @@ public class HistoricalSiteDetailsFragment extends Fragment {
             llDisplayInfo.setVisibility(View.VISIBLE);
             tvName.setText(site.getName());
             displaySiteDistance(mViewModel.getCurrentLocation().getValue());
-            ((TextView) mainView.findViewById(R.id.tvAddress)).setText(site.getAddress() + ", " +site.getMunicipality());
-            setSmall(mViewModel.getFullScreen().getValue());
+
+            //Some sites don't have an address, only coordinates. This is to make sure that the  ", " only shows up if the site has an address
+            String address = site.getAddress() == null || site.getAddress().trim().isEmpty()? "":  site.getAddress() + ", ";
+            ((TextView) mainView.findViewById(R.id.tvAddress)).setText(address + site.getMunicipality());
+            setSmall(mViewModel.getDisplayMode().getValue());
 
             //Hopefully makes the description more readable
             String formattedDescription = site.getDescription().replace("\n", "\n\n");
@@ -336,13 +342,13 @@ public class HistoricalSiteDetailsFragment extends Fragment {
     }
 
     //if the display is smoll, display no links
-    private void setSmall(Boolean fullScreen)
+    private void setSmall(DisplayMode displayMode)
     {
 //
         NestedScrollView nsvMoreInfo =  (NestedScrollView) mainView.findViewById(R.id.nsvMoreInfo);
-        nsvMoreInfo.setVisibility(fullScreen?View.VISIBLE : View.GONE );
-        tvShowMoreInfo.setText(fullScreen?  R.string.show_less : R.string.show_more);
-        int showInfoArrow = fullScreen? R.drawable.arrow_down : R.drawable.arrow_up;
+        nsvMoreInfo.setVisibility(displayMode == DisplayMode.FullSiteDetail? View.VISIBLE : View.GONE );
+        tvShowMoreInfo.setText(displayMode == DisplayMode.FullSiteDetail?  R.string.show_less : R.string.show_more);
+        int showInfoArrow = displayMode == DisplayMode.FullSiteDetail? R.drawable.arrow_down : R.drawable.arrow_up;
         tvShowMoreInfo.setCompoundDrawablesWithIntrinsicBounds(0, 0, showInfoArrow, 0);
     }
 
@@ -350,16 +356,16 @@ public class HistoricalSiteDetailsFragment extends Fragment {
     private void displaySiteDistance(Location userLocation)
     {
         try{
-            if (userLocation != null)
+            if (userLocation != null && this.currentSite != null)
             {
-                Float distance = currentSite.getLocation().distanceTo(userLocation) ;
+                Float distance = this.currentSite.getLocation().distanceTo(userLocation) ;
                 String distanceText = (distance >= 1000? String.format("%.2f",distance/1000) + " km": String.format("%.2f",distance) + " m");
                 ((TextView) mainView.findViewById(R.id.tvDistance)).setText( distanceText + " away");
             }
 
         } catch (Exception e)
         {
-            Log.e("Error", "updateDistanceAway: Error updating user distance from the site\n" + e.getMessage());
+            Log.e("Error", "displaySiteDistance: Error updating user distance from the site\n" + e.getMessage());
         }
     }
 
@@ -375,7 +381,7 @@ public class HistoricalSiteDetailsFragment extends Fragment {
         super.onResume();
         if (currentSite != null)
         {
-            mViewModel.setFullScreen(false);
+            mViewModel.setDisplayMode(DisplayMode.SiteAndMap);
             displayHistoricalSiteInfo(currentSite);
         }
 
@@ -411,24 +417,24 @@ public class HistoricalSiteDetailsFragment extends Fragment {
         @Override
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
             Boolean result = true;
-            Boolean oldFullScreen = mViewModel.getFullScreen().getValue();
+            DisplayMode oldDisplayMode = mViewModel.getDisplayMode().getValue();
             try {
                 float distanceX = e2.getX() - e1.getX();
                 float distanceY = e2.getY() - e1.getY();
                 if (Math.abs(distanceY) > SWIPE_THRESHOLD && Math.abs(velocityY) > SWIPE_VELOCITY_THRESHOLD &&  Math.abs(distanceY) > Math.abs(distanceX))
                 {
                     //To make sure that the newHeight has a default value
-                    boolean newFullScreen = oldFullScreen;
+                    DisplayMode newDisplayMode = oldDisplayMode;
                     if (distanceY > 0) {
-                        newFullScreen = false;
+                        newDisplayMode = DisplayMode.SiteAndMap;
                     } else {
-                        newFullScreen = true;
+                        newDisplayMode = DisplayMode.FullSiteDetail;
                     }
 
-                    if(oldFullScreen != newFullScreen)
+                    if(newDisplayMode != oldDisplayMode)
                     {
-                        mViewModel.setFullScreen(newFullScreen);
-                        setSmall(newFullScreen);
+                        mViewModel.setDisplayMode(newDisplayMode);
+                        setSmall(newDisplayMode);
                     }
                 }
             } catch (Exception e) {

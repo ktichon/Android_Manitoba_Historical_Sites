@@ -6,4 +6,15 @@
         android:title="Camera"
         android:icon="@drawable/ic_camera_not_follow"
         app:showAsAction="always" />
+    <item
+        android:id="@+id/itAbout"
+        android:title="About"
+
+        />
+    <item
+        android:id="@+id/itFilters"
+        android:title="Filters"
+        app:showAsAction="always"
+        android:icon="@drawable/baseline_filter_list_24"
+        />
 </menu>
