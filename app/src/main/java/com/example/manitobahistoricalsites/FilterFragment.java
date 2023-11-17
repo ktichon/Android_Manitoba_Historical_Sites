@@ -18,6 +18,7 @@ import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -58,6 +59,7 @@ public class FilterFragment extends Fragment {
     AppCompatButton btnConfirmFilters;
 
     SiteFilter originalFilters;
+
     SiteFilter newFilters;
 
 
@@ -96,6 +98,7 @@ public class FilterFragment extends Fragment {
         cbAllMunicipalities = mainView.findViewById(R.id.cbSelectAllMunicipalities);
         cbAllMunicipalities.setChecked(originalFilters.isAllMunicipalities());
 
+
         cbAllMunicipalities.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -130,8 +133,37 @@ public class FilterFragment extends Fragment {
 
         tvMultiMunicipalities = mainView.findViewById(R.id.tvMultiSelectMunicipality);
 
-        selectedMunicipalities = new boolean[allMunicipalities.length];
+        selectedMunicipalities = setPreSelectedFilter(originalFilters.municipalityFilter, allMunicipalities);
         tvMultiMunicipalities.setOnClickListener(onMunicipalityMultiClick);
+
+        tvMultiMunicipalities.setText(setPreSetTexbox(originalFilters.isAllMunicipalities(), originalFilters.getMunicipalityFilter()));
+        btnConfirmFilters = mainView.findViewById(R.id.btnConfirmFilters);
+
+        //Updates filters
+        btnConfirmFilters.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                try {
+
+                    // if "All" is select or sizeT is 0, set to "All" and clear list
+                    if (newFilters.isAllMunicipalities() || newFilters.getMunicipalityFilter().size() == 0){
+                        newFilters.setAllMunicipalities(true);
+                        newFilters.getMunicipalityFilter().clear();
+                    }
+
+
+                    mViewModel.setSiteFilters(newFilters);
+                    Toast.makeText(getContext(), "Updating Historical Site Filters", Toast.LENGTH_SHORT).show();
+
+                }
+                catch (Exception e)
+                {
+                    Log.e("Error", "btnConfirmFiltersOnClick: Error saving site filters\n" + e.getMessage());
+                }
+
+
+            }
+        });
 
     }
 
@@ -193,12 +225,7 @@ public class FilterFragment extends Fragment {
                             }
                             // set text on textView
                             tvMultiMunicipalities.setText(stringBuilder.toString());
-                            if (municipalitiesFilter.size() > 0)
-                            {
-
-                                newFilters.setMunicipalityFilter(municipalitiesFilter);
-
-                            }
+                            newFilters.setMunicipalityFilter(municipalitiesFilter);
                         }
                     });
 
@@ -218,6 +245,7 @@ public class FilterFragment extends Fragment {
                                 selectedMunicipalities[j] = false;
                                 // clear language list
                                 munitList.clear();
+                                municipalitiesFilter.clear();
                                 // clear text view value
                                 tvMultiMunicipalities.setText("");
                             }
@@ -235,6 +263,60 @@ public class FilterFragment extends Fragment {
 
         }
     };
+
+
+    //Pre-sets the selected filters for the multi selects
+    private boolean [] setPreSelectedFilter (List<String> preSetStrings, String[] allArray  )
+    {
+        boolean presetFilter [] = new boolean[allArray.length];
+
+        try {
+            for (int i = 0; i < allArray.length; i ++)
+            {
+                presetFilter[i] = preSetStrings.contains(allArray[i]);
+            }
+
+        }
+        catch (Exception e)
+        {
+            Log.e("Error", "setPreSelectedFilter: Error setting preset filters\n" + e.getMessage());
+        }
+        return  presetFilter;
+    }
+
+
+    //Gets text if there is already a filter set
+    private String setPreSetTexbox( Boolean isAll, List<String>  preSetString)
+    {
+        String result = "";
+        try {
+
+            if (!isAll)
+            {
+                StringBuilder stringBuilder = new StringBuilder();
+                for (int i = 0; i < preSetString.size(); i++) {
+                    // concat array value
+                    stringBuilder.append(preSetString.get(i));
+                    // check condition
+                    if (i != preSetString.size() - 1) {
+                        // When j value  not equal
+                        // to lang list size - 1
+                        // add comma
+                        stringBuilder.append(", ");
+                    }
+                }
+                result = stringBuilder.toString();
+
+            }
+
+        }
+        catch (Exception e)
+        {
+            Log.e("Error", "setPreSetTexbox: Error setting preset text\n" + e.getMessage());
+        }
+        return result;
+
+    }
 
     @Override
     public void onStop() {

@@ -249,13 +249,14 @@ public class MapsActivity extends AppCompatActivity
         viewModel.getSiteFilters().observe(this, new Observer<SiteFilter>() {
             @Override
             public void onChanged(SiteFilter siteFilter) {
-                if (siteFilter.isAllMunicipalities())
+                if (siteFilter.isAllMunicipalities() && siteFilter.isAllSiteTypes())
                 {
                     loadManitobaHistoricalSiteData();
                 }
-                else {
+                else if (!siteFilter.isAllMunicipalities() && siteFilter.isAllSiteTypes()){
                     loadManitobaHistoricalSiteDataMunicipalityFilter(siteFilter.getMunicipalityFilter());
                 }
+
             }
         });
         loadManitobaHistoricalSiteData();
@@ -376,7 +377,7 @@ public class MapsActivity extends AppCompatActivity
     public void saveSitesToApp (List<ManitobaHistoricalSite> sites )
     {
         try {
-            allMarkers.clear();
+
             allManitobaHistoricalSites = sites;
 
             int total = allManitobaHistoricalSites.size();
@@ -461,6 +462,7 @@ public class MapsActivity extends AppCompatActivity
         try {
             //Removes all markers from map before adding new ones
             mMap.clear();
+            allMarkers.clear();
 
             for (ManitobaHistoricalSite site: sitesToAdd) {
                 Marker newMarker = mMap.addMarker(new MarkerOptions().position(new LatLng(site.getLatitude(), site.getLongitude())).title(site.getName()).snippet(site.getAddress()));
