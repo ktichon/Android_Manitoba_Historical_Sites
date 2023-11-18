@@ -15,7 +15,6 @@ import androidx.lifecycle.ViewModelProvider;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Criteria;
@@ -29,16 +28,11 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
-import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
-import com.android.volley.toolbox.JsonArrayRequest;
 import com.example.manitobahistoricalsites.Database.ManitobaHistoricalSite;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
@@ -54,13 +48,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
 import com.android.volley.Response;
-import com.android.volley.toolbox.Volley;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -249,13 +237,29 @@ public class MapsActivity extends AppCompatActivity
         viewModel.getSiteFilters().observe(this, new Observer<SiteFilter>() {
             @Override
             public void onChanged(SiteFilter siteFilter) {
-                if (siteFilter.isAllMunicipalities() && siteFilter.isAllSiteTypes())
-                {
-                    loadManitobaHistoricalSiteData();
+                try {
+                    //No filter
+                    if (siteFilter.isAllMunicipalities() && siteFilter.isAllSiteTypes())
+                    {
+                        loadManitobaHistoricalSiteData();
+                    }
+                    //Only municipality filter
+                    else if (!siteFilter.isAllMunicipalities() && siteFilter.isAllSiteTypes()){
+                        loadManitobaHistoricalSiteDataMunicipalityFilter(siteFilter.getMunicipalityFilter());
+                    }
+                    //Only type filter
+                    else if (siteFilter.isAllMunicipalities() && !siteFilter.isAllSiteTypes()) {
+                        loadManitobaHistoricalSiteDataTypeFilter(siteFilter.getSiteTypeFilter());
+                    }
+                    // Get both municipality and type filter
+                    else if (!siteFilter.isAllMunicipalities() && !siteFilter.isAllSiteTypes()) {
+                        loadManitobaHistoricalAllFilter(siteFilter.getMunicipalityFilter(), siteFilter.getSiteTypeFilter());
+                    }
+                } catch (Exception e) {
+                    Log.e("Error", "updateDataToComplyWithNewFilters: Error updating the map to reflect the viewmodel\n" + e.getMessage());
                 }
-                else if (!siteFilter.isAllMunicipalities() && siteFilter.isAllSiteTypes()){
-                    loadManitobaHistoricalSiteDataMunicipalityFilter(siteFilter.getMunicipalityFilter());
-                }
+
+
 
             }
         });
@@ -347,6 +351,7 @@ public class MapsActivity extends AppCompatActivity
 
     }
 
+    //These are broken up into 4 functions to make it easier on the database
     //Loads the data from the .db file
     public void loadManitobaHistoricalSiteData()
     {
@@ -361,6 +366,7 @@ public class MapsActivity extends AppCompatActivity
     }
 
 
+    //Loads only by municipality
     public void loadManitobaHistoricalSiteDataMunicipalityFilter( List<String> municipalities)
     {
         mDisposable.add(
@@ -369,6 +375,32 @@ public class MapsActivity extends AppCompatActivity
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe( manitobaHistoricalSites -> saveSitesToApp( manitobaHistoricalSites),
                                 throwable ->  Toast.makeText(getApplicationContext(), "Error fetching data from specified municipalities", Toast.LENGTH_SHORT).show()
+                        )
+        );
+    }
+
+    //Loads only by type
+    public void loadManitobaHistoricalSiteDataTypeFilter(List<String> siteTypes)
+    {
+        mDisposable.add(
+                viewModel.getHistoricalSiteDatabase().manitobaHistoricalSiteDao().loadManitobaHistoricalSitesFilterType(siteTypes)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe( manitobaHistoricalSites -> saveSitesToApp( manitobaHistoricalSites),
+                                throwable ->  Toast.makeText(getApplicationContext(), "Error fetching data from specified Sites", Toast.LENGTH_SHORT).show()
+                        )
+        );
+    }
+
+    //Loads by municipality and type
+    public void loadManitobaHistoricalAllFilter( List<String> municipalities, List<String> siteTypes)
+    {
+        mDisposable.add(
+                viewModel.getHistoricalSiteDatabase().manitobaHistoricalSiteDao().loadManitobaHistoricalSitesAllFilters(siteTypes, municipalities)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe( manitobaHistoricalSites -> saveSitesToApp( manitobaHistoricalSites),
+                                throwable ->  Toast.makeText(getApplicationContext(), "Error fetching data with specified filters", Toast.LENGTH_SHORT).show()
                         )
         );
     }

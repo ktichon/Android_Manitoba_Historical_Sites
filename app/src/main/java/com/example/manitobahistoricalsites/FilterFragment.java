@@ -44,6 +44,8 @@ public class FilterFragment extends Fragment {
 
 
     List<String> typeFilter;
+    boolean[] selectedTypes;
+    ArrayList<Integer> typeList = new ArrayList<>();
 
     View mainView;
 
@@ -53,6 +55,7 @@ public class FilterFragment extends Fragment {
     TextView tvBack;
 
     TextView tvMultiMunicipalities;
+    TextView  tvMultiTypes;
     CheckBox cbAllMunicipalities;
     CheckBox cbAllSiteTypes;
 
@@ -114,10 +117,23 @@ public class FilterFragment extends Fragment {
             }
         });
 
-
-
+        typeFilter = originalFilters.getSiteTypeFilter();
         cbAllSiteTypes = mainView.findViewById(R.id.cbSelectAllTypes);
         cbAllSiteTypes.setChecked(originalFilters.isAllSiteTypes());
+        cbAllSiteTypes.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                newFilters.setAllSiteTypes(isChecked);
+                if (isChecked)
+                {
+                    tvMultiTypes.setText("");
+                }
+                else {
+                    tvMultiTypes.setText(R.string.multi_select_types);
+                }
+
+            }
+        });
 
         tvBack = mainView.findViewById(R.id.tvFilterGoBack);
         tvBack.setOnClickListener(new View.OnClickListener() {
@@ -132,11 +148,19 @@ public class FilterFragment extends Fragment {
 
 
         tvMultiMunicipalities = mainView.findViewById(R.id.tvMultiSelectMunicipality);
-
-        selectedMunicipalities = setPreSelectedFilter(originalFilters.municipalityFilter, allMunicipalities);
+        selectedMunicipalities = setPreSelectedFilter(originalFilters.getMunicipalityFilter(), allMunicipalities);
         tvMultiMunicipalities.setOnClickListener(onMunicipalityMultiClick);
+        
+        //Sets the text
+        tvMultiMunicipalities.setText(setPreSetTextBox(originalFilters.isAllMunicipalities(), originalFilters.getMunicipalityFilter()));
 
-        tvMultiMunicipalities.setText(setPreSetTexbox(originalFilters.isAllMunicipalities(), originalFilters.getMunicipalityFilter()));
+        tvMultiTypes = mainView.findViewById(R.id.tvMultiSelectType);
+        selectedTypes = setPreSelectedFilter(originalFilters.getSiteTypeFilter(), allTypes);
+        tvMultiTypes.setOnClickListener(onTypeMultiClick);
+
+        //Sets the text
+        tvMultiTypes.setText(setPreSetTextBox(originalFilters.isAllSiteTypes(), originalFilters.getSiteTypeFilter()));
+        
         btnConfirmFilters = mainView.findViewById(R.id.btnConfirmFilters);
 
         //Updates filters
@@ -149,6 +173,10 @@ public class FilterFragment extends Fragment {
                     if (newFilters.isAllMunicipalities() || newFilters.getMunicipalityFilter().size() == 0){
                         newFilters.setAllMunicipalities(true);
                         newFilters.getMunicipalityFilter().clear();
+                    }
+                    if (newFilters.isAllSiteTypes() || newFilters.getSiteTypeFilter().size() == 0){
+                        newFilters.setAllSiteTypes(true);
+                        newFilters.getSiteTypeFilter().clear();
                     }
 
 
@@ -264,6 +292,103 @@ public class FilterFragment extends Fragment {
         }
     };
 
+    public View.OnClickListener onTypeMultiClick = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            if (!newFilters.isAllSiteTypes())
+            {
+                try {
+                    // Initialize alert dialog
+                    AlertDialog.Builder builder = new AlertDialog.Builder(getContext(), R.style.DialogBoxTheme);
+
+                    // set title
+                    builder.setTitle("Select Site Types");
+
+                    // set dialog non cancelable
+                    builder.setCancelable(false);
+
+                    builder.setMultiChoiceItems(allTypes, selectedTypes, new DialogInterface.OnMultiChoiceClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i, boolean b) {
+                            // check condition
+                            if (b) {
+                                // when checkbox selected
+                                // Add position  in lang list
+                                typeList.add(i);
+                                // Sort array list
+                                Collections.sort(typeList);
+                            } else {
+                                // when checkbox unselected
+                                // Remove position from langList
+                                typeList.remove(Integer.valueOf(i));
+                            }
+                        }
+                    });
+
+                    builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            // Initialize string builder
+                            StringBuilder stringBuilder = new StringBuilder();
+                            typeFilter.clear();
+
+                            // use for loop
+                            for (int j = 0; j < typeList.size(); j++) {
+                                // concat array value
+                                stringBuilder.append(allTypes[typeList.get(j)]);
+                                typeFilter.add(allTypes[typeList.get(j)]);
+
+
+
+                                // check condition
+                                if (j != typeList.size() - 1) {
+                                    // When j value  not equal
+                                    // to lang list size - 1
+                                    // add comma
+                                    stringBuilder.append(", ");
+                                }
+                            }
+                            // set text on textView
+                            tvMultiTypes.setText(stringBuilder.toString());
+                            newFilters.setSiteTypeFilter(typeFilter);
+                        }
+                    });
+
+                    builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            // dismiss dialog
+                            dialogInterface.dismiss();
+                        }
+                    });
+                    builder.setNeutralButton("Clear All", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            // use for loop
+                            for (int j = 0; j < selectedTypes.length; j++) {
+                                // remove all selection
+                                selectedTypes[j] = false;
+                                // clear language list
+                                typeList.clear();
+                                typeFilter.clear();
+                                // clear text view value
+                                tvMultiTypes.setText("");
+                            }
+                        }
+                    });
+                    // show dialog
+                    builder.show();
+                }
+                catch (Exception e)
+                {
+                    Log.e("Error", "onTypeMultiClick: Error with municipality multi select\n" + e.getMessage());
+                }
+            }
+
+
+        }
+    };
+
 
     //Pre-sets the selected filters for the multi selects
     private boolean [] setPreSelectedFilter (List<String> preSetStrings, String[] allArray  )
@@ -286,7 +411,7 @@ public class FilterFragment extends Fragment {
 
 
     //Gets text if there is already a filter set
-    private String setPreSetTexbox( Boolean isAll, List<String>  preSetString)
+    private String setPreSetTextBox(Boolean isAll, List<String>  preSetString)
     {
         String result = "";
         try {
