@@ -44,6 +44,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
@@ -115,7 +116,7 @@ public class MapsActivity extends AppCompatActivity
 
     private final CompositeDisposable mDisposable = new CompositeDisposable();
 
-    private final int cameraZoom = 17;
+    private final int cameraZoom = 16;
 
 
     public MapsActivity(){
@@ -270,6 +271,8 @@ public class MapsActivity extends AppCompatActivity
                 }
             } else if (item.getItemId() == R.id.itFilters) {
                 viewModel.setDisplayMode(DisplayMode.FullSiteDetail);
+                fragmentManager.popBackStack(getString(R.string.site_fragment), fragmentManager.POP_BACK_STACK_INCLUSIVE);
+
 
                 fragmentManager.beginTransaction()
                         .replace(R.id.fcvDetails, FilterFragment.class, null)
@@ -373,7 +376,8 @@ public class MapsActivity extends AppCompatActivity
                 if (goToFirst && sites.size() > 0)
                 {
                     ManitobaHistoricalSite firstSite = allManitobaHistoricalSites.get(0);
-                    moveCameraToLocation(firstSite.getLocation());
+                    viewModel.setCurrentSite(firstSite);
+                    //moveCameraToLocation(firstSite.getLocation());
                 }
 
             }
@@ -452,7 +456,9 @@ public class MapsActivity extends AppCompatActivity
             allMarkers.clear();
 
             for (ManitobaHistoricalSite site: sitesToAdd) {
-                Marker newMarker = mMap.addMarker(new MarkerOptions().position(new LatLng(site.getLatitude(), site.getLongitude())).title(site.getName()).snippet(site.getAddress()));
+                Marker newMarker = mMap.addMarker(new MarkerOptions().position(new LatLng(site.getLatitude(), site.getLongitude())).title(site.getName()).snippet(site.getAddress())
+                        //.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.  	HUE_YELLOW 	 	))
+                );
                 newMarker.setTag(site.getSite_id());
                 allMarkers.add(newMarker);
 
@@ -537,7 +543,7 @@ public class MapsActivity extends AppCompatActivity
                         //.replace(R.id.fcvDetails, HistoricalSiteDetailsFragment.class, null)
                         .replace(R.id.fcvDetails, newFragment, null)
                         .setReorderingAllowed(true)
-                        .addToBackStack(null) // name can be null
+                        .addToBackStack(getString(R.string.site_fragment)) // name can be null
                         .commit();
 
             moveCameraToLocation(newLocation);
@@ -555,7 +561,7 @@ public class MapsActivity extends AppCompatActivity
     {
         try {
             LatLng userLatLng = new LatLng(newLocation.getLatitude(), newLocation.getLongitude());
-            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(userLatLng, cameraZoom));
+            mMap.animateCamera(CameraUpdateFactory.newLatLng(userLatLng));
         }
         catch (Exception e)
         {

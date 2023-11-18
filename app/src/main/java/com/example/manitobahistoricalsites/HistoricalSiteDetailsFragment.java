@@ -2,6 +2,7 @@ package com.example.manitobahistoricalsites;
 
 import androidx.appcompat.widget.AppCompatButton;
 import androidx.core.widget.NestedScrollView;
+import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -157,6 +158,8 @@ public class HistoricalSiteDetailsFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 mViewModel.setDisplayMode(DisplayMode.FullMap);
+                FragmentManager fm = getActivity().getSupportFragmentManager();
+                fm.popBackStack();
                 //mViewModel.setCurrentSite(null);
             }
         });
