@@ -115,6 +115,8 @@ public class MapsActivity extends AppCompatActivity
 
     private final CompositeDisposable mDisposable = new CompositeDisposable();
 
+    private final int cameraZoom = 17;
+
 
     public MapsActivity(){
         super(R.layout.activity_maps);
@@ -317,12 +319,12 @@ public class MapsActivity extends AppCompatActivity
                     moveCameraToLocation(getUserLocation());
                 }
             } else if (item.getItemId() == R.id.itFilters) {
-                ((FragmentContainerView) findViewById(R.id.fcvOtherPages)).setVisibility(View.VISIBLE);
-                viewModel.setDisplayMode(DisplayMode.OtherPages);
+                //((FragmentContainerView) findViewById(R.id.fcvOtherPages)).setVisibility(View.VISIBLE);
+                viewModel.setDisplayMode(DisplayMode.FullSiteDetail);
 
                 fragmentManager.beginTransaction()
                         //.replace(R.id.fcvDetails, HistoricalSiteDetailsFragment.class, null)
-                        .replace(R.id.fcvOtherPages, FilterFragment.class, null)
+                        .replace(R.id.fcvDetails, FilterFragment.class, null)
                         .setReorderingAllowed(true)
                         .addToBackStack(null) // name can be null
                         .commit();
@@ -359,7 +361,7 @@ public class MapsActivity extends AppCompatActivity
                 viewModel.getHistoricalSiteDatabase().manitobaHistoricalSiteDao().loadAllManitobaHistoricalSites()
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe( manitobaHistoricalSites -> saveSitesToApp( manitobaHistoricalSites),
+                        .subscribe( manitobaHistoricalSites -> saveSitesToApp( manitobaHistoricalSites, false),
                                 throwable ->  Toast.makeText(getApplicationContext(), "Error fetching data", Toast.LENGTH_SHORT).show()
                         )
         );
@@ -373,7 +375,7 @@ public class MapsActivity extends AppCompatActivity
                 viewModel.getHistoricalSiteDatabase().manitobaHistoricalSiteDao().loadManitobaHistoricalSitesFilterMunicipality(municipalities)
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe( manitobaHistoricalSites -> saveSitesToApp( manitobaHistoricalSites),
+                        .subscribe( manitobaHistoricalSites -> saveSitesToApp( manitobaHistoricalSites, true),
                                 throwable ->  Toast.makeText(getApplicationContext(), "Error fetching data from specified municipalities", Toast.LENGTH_SHORT).show()
                         )
         );
@@ -386,7 +388,7 @@ public class MapsActivity extends AppCompatActivity
                 viewModel.getHistoricalSiteDatabase().manitobaHistoricalSiteDao().loadManitobaHistoricalSitesFilterType(siteTypes)
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe( manitobaHistoricalSites -> saveSitesToApp( manitobaHistoricalSites),
+                        .subscribe( manitobaHistoricalSites -> saveSitesToApp( manitobaHistoricalSites, false),
                                 throwable ->  Toast.makeText(getApplicationContext(), "Error fetching data from specified Sites", Toast.LENGTH_SHORT).show()
                         )
         );
@@ -399,14 +401,14 @@ public class MapsActivity extends AppCompatActivity
                 viewModel.getHistoricalSiteDatabase().manitobaHistoricalSiteDao().loadManitobaHistoricalSitesAllFilters(siteTypes, municipalities)
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe( manitobaHistoricalSites -> saveSitesToApp( manitobaHistoricalSites),
+                        .subscribe( manitobaHistoricalSites -> saveSitesToApp( manitobaHistoricalSites, true),
                                 throwable ->  Toast.makeText(getApplicationContext(), "Error fetching data with specified filters", Toast.LENGTH_SHORT).show()
                         )
         );
     }
 
     //Signals that the sites are loaded and stored in variable list
-    public void saveSitesToApp (List<ManitobaHistoricalSite> sites )
+    public void saveSitesToApp (List<ManitobaHistoricalSite> sites, Boolean goToFirst )
     {
         try {
 
@@ -417,6 +419,12 @@ public class MapsActivity extends AppCompatActivity
             if (mMap != null)
             {
                 addSiteListToMap(allManitobaHistoricalSites);
+                if (goToFirst && sites.size() > 0)
+                {
+                    ManitobaHistoricalSite fistSite = sites.get(0);
+                    LatLng firstLocation = new LatLng(fistSite.getLatitude(), fistSite.getLongitude());
+                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(firstLocation, cameraZoom));
+                }
 
             }
         }
@@ -468,7 +476,7 @@ public class MapsActivity extends AppCompatActivity
             enableMyLocation();
             if (getUserLocation() != null) {
                 LatLng current = new LatLng(getUserLocation().getLatitude(), getUserLocation().getLongitude());
-                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(current, 15));
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(current, cameraZoom));
                 viewModel.getCurrentLocation().setValue(getUserLocation());
 
             }
@@ -712,14 +720,21 @@ public class MapsActivity extends AppCompatActivity
             float detailWeight = 0;
             float otherPagesWeight = 0;
 
+            FragmentContainerView  mapView = (FragmentContainerView) findViewById(R.id.fcvMap);
+            FragmentContainerView detailView = (FragmentContainerView) findViewById(R.id.fcvDetails);
+
             //Sets the layout_weight for the active fragment container
             switch (displayMode)
             {
                 case FullMap:
                     mapWeight = 1;
+                    mapView.setVisibility(View.VISIBLE);
+                    detailView.setVisibility(View.GONE);
                     break;
                 case FullSiteDetail:
                     detailWeight = 1;
+                    mapView.setVisibility(View.GONE);
+                    detailView.setVisibility(View.VISIBLE);
                     break;
                 case OtherPages:
                     otherPagesWeight = 1;
@@ -728,6 +743,8 @@ public class MapsActivity extends AppCompatActivity
                 case SiteAndMap:
                     mapWeight = Float.parseFloat(getString(R.string.display_both_map));
                     detailWeight = Float.parseFloat(getString(R.string.display_both_details));
+                    mapView.setVisibility(View.VISIBLE);
+                    detailView.setVisibility(View.VISIBLE);
                     break;
 
             }
@@ -738,18 +755,17 @@ public class MapsActivity extends AppCompatActivity
 
 
             try {
-                FragmentContainerView  mapView = (FragmentContainerView) findViewById(R.id.fcvMap);
-                FragmentContainerView detailView = (FragmentContainerView) findViewById(R.id.fcvDetails);
-                FragmentContainerView otherPagesView = (FragmentContainerView) findViewById(R.id.fcvOtherPages) ;
+
+               // FragmentContainerView otherPagesView = (FragmentContainerView) findViewById(R.id.fcvOtherPages) ;
                 LinearLayout.LayoutParams mapViewLayoutParams =  (LinearLayout.LayoutParams) mapView.getLayoutParams();
                 LinearLayout.LayoutParams detailViewParams =  (LinearLayout.LayoutParams) detailView.getLayoutParams();
-                LinearLayout.LayoutParams otherPagesViewParams =  (LinearLayout.LayoutParams) otherPagesView.getLayoutParams();
+                //LinearLayout.LayoutParams otherPagesViewParams =  (LinearLayout.LayoutParams) otherPagesView.getLayoutParams();
                 mapViewLayoutParams.weight = mapWeight;
                 detailViewParams.weight = detailWeight;
-                otherPagesViewParams.weight = otherPagesWeight;
+                //otherPagesViewParams.weight = otherPagesWeight;
                 mapView.setLayoutParams(mapViewLayoutParams);
                 detailView.setLayoutParams(detailViewParams);
-                otherPagesView.setLayoutParams(otherPagesViewParams);
+               // otherPagesView.setLayoutParams(otherPagesViewParams);
 
 
              }
@@ -788,7 +804,7 @@ public class MapsActivity extends AppCompatActivity
         if (mMap != null && getUserLocation() != null)
         {
             LatLng current = new LatLng(getUserLocation().getLatitude(), getUserLocation().getLongitude());
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(current, 15));
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(current, cameraZoom));
         }
     }
 
