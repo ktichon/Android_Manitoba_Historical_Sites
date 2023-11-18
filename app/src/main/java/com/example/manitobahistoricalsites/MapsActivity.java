@@ -361,6 +361,7 @@ public class MapsActivity extends AppCompatActivity
     public void saveSitesToApp (List<ManitobaHistoricalSite> sites, Boolean goToFirst )
     {
         try {
+            allManitobaHistoricalSites.clear();
 
             allManitobaHistoricalSites = sites;
 
@@ -371,7 +372,7 @@ public class MapsActivity extends AppCompatActivity
                 addSiteListToMap(allManitobaHistoricalSites);
                 if (goToFirst && sites.size() > 0)
                 {
-                    ManitobaHistoricalSite firstSite = sites.get(0);
+                    ManitobaHistoricalSite firstSite = allManitobaHistoricalSites.get(0);
                     moveCameraToLocation(firstSite.getLocation());
                 }
 
