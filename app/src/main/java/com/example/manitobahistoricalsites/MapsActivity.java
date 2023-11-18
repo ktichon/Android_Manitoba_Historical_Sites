@@ -135,22 +135,7 @@ public class MapsActivity extends AppCompatActivity
         allManitobaHistoricalSites = new ArrayList<>();
         allMarkers = new ArrayList<>();
 
-//        supportMapFragment =  SupportMapFragment.newInstance();
-//        supportMapFragment.getMapAsync(this);
-//        getSupportFragmentManager().beginTransaction()
-//                .setReorderingAllowed(true)
-//                .add(R.id.fcvMap, supportMapFragment, null)
-//                .commit();
-
-
-
-        /*if (!Places.isInitialized()) {
-            Places.initialize(getApplicationContext(), getString(R.string.google_maps_key), Locale.CANADA);
-        }
-*/
         Toolbar mToolbar = findViewById(R.id.tbMain);
-        //mToolbar.setTitle("");
-
         setSupportActionBar(mToolbar);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             mToolbar.setTitleTextColor(getColor(androidx.cardview.R.color.cardview_dark_background));
@@ -193,12 +178,8 @@ public class MapsActivity extends AppCompatActivity
         });*/
 
 
-
-        //queue = Volley.newRequestQueue(getApplicationContext());
+        //Location stuff
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-
-
-
         viewModel = new ViewModelProvider(this).get(HistoricalSiteDetailsViewModel.class);
         viewModel.setHistoricalSiteDatabase(getApplicationContext());
         viewModel.getCurrentSite().observe(this, new Observer<ManitobaHistoricalSite>() {
@@ -208,9 +189,6 @@ public class MapsActivity extends AppCompatActivity
                     currentSite = changedSite;
                     moveCameraToLocation(currentSite.getLocation());
                     displayMarkerInfo(currentSite.getSite_id());
-                   /* LatLng sitLocation = new LatLng(currentSite.getLocation().getLatitude(), currentSite.getLocation().getLongitude());
-                    mMap.animateCamera(CameraUpdateFactory.newLatLng(sitLocation));*/
-
                 } catch (Exception e) {
                     Log.e("Error", "UpdateCurrentPositonToBeCurrentSite: Error updating the map to reflect the viewmodel\n" + e.getMessage());
                 }
@@ -218,8 +196,6 @@ public class MapsActivity extends AppCompatActivity
 
             }
         });
-
-
 
         //Set the default value of the details display height
         viewModel.setDisplayMode(DisplayMode.FullMap);
@@ -231,10 +207,7 @@ public class MapsActivity extends AppCompatActivity
             }
         });
 
-
-
-
-
+        //Set up filters on view model
         viewModel.setSiteFilters(new SiteFilter());
         viewModel.getSiteFilters().observe(this, new Observer<SiteFilter>() {
             @Override
@@ -265,34 +238,11 @@ public class MapsActivity extends AppCompatActivity
 
             }
         });
+
+        //Load data
         loadManitobaHistoricalSiteData();
+        //Then load map. I think it takes longer
         loadMap();
-
-
-
-
-
-        /*if(allHistoricalSites == null || allHistoricalSites.size() == 0)
-        {
-            try {
-                int test = 0;
-               //JsonArrayRequest request = new JsonArrayRequest(Request.Method.GET, getString(R.string.data_url), null, fetchHistoricalData, getJsonError);
-               // queue.add(request);
-            } catch (Exception e) {
-                Log.e("Error", "onCreate: Fetching city of winnipeg data from url \n" + e.getMessage());
-            }
-        }
-        else
-        {
-            allSitesLoaded = true;
-            addSiteListToMap(allHistoricalSites);
-        }*/
-
-
-
-
-
-
     }
 
     //Set up menu
@@ -319,11 +269,9 @@ public class MapsActivity extends AppCompatActivity
                     moveCameraToLocation(getUserLocation());
                 }
             } else if (item.getItemId() == R.id.itFilters) {
-                //((FragmentContainerView) findViewById(R.id.fcvOtherPages)).setVisibility(View.VISIBLE);
                 viewModel.setDisplayMode(DisplayMode.FullSiteDetail);
 
                 fragmentManager.beginTransaction()
-                        //.replace(R.id.fcvDetails, HistoricalSiteDetailsFragment.class, null)
                         .replace(R.id.fcvDetails, FilterFragment.class, null)
                         .setReorderingAllowed(true)
                         .addToBackStack(null) // name can be null
@@ -353,6 +301,7 @@ public class MapsActivity extends AppCompatActivity
 
     }
 
+    //region Load sites from room
     //These are broken up into 4 functions to make it easier on the database
     //Loads the data from the .db file
     public void loadManitobaHistoricalSiteData()
@@ -406,6 +355,7 @@ public class MapsActivity extends AppCompatActivity
                         )
         );
     }
+    //endregion Load sites from room
 
     //Signals that the sites are loaded and stored in variable list
     public void saveSitesToApp (List<ManitobaHistoricalSite> sites, Boolean goToFirst )
@@ -421,9 +371,8 @@ public class MapsActivity extends AppCompatActivity
                 addSiteListToMap(allManitobaHistoricalSites);
                 if (goToFirst && sites.size() > 0)
                 {
-                    ManitobaHistoricalSite fistSite = sites.get(0);
-                    LatLng firstLocation = new LatLng(fistSite.getLatitude(), fistSite.getLongitude());
-                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(firstLocation, cameraZoom));
+                    ManitobaHistoricalSite firstSite = sites.get(0);
+                    moveCameraToLocation(firstSite.getLocation());
                 }
 
             }
@@ -461,18 +410,15 @@ public class MapsActivity extends AppCompatActivity
             mMap.setOnMarkerClickListener(this);
             //mMap.getUiSettings().setMapToolbarEnabled(false);
             //mMap.getUiSettings().setMyLocationButtonEnabled(false);
-            LatLngBounds manitobaBounds = new LatLngBounds(
+
+            //Removed the camera bounds, as it got annoying when looking at sites near the border
+            /*LatLngBounds manitobaBounds = new LatLngBounds(
                     new LatLng(48, -102), // SW bounds
                     new LatLng(60, -89)  // NE bounds
             );
 
-            mMap.setLatLngBoundsForCameraTarget(manitobaBounds);
+            mMap.setLatLngBoundsForCameraTarget(manitobaBounds);*/
 
-
-
-
-            //mMap.addMarker(new MarkerOptions().position(winnipeg).title("Marker in Winnipeg"));
-            //mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(winnipeg, 15));
             enableMyLocation();
             if (getUserLocation() != null) {
                 LatLng current = new LatLng(getUserLocation().getLatitude(), getUserLocation().getLongitude());
@@ -551,100 +497,6 @@ public class MapsActivity extends AppCompatActivity
 
     }
 
-
-
-
-
-    /**
-     * Fetches all the data from the Winnipeg Open Data Historical Resources and populates the markers and sites with the data
-     */
-    /*private Response.Listener<JSONArray> fetchHistoricalData = new Response.Listener<JSONArray>() {
-        @Override
-        public void onResponse(JSONArray response) {
-            allHistoricalSites.clear();
-            allMarkers = new ArrayList<>();
-            for (int i = 0; i < response.length(); i++) {
-                try {
-                    JSONObject site = (JSONObject) response.get(i);
-                    if (site.has("location") && site.has("historical_name")) {
-                        try {
-                            //Parsing fields
-                            HistoricalSite newSite = new HistoricalSite(site.getString("historical_name"));
-                            newSite.setStreetName(site.getString("street_name"));
-                            newSite.setStreetNumber(site.getString("street_number"));
-                            newSite.setConstructionDate(((site.has("construction_date")) ? site.getString("construction_date") : null));
-                            newSite.setShortUrl(((site.has("short_report_url")) ?  site.getString("short_report_url") : null));
-                            newSite.setLongUrl(((site.has("long_report_url")) ?  site.getString("long_report_url") : null));
-
-
-                            //Location
-                            JSONObject location = site.getJSONObject("location");
-                            Location newLocation = new Location("");
-                            newLocation.setLatitude(location.getDouble("latitude"));
-                            newLocation.setLongitude(location.getDouble("longitude"));
-                            newSite.setLocation(newLocation);
-                            newSite.setCity("winnipeg");
-                            newSite.setProvince("MB");
-
-
-                            //add site to list
-                            allHistoricalSites.add(newSite);
-
-                            *//*newSite.streetName = site.getString("street_name");
-                            newSite.streetNumber = site.getString("street_number");
-                            newSite.constructionDate = ((site.has("construction_date")) ? site.getString("construction_date") : null);
-
-                            newSite.shortUrl = ((site.has("short_report_url")) ?  site.getString("short_report_url") : null);
-                            newSite.longUrl = ((site.has("long_report_url")) ?  site.getString("long_report_url") : null);
-
-                            //Location
-                            JSONObject location = site.getJSONObject("location");
-                            newSite.location = new Location("");
-                            newSite.location.setLatitude(location.getDouble("latitude"));
-                            newSite.location.setLongitude(location.getDouble("longitude"));
-                            newSite.city = "winnipeg";
-                            newSite.province = "MB";
-
-                            int id = allHistoricalSites.size();
-                            allHistoricalSites.add(newSite);
-                            Marker newMarker = mMap.addMarker(new MarkerOptions().position(new LatLng(newSite.location.getLatitude(), newSite.location.getLongitude())).title(newSite.name).snippet(newSite.address()));
-                            newMarker.setTag(id);
-                            allMarkers.add(newMarker);*//*
-
-
-                            //attachPlaceIdToSite(newSite,id);
-
-
-                        } catch (Exception e) {
-                            Log.e("Error", "fetchHistoricalData: Extract site from json\n" + e.getMessage() + "\n" + site.toString());
-                        }
-
-
-                    }
-
-                } catch (Exception e) {
-                    Log.e("Error", "fetchHistoricalData: Site\n" + e.getMessage());
-                }
-
-            }
-
-            allSitesLoaded = true;
-            addSiteListToMap(allHistoricalSites);
-
-
-            Toast.makeText(getApplicationContext(), "Found all " + allHistoricalSites.size() + " historic sites in Winnipeg", Toast.LENGTH_SHORT).show();
-
-        }
-    };*/
-
-    //Error fetching api
-    private Response.ErrorListener getJsonError = error -> {
-        Toast.makeText(getApplicationContext(), "Error fetching data", Toast.LENGTH_SHORT).show();
-        Log.e("Error", "getJsonError: Error fetching json from url " + getString(R.string.data_url)+ "\n" + error.getMessage());
-    };
-
-
-
     //On marker click zoom to location and display data
     @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
@@ -702,7 +554,7 @@ public class MapsActivity extends AppCompatActivity
     {
         try {
             LatLng userLatLng = new LatLng(newLocation.getLatitude(), newLocation.getLongitude());
-            mMap.animateCamera(CameraUpdateFactory.newLatLng(userLatLng));
+            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(userLatLng, cameraZoom));
         }
         catch (Exception e)
         {
@@ -736,9 +588,6 @@ public class MapsActivity extends AppCompatActivity
                     mapView.setVisibility(View.GONE);
                     detailView.setVisibility(View.VISIBLE);
                     break;
-                case OtherPages:
-                    otherPagesWeight = 1;
-                    break;
 
                 case SiteAndMap:
                     mapWeight = Float.parseFloat(getString(R.string.display_both_map));
@@ -756,17 +605,13 @@ public class MapsActivity extends AppCompatActivity
 
             try {
 
-               // FragmentContainerView otherPagesView = (FragmentContainerView) findViewById(R.id.fcvOtherPages) ;
+
                 LinearLayout.LayoutParams mapViewLayoutParams =  (LinearLayout.LayoutParams) mapView.getLayoutParams();
                 LinearLayout.LayoutParams detailViewParams =  (LinearLayout.LayoutParams) detailView.getLayoutParams();
-                //LinearLayout.LayoutParams otherPagesViewParams =  (LinearLayout.LayoutParams) otherPagesView.getLayoutParams();
                 mapViewLayoutParams.weight = mapWeight;
                 detailViewParams.weight = detailWeight;
-                //otherPagesViewParams.weight = otherPagesWeight;
                 mapView.setLayoutParams(mapViewLayoutParams);
                 detailView.setLayoutParams(detailViewParams);
-               // otherPagesView.setLayoutParams(otherPagesViewParams);
-
 
              }
             catch (Exception e)

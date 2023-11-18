@@ -271,9 +271,6 @@ public class HistoricalSiteDetailsFragment extends Fragment {
         {
             Log.e("Error", "displaySiteType: Error displaying site types\n" + e.getMessage());
         }
-
-
-        
     }
 
     //Sets up the ViewPager to use the site photos
@@ -307,10 +304,6 @@ public class HistoricalSiteDetailsFragment extends Fragment {
     }
 
 
-
-
-
-
     //Opens the web view activity and display the short or long link
     public void openWebPage(String url) {
         //url = "https://developer.android.com/reference/android/webkit/WebView";
@@ -321,23 +314,6 @@ public class HistoricalSiteDetailsFragment extends Fragment {
             startActivity(browserIntent);
 
 
-        }
-    }
-
-
-
-    //Sets text view data if it isn't null, else hide the textview
-    private void setTextView(int viewId, String viewText)
-    {
-        TextView textView = mainView.findViewById(viewId);
-        if (viewText != null && !viewText.trim().isEmpty())
-        {
-            textView.setVisibility(View.VISIBLE);
-            textView.setText(viewText);
-        }
-        else
-        {
-            textView.setVisibility(View.GONE);
         }
     }
 
@@ -444,13 +420,5 @@ public class HistoricalSiteDetailsFragment extends Fragment {
 
             return result;
         }
-    }
-
-
-    //Gets theme colours.
-    public int getThemeColour (int themeID ) {
-        final TypedValue value = new TypedValue();
-        getContext().getTheme ().resolveAttribute (themeID, value, true);
-        return value.data;
     }
 }
