@@ -26,7 +26,8 @@
     <string name="site_fragment">Site Details</string>
 
 
-
+    <!--Preference Keys -->
+    <string name="night_mode_key">Night_Mode_Key</string>
 
 
 </resources>

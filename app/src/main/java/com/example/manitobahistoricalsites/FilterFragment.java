@@ -448,4 +448,10 @@ public class FilterFragment extends Fragment {
         mViewModel.setDisplayMode(DisplayMode.FullMap);
         super.onStop();
     }
+
+    @Override
+    public void onResume() {
+        mViewModel.setDisplayMode(DisplayMode.FullSiteDetail);
+        super.onResume();
+    }
 }

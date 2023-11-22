@@ -1,6 +1,7 @@
 package com.example.manitobahistoricalsites;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -11,10 +12,13 @@ import androidx.fragment.app.FragmentContainerView;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.preference.PreferenceManager;
 
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Criteria;
@@ -47,6 +51,7 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.android.volley.Response;
@@ -117,6 +122,13 @@ public class MapsActivity extends AppCompatActivity
     private final CompositeDisposable mDisposable = new CompositeDisposable();
 
     private final int cameraZoom = 16;
+
+    SharedPreferences prefs;
+
+    //Stop app from loading data twice when app is launched
+    boolean firstAppLoad = true;
+
+
 
 
     public MapsActivity(){
@@ -240,6 +252,14 @@ public class MapsActivity extends AppCompatActivity
             }
         });
 
+        //Setting Up Preference values
+        prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        prefs.registerOnSharedPreferenceChangeListener(preferenceChangeListener);
+        //getSharedPreferences(getString(R.string.preference_key), MODE_PRIVATE).registerOnSharedPreferenceChangeListener(preferenceChangeListener);
+
+
+
+
         //Load data
         loadManitobaHistoricalSiteData();
         //Then load map. I think it takes longer
@@ -279,8 +299,12 @@ public class MapsActivity extends AppCompatActivity
                         .setReorderingAllowed(true)
                         .addToBackStack(null) // name can be null
                         .commit();
-
-
+            } else if (item.getItemId() == R.id.itSettings) {
+                fragmentManager.beginTransaction()
+                        .replace(R.id.fcvDetails, new SettingsFragment(), null)
+                        .setReorderingAllowed(true)
+                        .addToBackStack(null) // name can be null
+                        .commit();
             }
         }
         catch (Exception e)
@@ -424,6 +448,9 @@ public class MapsActivity extends AppCompatActivity
 
             mMap.setLatLngBoundsForCameraTarget(manitobaBounds);*/
 
+            // Set Map colour from preference
+            updateSetDisplayColours(PreferenceManager.getDefaultSharedPreferences(this).getBoolean(getString(R.string.night_mode_key), false));
+
             enableMyLocation();
             if (getUserLocation() != null) {
                 LatLng current = new LatLng(getUserLocation().getLatitude(), getUserLocation().getLongitude());
@@ -464,6 +491,9 @@ public class MapsActivity extends AppCompatActivity
 
             }
             Toast.makeText(getApplicationContext(), "All sites have been added to the map", Toast.LENGTH_SHORT).show();
+
+            //Stops app from loading data twice when opened
+            firstAppLoad = false;
 
             //Will add search bar back in later
                 /*searchAdapter.notifyDataSetChanged();
@@ -635,21 +665,49 @@ public class MapsActivity extends AppCompatActivity
 
     }
 
-    //region User Location
+    private void updateSetDisplayColours(Boolean nightMode)
+    {
 
+        try {
+            //Default Style is day
+            int mapStyleId = R.raw.day_mode_map_style_json;
+
+            if (nightMode)
+            {
+                mapStyleId = R.raw.night_mode_map_style_json;
+            }
+
+            if (mMap != null)
+            {
+                boolean success = mMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(this, mapStyleId));
+                if (!success)
+                {
+                    Log.e("Error", "onNightModeChange: Style parsing failed");
+                }
+            }
+
+        }
+        catch (Exception e)
+        {
+            Log.e("Error", "onNightModeChange: error updating display colours" + e.getMessage());
+        }
+    }
+
+    //region User Location
     @Override
     protected void onPause() {
         super.onPause();
         if (fusedLocationClient != null) {
             fusedLocationClient.removeLocationUpdates(locationCallback);
         }
+        prefs.unregisterOnSharedPreferenceChangeListener(preferenceChangeListener);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
 
-        if (mMap == null)
+        if (mMap == null && !firstAppLoad)
             loadMap();
         if (trackingLocation)
             enableMyLocation();
@@ -658,6 +716,8 @@ public class MapsActivity extends AppCompatActivity
             LatLng current = new LatLng(getUserLocation().getLatitude(), getUserLocation().getLongitude());
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(current, cameraZoom));
         }
+        prefs.registerOnSharedPreferenceChangeListener(preferenceChangeListener);
+
     }
 
     @Override
@@ -793,6 +853,22 @@ public class MapsActivity extends AppCompatActivity
             
         }
     };
+    SharedPreferences.OnSharedPreferenceChangeListener preferenceChangeListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, @Nullable String key) {
+        Toast.makeText(getApplicationContext(), "Updating Display Settings", Toast.LENGTH_SHORT).show();
+
+        if (key.equals(getString(R.string.night_mode_key)))
+        {
+            updateSetDisplayColours(sharedPreferences.getBoolean(key, false));
+        }
+
+    }
+};
+
+
+
+
 
     //endregion User Location
 

@@ -12,6 +12,10 @@
 
         />
     <item
+        android:id="@+id/itSettings"
+        android:title="Settings"/>
+
+    <item
         android:id="@+id/itFilters"
         android:title="Filters"
         app:showAsAction="always"

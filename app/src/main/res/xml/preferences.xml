@@ -1,0 +1,25 @@
+<PreferenceScreen
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <SwitchPreferenceCompat
+        app:key="Night_Mode_Key"
+        app:title="Enable Night Mode"
+        app:defaultValue="false"/>
+
+
+
+    <Preference
+        app:key="feedback"
+        app:title="Send feedback"
+        app:summary="Report technical issues or suggest new features"/>
+
+    <PreferenceCategory
+        app:key="background_colour"
+        app:title="Set Background Colour">
+
+
+
+    </PreferenceCategory>
+
+
+</PreferenceScreen>
