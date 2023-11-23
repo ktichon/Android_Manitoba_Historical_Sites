@@ -26,25 +26,25 @@ public interface ManitobaHistoricalSiteDao {
     public Completable updateManitobaHistoricalSites(ManitobaHistoricalSite ... manitobaHistoricalSites);
 
 
-    @Query("SELECT * FROM manitobahistoricalsite")
+    @Query("SELECT * FROM manitobahistoricalsite ORDER BY name ASC")
     public  Maybe<List<ManitobaHistoricalSite>> loadAllManitobaHistoricalSites();
 
-    @Query("SELECT  * FROM manitobahistoricalsite WHERE site_id = :site_id LIMIT 1")
+    @Query("SELECT  * FROM manitobahistoricalsite WHERE site_id = :site_id LIMIT 1 ")
     public Maybe<ManitobaHistoricalSite> getManitobaHistoricalSite(int site_id);
 
 
 
 
     @Query(
-            "SELECT DISTINCT manitobahistoricalsite.* FROM manitobahistoricalsite"
+            "SELECT DISTINCT manitobahistoricalsite.*  FROM manitobahistoricalsite"
             + " INNER JOIN siteType ON siteType.site_id = manitobahistoricalsite.site_id"
-            + " WHERE siteType.type in (:types) "
+            + " WHERE siteType.type in (:types) ORDER BY name ASC "
     )
     public Maybe<List<ManitobaHistoricalSite>>  loadManitobaHistoricalSitesFilterType(List<String> types);
 
     @Query(
             "SELECT DISTINCT manitobahistoricalsite.* FROM manitobahistoricalsite"
-                    + " WHERE manitobahistoricalsite.municipality in (:municipality) "
+                    + " WHERE manitobahistoricalsite.municipality in (:municipality) ORDER BY name ASC "
     )
     public Maybe<List<ManitobaHistoricalSite>> loadManitobaHistoricalSitesFilterMunicipality (List<String> municipality);
 
@@ -52,7 +52,7 @@ public interface ManitobaHistoricalSiteDao {
             "SELECT DISTINCT manitobahistoricalsite.* FROM manitobahistoricalsite"
                     + " INNER JOIN siteType ON siteType.site_id = manitobahistoricalsite.site_id"
                     + " WHERE manitobahistoricalsite.municipality in (:municipality) "
-                    + " AND siteType.type in (:types)"
+                    + " AND siteType.type in (:types) ORDER BY name ASC"
     )
     public Maybe<List<ManitobaHistoricalSite>>  loadManitobaHistoricalSitesAllFilters (List<String> types, List<String> municipality);
 

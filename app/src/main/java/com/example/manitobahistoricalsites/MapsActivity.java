@@ -323,6 +323,12 @@ public class MapsActivity extends AppCompatActivity
                         .setReorderingAllowed(true)
                         .addToBackStack(null) // name can be null
                         .commit();
+            } else if (item.getItemId() == R.id.itSearch) {
+                fragmentManager.beginTransaction()
+                        .replace(R.id.fcvDetails, SearchFragment.class, null)
+                        .setReorderingAllowed(true)
+                        .addToBackStack(null) // name can be null
+                        .commit();
             }
         }
         catch (Exception e)

@@ -43,13 +43,14 @@
 
 
                 />
+
             <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/btnClose"
                 android:layout_width="25dp"
                 android:layout_height="25dp"
-                android:background="@drawable/close_button"
                 android:layout_gravity="center_vertical"
+                android:background="@drawable/close_button"
                 android:contentDescription="Close Current Site"
-                android:id="@+id/btnClose"
 
 
                 />

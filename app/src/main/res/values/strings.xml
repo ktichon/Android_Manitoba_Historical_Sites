@@ -62,6 +62,11 @@
     <string name="Default_Colour_Value">
         <item>0.0</item>
     </string>
-
+    
+    
+    <string-array name="Search_By">
+        <item>Site Address</item>
+        <item>Site Name</item>
+    </string-array>
 
 </resources>

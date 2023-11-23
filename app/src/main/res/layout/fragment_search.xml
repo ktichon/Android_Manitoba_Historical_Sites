@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".HistoricalSiteDetailsFragment"
+    android:layout_gravity="center"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/llSearchContainer"
+    android:padding="10dp" >
+    <TextView
+        android:id="@+id/tvSearchGoBack"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="left"
+        android:text="Back"
+        android:drawableLeft="@drawable/back"
+        style="@style/mainText"
+        android:layout_margin="5dp"
+        />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/llSearch"
+        android:orientation="vertical"
+        android:background="@drawable/rounded_border"
+        android:layout_margin="5dp"
+        >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_margin="5dp"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="10dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/tvSearchBy"
+                android:text="Search By: "
+                style="@style/mainText"
+
+                />
+            <Spinner
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/spnSearchBy"
+                android:layout_margin="5dp"
+                style="@style/mainText"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            >
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:background="@android:drawable/editbox_background"
+                android:hint="Search Manitoba Historical Sites . . ."
+                android:enabled="false"
+                style="@style/mainText"
+                android:layout_weight="0.8"
+                android:layout_margin="5dp"
+                android:padding="10dp"
+                android:id="@+id/etSearch"
+
+                />
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/btnSearch"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_gravity="center_vertical"
+                android:background="@drawable/search"
+                android:contentDescription="Search"
+                android:enabled="false"
+                android:layout_marginRight="5dp"
+
+
+                />
+
+        </LinearLayout>
+    </LinearLayout>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        style="@style/subText"
+        android:text="Displaying top 10 sites:"
+        android:layout_margin="5dp"
+        android:id="@+id/tvSearchAmount"/>
+    
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp"
+        android:padding="5dp"
+        >
+        <androidx.recyclerview.widget.RecyclerView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/rvSearchSiteHolder"/>
+
+    </androidx.core.widget.NestedScrollView>
+
+
+</LinearLayout>
