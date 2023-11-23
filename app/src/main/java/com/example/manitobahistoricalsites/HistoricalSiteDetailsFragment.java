@@ -164,7 +164,8 @@ public class HistoricalSiteDetailsFragment extends Fragment {
             public void onClick(View v) {
                 mViewModel.setDisplayMode(DisplayMode.FullMap);
                 FragmentManager fm = getActivity().getSupportFragmentManager();
-                fm.popBackStack();
+                fm.popBackStack(getString(R.string.site_fragment), fm.POP_BACK_STACK_INCLUSIVE);
+
                 //mViewModel.setCurrentSite(null);
             }
         });
