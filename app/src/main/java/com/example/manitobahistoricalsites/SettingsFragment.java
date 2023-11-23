@@ -1,23 +1,17 @@
 package com.example.manitobahistoricalsites;
 
-import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.preference.EditTextPreference;
-import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
-import androidx.preference.PreferenceManager;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import com.example.manitobahistoricalsites.HolderClasses.DisplayMode;
 
 import top.defaults.colorpicker.ColorPickerPopup;
 

@@ -9,16 +9,14 @@ import androidx.lifecycle.ViewModel;
 
 import com.example.manitobahistoricalsites.Database.HistoricalSiteDatabase;
 import com.example.manitobahistoricalsites.Database.ManitobaHistoricalSite;
-
-import java.util.List;
-
-import io.reactivex.Maybe;
+import com.example.manitobahistoricalsites.HolderClasses.DisplayMode;
+import com.example.manitobahistoricalsites.HolderClasses.SiteFilter;
 
 public class HistoricalSiteDetailsViewModel extends ViewModel {
 
     private MutableLiveData<ManitobaHistoricalSite> currentSite;
     private MutableLiveData<Location> currentLocation;
-    private MutableLiveData< DisplayMode>  displayMode;
+    private MutableLiveData<DisplayMode>  displayMode;
     private MutableLiveData<SiteFilter> siteFiler;
 
     private SavedStateHandle state;

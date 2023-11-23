@@ -22,7 +22,6 @@ import androidx.viewpager2.widget.ViewPager2;
 
 import android.text.TextUtils;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -36,7 +35,7 @@ import com.example.manitobahistoricalsites.Database.ManitobaHistoricalSite;
 import com.example.manitobahistoricalsites.Database.SitePhotos;
 import com.example.manitobahistoricalsites.Database.SiteSource;
 import com.example.manitobahistoricalsites.Database.SiteType;
-import com.google.android.gms.maps.model.MapStyleOptions;
+import com.example.manitobahistoricalsites.HolderClasses.DisplayMode;
 
 import java.util.List;
 

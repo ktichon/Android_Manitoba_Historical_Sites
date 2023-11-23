@@ -20,6 +20,9 @@ import android.widget.CompoundButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.manitobahistoricalsites.HolderClasses.DisplayMode;
+import com.example.manitobahistoricalsites.HolderClasses.SiteFilter;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;

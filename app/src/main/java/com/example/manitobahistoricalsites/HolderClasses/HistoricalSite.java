@@ -1,4 +1,4 @@
-package com.example.manitobahistoricalsites;
+package com.example.manitobahistoricalsites.HolderClasses;
 
 import android.location.Location;
 import android.os.Parcel;

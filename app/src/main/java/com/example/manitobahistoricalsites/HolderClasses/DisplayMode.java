@@ -1,4 +1,4 @@
-package com.example.manitobahistoricalsites;
+package com.example.manitobahistoricalsites.HolderClasses;
 
 public enum DisplayMode {
     FullMap,
