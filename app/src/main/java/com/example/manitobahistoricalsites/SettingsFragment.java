@@ -8,6 +8,7 @@ import android.widget.EditText;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.preference.CheckBoxPreference;
 import androidx.preference.EditTextPreference;
 import androidx.preference.PreferenceFragmentCompat;
 
@@ -24,6 +25,8 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 
     private EditTextPreference pSecondaryColour;
     private EditTextPreference pTextColour;
+
+    private CheckBoxPreference pUpdateMarkers;
 
 
 
@@ -125,6 +128,9 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                         });
             }
         });
+
+        pUpdateMarkers = findPreference(getString(R.string.update_marker_key));
+        pUpdateMarkers.setChecked(false);
 
 
     }

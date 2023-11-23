@@ -31,6 +31,37 @@
     <string name="background_colour_key">background_colour_key</string>
     <string name="secondary_colour_key">secondary_colour_key</string>
     <string name="text_colour_key">text_colour_key</string>
+    <string name="update_marker_key">update_marker_key</string>
+
+    <string-array name="Colour_Names">
+        <item>HUE_AZURE</item>
+        <item>HUE_BLUE</item>
+        <item>HUE_CYAN</item>
+        <item>HUE_GREEN</item>
+        <item>HUE_MAGENTA</item>
+        <item>HUE_ORANGE</item>
+        <item>HUE_RED</item>
+        <item>HUE_ROSE</item>
+        <item>HUE_VIOLET</item>
+        <item>HUE_YELLOW</item>
+    </string-array>
+
+    <string-array name="Colour_Values">
+        <item>210.0</item>
+        <item>240.0</item>
+        <item>180.0</item>
+        <item>120.0</item>
+        <item>300.0</item>
+        <item>30.0</item>
+        <item>0.0</item>
+        <item>330.0</item>
+        <item>270.0</item>
+        <item>60.0</item>
+    </string-array>
+
+    <string name="Default_Colour_Value">
+        <item>0.0</item>
+    </string>
 
 
 </resources>

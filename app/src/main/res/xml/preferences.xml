@@ -38,5 +38,59 @@
 
     </PreferenceCategory>
 
+    <PreferenceCategory
+        app:key="set_marker_colours"
+        app:title="Set Marker Colours">
+        <ListPreference
+            app:key="Building"
+            app:title="Building Marker Colour"
+            app:entries="@array/Colour_Names"
+            app:entryValues="@array/Colour_Values"
+            app:defaultValue="@string/Default_Colour_Value"
+            />
+        <ListPreference
+            app:key="Cemetery"
+            app:title="Cemetery Marker Colour"
+            app:entries="@array/Colour_Names"
+            app:entryValues="@array/Colour_Values"
+            app:defaultValue="@string/Default_Colour_Value"
+            />
+        <ListPreference
+            app:key="Location"
+            app:title="Location Marker Colour"
+            app:entries="@array/Colour_Names"
+            app:entryValues="@array/Colour_Values"
+            app:defaultValue="@string/Default_Colour_Value"
+            />
+        <ListPreference
+            app:key="Monument"
+            app:title="Monument Marker Colour"
+            app:entries="@array/Colour_Names"
+            app:entryValues="@array/Colour_Values"
+            app:defaultValue="@string/Default_Colour_Value"
+            />
+        <ListPreference
+            app:key="Museum or Archives"
+            app:title="Museum or Archives Marker Colour"
+            app:entries="@array/Colour_Names"
+            app:entryValues="@array/Colour_Values"
+            app:defaultValue="@string/Default_Colour_Value"
+            />
+        <ListPreference
+            app:key="Other"
+            app:title="Other Marker Colour"
+            app:entries="@array/Colour_Names"
+            app:entryValues="@array/Colour_Values"
+            app:defaultValue="@string/Default_Colour_Value"
+            />
+
+    </PreferenceCategory>
+
+    <CheckBoxPreference
+        app:key="update_marker_key"
+        app:title="Check to update marker colours"
+        />
+
+
 
 </PreferenceScreen>

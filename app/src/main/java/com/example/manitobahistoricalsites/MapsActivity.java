@@ -51,12 +51,14 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -130,6 +132,10 @@ public class MapsActivity extends AppCompatActivity
     //Stop app from loading data twice when app is launched
     boolean firstAppLoad = true;
 
+    HashMap<String, Float> markerColoursPerType;
+
+
+
 
 
 
@@ -149,6 +155,7 @@ public class MapsActivity extends AppCompatActivity
 
         allManitobaHistoricalSites = new ArrayList<>();
         allMarkers = new ArrayList<>();
+        markerColoursPerType = new HashMap<>();
 
         mToolbar = findViewById(R.id.tbMain);
         setSupportActionBar(mToolbar);
@@ -158,6 +165,7 @@ public class MapsActivity extends AppCompatActivity
         prefs.registerOnSharedPreferenceChangeListener(preferenceChangeListener);
         updateBackgroundColour(prefs.getString(getString(R.string.background_colour_key), "#FFFFFF"));
         updateTextColour(prefs.getString(getString(R.string.text_colour_key), "#000000"));
+        updateMarkerColoursPerType(prefs);
         //getSharedPreferences(getString(R.string.preference_key), MODE_PRIVATE).registerOnSharedPreferenceChangeListener(preferenceChangeListener);
 
 
@@ -402,7 +410,6 @@ public class MapsActivity extends AppCompatActivity
 
             allManitobaHistoricalSites = sites;
 
-            int total = allManitobaHistoricalSites.size();
             Toast.makeText(getApplicationContext(), "Found all " + allManitobaHistoricalSites.size() + " historic sites in Manitoba", Toast.LENGTH_SHORT).show();
             if (mMap != null)
             {
@@ -493,7 +500,9 @@ public class MapsActivity extends AppCompatActivity
             allMarkers.clear();
 
             for (ManitobaHistoricalSite site: sitesToAdd) {
+                Float markerColour = markerColoursPerType.get(site.getMain_type());
                 Marker newMarker = mMap.addMarker(new MarkerOptions().position(new LatLng(site.getLatitude(), site.getLongitude())).title(site.getName()).snippet(site.getAddress())
+                        .icon(BitmapDescriptorFactory.defaultMarker(markerColour))
                         //.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.  	HUE_YELLOW 	 	))
                 );
                 newMarker.setTag(site.getSite_id());
@@ -685,14 +694,28 @@ public class MapsActivity extends AppCompatActivity
             {
                 value = String.valueOf( sharedPreferences.getBoolean(key, false));
                 updateSetDisplayColours(sharedPreferences.getBoolean(key, false));
+                Toast.makeText(getApplicationContext(), "Updating Display Settings. Key: " + key + ", Value: " + value, Toast.LENGTH_LONG).show();
             } else if (key.equals(getString(R.string.background_colour_key))) {
                 value = String.valueOf( sharedPreferences.getString(key, "#ffffff"));
                 updateBackgroundColour(sharedPreferences.getString(key, "#ffffff"));
+                Toast.makeText(getApplicationContext(), "Updating Display Settings. Key: " + key + ", Value: " + value, Toast.LENGTH_LONG).show();
             } else if (key.equals(getString(R.string.text_colour_key))) {
                 value = String.valueOf( sharedPreferences.getString(key, "#ffffff"));
                 updateTextColour(sharedPreferences.getString(key, "#000000"));
+                Toast.makeText(getApplicationContext(), "Updating Display Settings. Key: " + key + ", Value: " + value, Toast.LENGTH_LONG).show();
+            } else if (key.equals(getString(R.string.update_marker_key))) {
+                if (sharedPreferences.getBoolean(getString(R.string.update_marker_key), false))
+                {
+                    updateMarkerColoursPerType(sharedPreferences);
+                    if (mMap != null)
+                    {
+                        addSiteListToMap(allManitobaHistoricalSites);
+                    }
+
+
+                }
+
             }
-            Toast.makeText(getApplicationContext(), "Updating Display Settings. Key: " + key + ", Value: " + value, Toast.LENGTH_LONG).show();
 
 
         }
@@ -747,8 +770,6 @@ public class MapsActivity extends AppCompatActivity
     private void updateTextColour(String colour)
     {
         try {
-
-
             mToolbar.setTitleTextColor(Color.parseColor(colour));
             mToolbar.setSubtitleTextColor(Color.parseColor(colour));
             ((TextView) findViewById(R.id.tvAppbarTitle)).setTextColor(Color.parseColor(colour));
@@ -759,6 +780,28 @@ public class MapsActivity extends AppCompatActivity
 
 
     }
+
+    //Updates the hashmap markerColoursPerType
+    private void updateMarkerColoursPerType(SharedPreferences sharedPreferences)
+    {
+
+        try {
+            String [] siteTypes = {"Building" , "Cemetery" ,  "Location" , "Monument" ,"Museum or Archives" , "Other" };
+            markerColoursPerType.clear();
+            for (String type : siteTypes) {
+                String colour = sharedPreferences.getString(type, getString(R.string.Default_Colour_Value));
+                Float colourValue = Float.valueOf(colour);
+                markerColoursPerType.put(type, colourValue);
+
+            }
+        }catch (Exception e)
+        {
+            Log.e("Error", "updateMarkerColoursPerType: error updating display colours" + e.getMessage());
+        }
+
+    }
+
+
 
     //region User Location
     @Override

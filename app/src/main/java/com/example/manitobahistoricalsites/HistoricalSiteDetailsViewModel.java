@@ -24,6 +24,8 @@ public class HistoricalSiteDetailsViewModel extends ViewModel {
     private HistoricalSiteDatabase historicalSiteDatabase;
 
 
+
+
     public HistoricalSiteDetailsViewModel(SavedStateHandle state)
     {
         this.state = state;
@@ -31,12 +33,15 @@ public class HistoricalSiteDetailsViewModel extends ViewModel {
         this.currentLocation = new MutableLiveData<Location>();
         this.displayMode = new MutableLiveData<DisplayMode>();
         this.siteFiler = new MutableLiveData<SiteFilter>();
-
     }
+
+
 
     public void setHistoricalSiteDatabase(Context context) {
         this.historicalSiteDatabase = HistoricalSiteDatabase.getInstance(context);
     }
+
+
 
 
 
