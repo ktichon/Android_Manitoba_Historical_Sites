@@ -1,17 +1,35 @@
 package com.example.manitobahistoricalsites;
 
+import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.EditText;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.preference.EditTextPreference;
+import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
+import androidx.preference.PreferenceManager;
+
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+
+import top.defaults.colorpicker.ColorPickerPopup;
 
 public class SettingsFragment extends PreferenceFragmentCompat {
     private View mainView;
     private HistoricalSiteDetailsViewModel mViewModel;
     private DisplayMode previousDisplayMode;
+
+    private EditTextPreference pBackgroundColour;
+
+    private EditTextPreference pSecondaryColour;
+    private EditTextPreference pTextColour;
 
 
 
@@ -29,6 +47,90 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         //Stores the old display mode,
         previousDisplayMode = mViewModel.getDisplayMode().getValue();
         mViewModel.setDisplayMode(DisplayMode.FullSiteDetail);
+
+
+        pBackgroundColour = findPreference(getString(R.string.background_colour_key));
+        mainView.setBackgroundColor(Color.parseColor(pBackgroundColour.getText()));
+
+        pBackgroundColour.setOnBindEditTextListener(new EditTextPreference.OnBindEditTextListener() {
+            @Override
+            public void onBindEditText(@NonNull EditText editText) {
+                new ColorPickerPopup.Builder(getContext())
+                        .initialColor(Color.parseColor(pBackgroundColour.getText())) // Set initial color
+                        .enableBrightness(true) // Enable brightness slider or not
+                        .enableAlpha(true) // Enable alpha slider or not
+                        .okTitle("Choose")
+                        .cancelTitle("Cancel")
+                        .showIndicator(true)
+                        .showValue(true)
+                        .build()
+                        .show(mainView, new ColorPickerPopup.ColorPickerObserver() {
+                            @Override
+                            public void onColorPicked(int colour) {
+                                mainView.setBackgroundColor(colour);
+                                editText.setText (String.format("#%06X", (0xFFFFFF & colour)));
+                                pBackgroundColour.setText(String.format("#%06X", (0xFFFFFF & colour)));
+                            }
+
+
+                        });
+            }
+        });
+
+        pSecondaryColour = findPreference(getString(R.string.secondary_colour_key));
+        pSecondaryColour.setOnBindEditTextListener(new EditTextPreference.OnBindEditTextListener() {
+            @Override
+            public void onBindEditText(@NonNull EditText editText) {
+                new ColorPickerPopup.Builder(getContext())
+                        .initialColor(Color.parseColor(pSecondaryColour.getText())) // Set initial color
+                        .enableBrightness(true) // Enable brightness slider or not
+                        .enableAlpha(true) // Enable alpha slider or not
+                        .okTitle("Choose")
+                        .cancelTitle("Cancel")
+                        .showIndicator(true)
+                        .showValue(true)
+                        .build()
+                        .show(mainView, new ColorPickerPopup.ColorPickerObserver() {
+                            @Override
+                            public void onColorPicked(int colour) {
+                                //mainView.setBackgroundColor(colour);
+                                editText.setText (String.format("#%06X", (0xFFFFFF & colour)));
+                                editText.setBackgroundColor(colour);
+                                pSecondaryColour.setText(String.format("#%06X", (0xFFFFFF & colour)));
+                            }
+
+
+                        });
+            }
+        });
+
+        pTextColour = findPreference(getString(R.string.text_colour_key));
+        pTextColour.setOnBindEditTextListener(new EditTextPreference.OnBindEditTextListener() {
+            @Override
+            public void onBindEditText(@NonNull EditText editText) {
+                new ColorPickerPopup.Builder(getContext())
+                        .initialColor(Color.parseColor(pTextColour.getText())) // Set initial color
+                        .enableBrightness(true) // Enable brightness slider or not
+                        .enableAlpha(true) // Enable alpha slider or not
+                        .okTitle("Choose")
+                        .cancelTitle("Cancel")
+                        .showIndicator(true)
+                        .showValue(true)
+                        .build()
+                        .show(mainView, new ColorPickerPopup.ColorPickerObserver() {
+                            @Override
+                            public void onColorPicked(int colour) {
+                                editText.setTextColor(colour);
+                                editText.setText (String.format("#%06X", (0xFFFFFF & colour)));
+                                pTextColour.setText(String.format("#%06X", (0xFFFFFF & colour)));
+
+
+                            }
+
+
+                        });
+            }
+        });
 
 
     }

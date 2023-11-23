@@ -35,6 +35,7 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.manitobahistoricalsites.Database.ManitobaHistoricalSite;
@@ -82,6 +83,8 @@ public class MapsActivity extends AppCompatActivity
     private Button btnGoogle;
     private ImageButton btnDirections;*/
     private SupportMapFragment supportMapFragment;
+
+    private Toolbar mToolbar;
     private Menu menu;
     private ArrayAdapter<ManitobaHistoricalSite> searchAdapter;
     private AutoCompleteTextView searchSites;
@@ -148,15 +151,26 @@ public class MapsActivity extends AppCompatActivity
         allManitobaHistoricalSites = new ArrayList<>();
         allMarkers = new ArrayList<>();
 
-        Toolbar mToolbar = findViewById(R.id.tbMain);
+        mToolbar = findViewById(R.id.tbMain);
         setSupportActionBar(mToolbar);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+
+        //Setting Up Preference values
+        prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        prefs.registerOnSharedPreferenceChangeListener(preferenceChangeListener);
+        updateBackgroundColour(prefs.getString(getString(R.string.background_colour_key), "#FFFFFF"));
+        updateTextColour(prefs.getString(getString(R.string.text_colour_key), "#000000"));
+        //getSharedPreferences(getString(R.string.preference_key), MODE_PRIVATE).registerOnSharedPreferenceChangeListener(preferenceChangeListener);
+
+
+
+
+        /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             mToolbar.setTitleTextColor(getColor(androidx.cardview.R.color.cardview_dark_background));
         }
         else
         {
             mToolbar.setTitleTextColor(Color.BLACK);
-        }
+        }*/
 
 
 
@@ -252,10 +266,6 @@ public class MapsActivity extends AppCompatActivity
             }
         });
 
-        //Setting Up Preference values
-        prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        prefs.registerOnSharedPreferenceChangeListener(preferenceChangeListener);
-        //getSharedPreferences(getString(R.string.preference_key), MODE_PRIVATE).registerOnSharedPreferenceChangeListener(preferenceChangeListener);
 
 
 
@@ -665,6 +675,31 @@ public class MapsActivity extends AppCompatActivity
 
     }
 
+    SharedPreferences.OnSharedPreferenceChangeListener preferenceChangeListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
+        @Override
+        public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, @Nullable String key) {
+            //Toast.makeText(getApplicationContext(), "Updating Display Settings", Toast.LENGTH_SHORT).show();
+            String value = "";
+
+            if (key.equals(getString(R.string.night_mode_key)))
+            {
+                value = String.valueOf( sharedPreferences.getBoolean(key, false));
+                updateSetDisplayColours(sharedPreferences.getBoolean(key, false));
+            } else if (key.equals(getString(R.string.background_colour_key))) {
+                value = String.valueOf( sharedPreferences.getString(key, "#ffffff"));
+                updateBackgroundColour(sharedPreferences.getString(key, "#ffffff"));
+            } else if (key.equals(getString(R.string.text_colour_key))) {
+                value = String.valueOf( sharedPreferences.getString(key, "#ffffff"));
+                updateTextColour(sharedPreferences.getString(key, "#000000"));
+            }
+            Toast.makeText(getApplicationContext(), "Updating Display Settings. Key: " + key + ", Value: " + value, Toast.LENGTH_LONG).show();
+
+
+        }
+    };
+
+
+
     private void updateSetDisplayColours(Boolean nightMode)
     {
 
@@ -689,8 +724,40 @@ public class MapsActivity extends AppCompatActivity
         }
         catch (Exception e)
         {
-            Log.e("Error", "onNightModeChange: error updating display colours" + e.getMessage());
+            Log.e("Error", "updateSetDisplayColours: error updating display colours" + e.getMessage());
         }
+    }
+
+    private void updateBackgroundColour(String colour)
+    {
+        try {
+            int [] layoutIds = {R.id.root, R.id.tbMain, R.id.llDisplaySpacing, R.id.fcvDetails};
+            for (int id: layoutIds ) {
+                findViewById(id).setBackgroundColor(Color.parseColor(colour));
+
+            }
+        }catch (Exception e)
+        {
+            Log.e("Error", "updateBackgroundColour: error updating display colours" + e.getMessage());
+        }
+
+
+    }
+
+    private void updateTextColour(String colour)
+    {
+        try {
+
+
+            mToolbar.setTitleTextColor(Color.parseColor(colour));
+            mToolbar.setSubtitleTextColor(Color.parseColor(colour));
+            ((TextView) findViewById(R.id.tvAppbarTitle)).setTextColor(Color.parseColor(colour));
+        }catch (Exception e)
+        {
+            Log.e("Error", "updateTextColour: error updating display colours" + e.getMessage());
+        }
+
+
     }
 
     //region User Location
@@ -853,23 +920,6 @@ public class MapsActivity extends AppCompatActivity
             
         }
     };
-    SharedPreferences.OnSharedPreferenceChangeListener preferenceChangeListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
-    @Override
-    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, @Nullable String key) {
-        Toast.makeText(getApplicationContext(), "Updating Display Settings", Toast.LENGTH_SHORT).show();
-
-        if (key.equals(getString(R.string.night_mode_key)))
-        {
-            updateSetDisplayColours(sharedPreferences.getBoolean(key, false));
-        }
-
-    }
-};
-
-
-
-
-
     //endregion User Location
 
 

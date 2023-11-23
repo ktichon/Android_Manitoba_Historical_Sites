@@ -8,6 +8,8 @@ import androidx.lifecycle.ViewModelProvider;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
@@ -15,6 +17,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.preference.PreferenceManager;
 import androidx.viewpager2.widget.ViewPager2;
 
 import android.text.TextUtils;
@@ -33,6 +36,7 @@ import com.example.manitobahistoricalsites.Database.ManitobaHistoricalSite;
 import com.example.manitobahistoricalsites.Database.SitePhotos;
 import com.example.manitobahistoricalsites.Database.SiteSource;
 import com.example.manitobahistoricalsites.Database.SiteType;
+import com.google.android.gms.maps.model.MapStyleOptions;
 
 import java.util.List;
 
@@ -64,6 +68,8 @@ public class HistoricalSiteDetailsFragment extends Fragment {
     private ViewPager2 viewPager2;
 
     private AppCompatButton btnClose;
+
+    SharedPreferences prefs;
 
 
     private static final String SITE_KEY = "current_historical_site_yehaw";
@@ -212,15 +218,11 @@ public class HistoricalSiteDetailsFragment extends Fragment {
                         throwable ->  Toast.makeText(getContext(), "Error retrieving site sources", Toast.LENGTH_SHORT).show()
                 ));
 
-
-
-
-
-
-
-
-
-
+        prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
+        prefs.registerOnSharedPreferenceChangeListener(preferenceChangeListener);
+        updateBackgroundColour(prefs.getString(getString(R.string.background_colour_key), "#FFFFFF"));
+        updateSecondaryColour(prefs.getString(getString(R.string.secondary_colour_key), "#000000" ));
+        updateTextColour(prefs.getString(getString(R.string.text_colour_key), "#000000"));
 
     }
 
@@ -363,22 +365,89 @@ public class HistoricalSiteDetailsFragment extends Fragment {
             mViewModel.setDisplayMode(DisplayMode.SiteAndMap);
             displayHistoricalSiteInfo(currentSite);
         }
+        prefs.registerOnSharedPreferenceChangeListener(preferenceChangeListener);
 
 
     }
+
 
     @Override
     public void onPause() {
-        try {
-            super.onPause();
+        super.onPause();
+        prefs.unregisterOnSharedPreferenceChangeListener(preferenceChangeListener);
+    }
 
-        } catch (Exception e)
+    SharedPreferences.OnSharedPreferenceChangeListener preferenceChangeListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
+        @Override
+        public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, @Nullable String key) {
+            //Toast.makeText(getApplicationContext(), "Updating Display Settings", Toast.LENGTH_SHORT).show();
+             if (key.equals(getString(R.string.background_colour_key))) {
+                updateBackgroundColour(sharedPreferences.getString(key, "#ffffff"));
+            } else if (key.equals(getString(R.string.secondary_colour_key))) {
+                 updateSecondaryColour(sharedPreferences.getString(key, "#000000"));
+            } else if (key.equals(getString(R.string.text_colour_key))) {
+                 updateTextColour(sharedPreferences.getString(key, "#000000"));
+             }
+
+
+        }
+    };
+
+
+
+
+    //Set background colour
+    private void updateBackgroundColour(String colour)
+    {
+        try {
+            int [] layoutIds = {R.id.Details, R.id.llInsideScrollView};
+            for (int id: layoutIds ) {
+                mainView.findViewById(id).setBackgroundColor(Color.parseColor(colour));
+            }
+        }catch (Exception e)
         {
-            Log.e("Error", "Display Details On Pause:" + e.getMessage());
-            super.onPause();
+            Log.e("Error", "updateBackgroundColour: error updating display colours" + e.getMessage());
         }
 
+
     }
+
+    //Set secondary colour
+    private void updateSecondaryColour(String colour)
+    {
+        try {
+            int [] layoutIds = {R.id.llBar, R.id.nsvMoreInfo};
+            for (int id: layoutIds ) {
+                mainView.findViewById(id).setBackgroundColor(Color.parseColor(colour));
+            }
+        }catch (Exception e)
+        {
+            Log.e("Error", "updateBackgroundColour: error updating display colours" + e.getMessage());
+        }
+
+
+    }
+
+    //Set text colour
+    private void updateTextColour(String colour)
+    {
+        try {
+
+
+            int [] layoutIds = {R.id.tvName, R.id.tvTypes, R.id.tvAddress, R.id.tvDistance, R.id.tvShowMoreInfo, R.id.tvDescription, R.id.tvSourceTitle, R.id.tvSourceInfo};
+            for (int id: layoutIds ) {
+                ((TextView) mainView.findViewById(id)).setTextColor(Color.parseColor(colour));
+
+            }
+        }catch (Exception e)
+        {
+            Log.e("Error", "updateTextColour: error updating display colours" + e.getMessage());
+        }
+
+
+    }
+
+
 
 
     class MyGestureListener extends GestureDetector.SimpleOnGestureListener

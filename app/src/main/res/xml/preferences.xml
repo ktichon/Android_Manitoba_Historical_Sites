@@ -14,8 +14,25 @@
         app:summary="Report technical issues or suggest new features"/>
 
     <PreferenceCategory
-        app:key="background_colour"
-        app:title="Set Background Colour">
+        app:key="set_colours"
+        app:title="Set App Colours">
+        <EditTextPreference
+            app:key="background_colour_key"
+            app:title="Set Background Colour"
+            app:defaultValue="#ffffff"
+            />
+
+        <EditTextPreference
+            app:key="secondary_colour_key"
+            app:title="Set Secondary Colour"
+            app:defaultValue="#000000"
+            />
+
+        <EditTextPreference
+            app:key="text_colour_key"
+            app:title="Set Text Colour"
+            app:defaultValue="#000000"
+            />
 
 
 

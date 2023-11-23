@@ -28,6 +28,9 @@
 
     <!--Preference Keys -->
     <string name="night_mode_key">Night_Mode_Key</string>
+    <string name="background_colour_key">background_colour_key</string>
+    <string name="secondary_colour_key">secondary_colour_key</string>
+    <string name="text_colour_key">text_colour_key</string>
 
 
 </resources>
