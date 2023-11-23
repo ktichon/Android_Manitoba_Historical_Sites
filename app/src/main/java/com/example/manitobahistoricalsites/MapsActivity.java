@@ -241,7 +241,8 @@ public class MapsActivity extends AppCompatActivity
             public void onChanged(SiteFilter siteFilter) {
                 try {
                     //No filter
-                    if (siteFilter.isAllMunicipalities() && siteFilter.isAllSiteTypes())
+                    //Needed to check to make sure it doesn't run when app is first loaded
+                    if (siteFilter.isAllMunicipalities() && siteFilter.isAllSiteTypes() && !firstAppLoad )
                     {
                         loadManitobaHistoricalSiteData();
                     }
