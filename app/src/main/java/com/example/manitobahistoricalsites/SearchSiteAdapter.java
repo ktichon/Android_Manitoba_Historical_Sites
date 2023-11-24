@@ -4,6 +4,7 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -15,6 +16,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.manitobahistoricalsites.Database.ManitobaHistoricalSite;
+import com.example.manitobahistoricalsites.HolderClasses.DisplayMode;
 
 import java.util.List;
 
@@ -52,7 +54,9 @@ public class SearchSiteAdapter extends RecyclerView.Adapter<SearchSiteAdapter.Vi
             @Override
             public void onClick(View v) {
                 mViewModel.setCurrentSite(currentSite);
-                fragmentManager.popBackStack();
+                mViewModel.setDisplayMode(DisplayMode.FullMap);
+                InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
             }
         });
 

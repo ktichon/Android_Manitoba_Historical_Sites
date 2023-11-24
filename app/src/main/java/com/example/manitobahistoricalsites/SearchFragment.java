@@ -180,6 +180,10 @@ public class SearchFragment extends Fragment {
         etSearch.setEnabled(true);
         btnSearch.setEnabled(true);
         Toast.makeText(getContext(), "Found " +  searchableSites.size() + " Applicable sites.", Toast.LENGTH_SHORT).show();
+        if (etSearch != null && searchableSites.size() > 0)
+        {
+            searchSites(etSearch.getText().toString(), false);
+        }
     }
 
     TextWatcher searchTextListener = new TextWatcher() {
@@ -248,6 +252,7 @@ public class SearchFragment extends Fragment {
     public void onResume() {
         super.onResume();
         mViewModel.setDisplayMode(DisplayMode.FullSiteDetail);
+
     }
 
     @Override
