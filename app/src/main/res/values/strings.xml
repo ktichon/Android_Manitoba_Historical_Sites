@@ -1,29 +1,50 @@
 <resources>
-    <!-- String display text -->
+
+    <!-- String Display Text -->
+
+    <!-- Main Display Text -->
     <string name="app_name">Manitoba Historical Sites</string>
     <string name="title_activity_maps">Manitoba Historical Sites</string>
-    <string name="nope">No Google Place Id Found :(</string>
-    <string name="search_text">Search Historical Sites ...</string>
+
+    <!-- Historic Site Details Display Text -->
     <string name="show_more">Click here to show more info</string>
     <string name="show_less">Click here to show less info</string>
+    <string name="sources_title">Sources:</string>
+
+    <!-- Filter Display Text -->
+    <string name="back_click">Back</string>
+    <string name="display_all_municipalities_filter">Display All Municipalities:</string>
+    <string name="display_all_site_types_filter">Display All Site Types:</string>
     <string name="multi_select_municipalities">Select Municipalities</string>
     <string name="multi_select_types">Select Site Types</string>
+    <string name="confirm_new_filters">Confirm new Filters</string>
+
+    <!-- Search Display Text -->
+    <string name="search_by_label">Search By:</string>
+    <string name="search_text">Search Manitoba Historical Sites ...</string>
+    <string name="active_type_filters">Active Type Filters:</string>
+    <string name="active_municipality_filters">Active Municipality Filters:</string>
 
 
-    <!-- String data -->
-    <string name="data_url">https://data.winnipeg.ca/resource/ptpx-kgiu.json?</string>
-    <string name="webviewUrl">webViewUrl</string>
-    <string name="address_To_Place_Api_Link">https://maps.googleapis.com/maps/api/geocode/json?</string>
-    <string name="directions_Api_Link">https://maps.googleapis.com/maps/api/directions/json?</string>
-    <!-- <string name="medium_max_height_of_webview_percent">0.35</string>
-    <string name="full_max_height_of_webview_percent">0.75</string>
--->
 
-    <!--  Values for how big details is for each swipe  -->
+
+    <!-- Variable values -->
+
+    <!--  Values for the map to details ratio when displayMode = DisplayMode.SiteAndMap,  -->
     <string name="display_both_map">3</string>
     <string name="display_both_details">1</string>
 
+    <!-- Used to pop all site details from fragment manager (important when using filter) -->
     <string name="site_fragment">Site Details</string>
+
+
+    <!--  Possible ways to search for a site by  -->
+    <string-array name="Search_By">
+        <item>Site Address</item>
+        <item>Site Name</item>
+    </string-array>
+
+
 
 
     <!--Preference Keys -->
@@ -33,6 +54,8 @@
     <string name="text_colour_key">text_colour_key</string>
     <string name="update_marker_key">update_marker_key</string>
 
+
+    <!-- Readable possible marker colour names -->
     <string-array name="Colour_Names">
         <item>HUE_AZURE</item>
         <item>HUE_BLUE</item>
@@ -46,6 +69,7 @@
         <item>HUE_YELLOW</item>
     </string-array>
 
+    <!-- The corresponding FlOAT colour values -->
     <string-array name="Colour_Values">
         <item>210.0</item>
         <item>240.0</item>
@@ -59,14 +83,9 @@
         <item>60.0</item>
     </string-array>
 
+    <!-- Default maker colour (red) -->
     <string name="Default_Colour_Value">
         <item>0.0</item>
     </string>
-    
-    
-    <string-array name="Search_By">
-        <item>Site Address</item>
-        <item>Site Name</item>
-    </string-array>
 
 </resources>

@@ -13,12 +13,11 @@
         android:id="@+id/tvFilterGoBack"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="left"
-        android:text="Back"
-        android:drawableLeft="@drawable/back"
+        android:layout_gravity="start"
+        android:text="@string/back_click"
         style="@style/mainText"
         android:layout_margin="5dp"
-        />
+        app:drawableStartCompat="@drawable/back" />
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -39,7 +38,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/tvSelectAllMunicipalities"
-                android:text="Display All Municipalities:"
+                android:text="@string/display_all_municipalities_filter"
                 style="@style/mainText"
 
                 />
@@ -57,13 +56,12 @@
             android:id="@+id/tvMultiSelectMunicipality"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
             android:background="@android:drawable/editbox_background"
-            android:drawableRight="@android:drawable/arrow_down_float"
             android:drawablePadding="15dp"
             android:hint="@string/multi_select_municipalities"
             android:layout_margin="5dp"
-            android:padding="10dp" />
+            android:padding="10dp"
+            app:drawableEndCompat="@android:drawable/arrow_down_float" />
 
     </LinearLayout>
 
@@ -87,7 +85,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/tvSelectAllTypes"
-                android:text="Display All Site Types:"
+                android:text="@string/display_all_site_types_filter"
                 style="@style/mainText"
 
                 />
@@ -105,23 +103,22 @@
             android:id="@+id/tvMultiSelectType"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
             android:background="@android:drawable/editbox_background"
-            android:drawableRight="@android:drawable/arrow_down_float"
             android:drawablePadding="15dp"
             android:hint="@string/multi_select_types"
             android:layout_margin="5dp"
-            android:padding="10dp" />
+            android:padding="10dp"
+            app:drawableEndCompat="@android:drawable/arrow_down_float" />
 
     </LinearLayout>
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/btnConfirmFilters"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Confirm new Filters "
+        android:text="@string/confirm_new_filters"
 
         android:layout_margin="10dp"
-        android:drawableRight="@drawable/check"
+        android:drawableEnd="@drawable/check"
         style="@style/mainText"/>
 
 

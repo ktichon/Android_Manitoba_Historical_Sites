@@ -92,7 +92,7 @@ public class SearchFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         mainView = view;
-        mViewModel = new ViewModelProvider(getActivity()).get(HistoricalSiteDetailsViewModel.class);
+        mViewModel = new ViewModelProvider(requireActivity()).get(HistoricalSiteDetailsViewModel.class);
 
 
         //Stores the old display mode,
@@ -107,7 +107,7 @@ public class SearchFragment extends Fragment {
         Spinner spinner = (Spinner) mainView.findViewById(R.id.spnSearchBy);
         // Create an ArrayAdapter using the string array and a default spinner layout.
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
-                getContext(),
+                requireActivity(),
                 R.array.Search_By,
                 android.R.layout.simple_spinner_item
         );
@@ -132,14 +132,11 @@ public class SearchFragment extends Fragment {
 
 
         tvBack = mainView.findViewById(R.id.tvSearchGoBack);
-        tvBack.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mViewModel.setDisplayMode(previousDisplayMode);
-                FragmentManager fm = getActivity().getSupportFragmentManager();
+        tvBack.setOnClickListener(v -> {
+            mViewModel.setDisplayMode(previousDisplayMode);
+            FragmentManager fm = requireActivity().getSupportFragmentManager();
 
-                fm.popBackStack();
-            }
+            fm.popBackStack();
         });
 
         //Set up searched site adapter
@@ -160,12 +157,7 @@ public class SearchFragment extends Fragment {
 
 
 
-        btnSearch.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                searchSites(etSearch.getText().toString(), false);
-            }
-        });
+        btnSearch.setOnClickListener(v -> searchSites(etSearch.getText().toString(), false));
 
         llActiveTypeFilters = mainView.findViewById(R.id.llActiveTypeFilters);
         llActiveMunicipalityFilters = mainView.findViewById(R.id.llActiveMunicipalityFilters);
@@ -256,7 +248,7 @@ public class SearchFragment extends Fragment {
                 );
             }
         } catch (Exception e) {
-            Log.e("Error", "updateDataToComplyWithNewFilters: Error updating the map to reflect the viewmodel\n" + e.getMessage());
+            Log.e("Error", "updateDataToComplyWithNewFilters: Error updating the map to reflect the viewModel\n" + e.getMessage());
         }
     }
 

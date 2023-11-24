@@ -18,7 +18,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/tvAppbarTitle"
-            android:text="@string/app_name" android:textSize="20dp"/>
+            android:text="@string/app_name" android:textSize="20sp"/>
 
     </androidx.appcompat.widget.Toolbar>
 
@@ -31,7 +31,7 @@
         android:id="@+id/llDisplaySpacing"
         >
 
-        <androidx.fragment.app.FragmentContainerView xmlns:android="http://schemas.android.com/apk/res/android"
+        <androidx.fragment.app.FragmentContainerView
             android:layout_width="match_parent"
             android:id="@+id/fcvMap"
             android:layout_height="0dp"

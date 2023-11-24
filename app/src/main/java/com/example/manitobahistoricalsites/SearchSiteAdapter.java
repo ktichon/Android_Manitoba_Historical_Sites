@@ -25,13 +25,12 @@ public class SearchSiteAdapter extends RecyclerView.Adapter<SearchSiteAdapter.Vi
     Context context;
     List<ManitobaHistoricalSite> siteList;
     private HistoricalSiteDetailsViewModel mViewModel;
-    private FragmentManager fragmentManager;
+
 
     public SearchSiteAdapter(Context context, List<ManitobaHistoricalSite> siteList, FragmentActivity activity) {
         this.context = context;
         this.siteList = siteList;
         this.mViewModel = new ViewModelProvider(activity).get(HistoricalSiteDetailsViewModel.class);
-        this.fragmentManager = activity.getSupportFragmentManager();
     }
 
     @NonNull
@@ -50,14 +49,11 @@ public class SearchSiteAdapter extends RecyclerView.Adapter<SearchSiteAdapter.Vi
         String details = currentSite.getAddress() == null? "": currentSite.getAddress() + ", ";
         details += currentSite.getMunicipality() + ", " + currentSite.getMain_type();
         holder.setTvDetails(details);
-        holder.getView().setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mViewModel.setCurrentSite(currentSite);
-                mViewModel.setDisplayMode(DisplayMode.FullMap);
-                InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
-                imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
-            }
+        holder.getView().setOnClickListener(v -> {
+            mViewModel.setCurrentSite(currentSite);
+            mViewModel.setDisplayMode(DisplayMode.FullMap);
+            InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
         });
 
     }
@@ -82,19 +78,7 @@ public class SearchSiteAdapter extends RecyclerView.Adapter<SearchSiteAdapter.Vi
         public View getView() {
             return view;
         }
-
-        public TextView getTvName() {
-            return tvName;
-        }
-
-        public void setTvName(String tvName) {
-            this.tvName.setText(tvName);
-        }
-
-        public TextView getTvDetails() {
-            return tvDetails;
-        }
-
+        public void setTvName(String tvName) { this.tvName.setText(tvName);}
         public void setTvDetails(String tvDetails) {
             this.tvDetails.setText(tvDetails);
         }

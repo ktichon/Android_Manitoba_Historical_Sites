@@ -18,6 +18,6 @@
         android:layout_height="wrap_content"
         style="@style/subText"
         android:id="@+id/tvHolderSiteInfo"
-        android:text="Address, Muncipility, Type"/>
+        android:text="Address, Municipality, Type"/>
 
 </LinearLayout>

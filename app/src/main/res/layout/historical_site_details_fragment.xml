@@ -7,7 +7,7 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/detailsContainer">
+    android:id="@+id/llDetailsContainer">
     <LinearLayout
         android:orientation="horizontal"
         android:layout_width="match_parent"
@@ -17,7 +17,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/Details"
+        android:id="@+id/llDetails"
         android:orientation="vertical">
 
         <LinearLayout
@@ -30,7 +30,7 @@
             >
             <TextView
                 android:id="@+id/tvName"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:textAlignment="center"
 
@@ -92,18 +92,24 @@
 
 
 
-
-        <TextView
-            android:id="@+id/tvShowMoreInfo"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:textAlignment="center"
-            android:text="@string/show_more"
-            android:drawableRight="@drawable/arrow_up"
-            style="@style/mainText"
-            android:layout_margin="5dp"
-            />
+            android:id="@+id/llShowMore"
+            android:gravity="center">
+            <TextView
+                android:id="@+id/tvShowMoreInfo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:textAlignment="center"
+                android:text="@string/show_more"
+                style="@style/mainText"
+                android:layout_margin="5dp"
+                app:drawableEndCompat="@drawable/arrow_up" />
+
+        </LinearLayout>
+
         <androidx.core.widget.NestedScrollView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -139,7 +145,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Sources: "
+                    android:text="@string/sources_title"
                     style="@style/mainText"
                     android:layout_marginTop="10dp"
 

@@ -11,13 +11,11 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.manitobahistoricalsites.Database.SitePhotos;
 import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Target;
 
 import java.util.List;
 
@@ -40,42 +38,34 @@ public class SiteImagesAdapter extends RecyclerView.Adapter<SiteImagesAdapter.Vi
         return new ViewHolder(
                 LayoutInflater.from(parent.getContext()).inflate(
                         R.layout.image_holder_layout, parent, false
-                ) );
+                ));
     }
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         SitePhotos currentPhoto = sitePhotos.get(position);
         holder.setTvSiteImageInfo(currentPhoto.info);
-        String imageCount = String.valueOf(position + 1) + "/" + String.valueOf(getItemCount());
+        String imageCount = (position + 1) + "/" + getItemCount();
         holder.setTvImageCount(imageCount);
 
         Picasso.Builder builder = new Picasso.Builder(viewPager2.getContext());
-        builder.listener(new Picasso.Listener()
-        {
-            @Override
-            public void onImageLoadFailed(Picasso picasso, Uri uri, Exception e) {
-                Log.e("Error", "Picasso: Error displaying site photos " + currentPhoto.getPhoto_url() +"\n" + e.getMessage());
-            }
-        });
+        builder.listener((picasso, uri, e) -> Log.e("Error", "Picasso: Error displaying site photos " + currentPhoto.getPhoto_url() +"\n" + e.getMessage()));
         builder.build().load(currentPhoto.getPhoto_url()).error(R.drawable.baseline_error_outline_50)
                 .into(holder.imageView);
 
-        holder.imageView.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                try{
-                    Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(currentPhoto.getPhoto_url()));
-                    context.startActivity(browserIntent);
-                }
-                catch (Exception e)
-                {
-                    Log.e("Error", "SiteImageAdapter: Error launching photo url\n" + e.getMessage());
-                }
-
-                return false;
+        holder.imageView.setOnLongClickListener(v -> {
+            try{
+                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(currentPhoto.getPhoto_url()));
+                context.startActivity(browserIntent);
             }
+            catch (Exception e)
+            {
+                Log.e("Error", "SiteImageAdapter: Error launching photo url\n" + e.getMessage());
+            }
+
+            return false;
         });
+        holder.getImageView().setContentDescription(currentPhoto.getPhoto_url());
         /*Picasso.get().load(currentPhoto.photo_url).error(R.drawable.baseline_error_outline_24)
                 .into(holder.imageView);*/
         //holder.setImageView(currentPhoto.photo_url);
@@ -91,7 +81,7 @@ public class SiteImagesAdapter extends RecyclerView.Adapter<SiteImagesAdapter.Vi
         return sitePhotos.size();
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder {
+    public static class ViewHolder extends RecyclerView.ViewHolder {
 
         ImageView imageView;
         TextView tvSiteImageInfo;
@@ -109,6 +99,10 @@ public class SiteImagesAdapter extends RecyclerView.Adapter<SiteImagesAdapter.Vi
         public void setImageView(String url)
         {
             Picasso.get().load(url). into(imageView);
+        }
+
+        public ImageView getImageView() {
+            return imageView;
         }
 
         public  void setTvSiteImageInfo(String info)

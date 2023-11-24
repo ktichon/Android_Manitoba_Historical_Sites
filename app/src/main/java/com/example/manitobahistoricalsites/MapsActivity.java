@@ -10,7 +10,6 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentContainerView;
 import androidx.fragment.app.FragmentManager;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.preference.PreferenceManager;
 
@@ -31,15 +30,12 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ArrayAdapter;
-import android.widget.AutoCompleteTextView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.manitobahistoricalsites.Database.ManitobaHistoricalSite;
 import com.example.manitobahistoricalsites.HolderClasses.DisplayMode;
-import com.example.manitobahistoricalsites.HolderClasses.HistoricalSite;
 import com.example.manitobahistoricalsites.HolderClasses.SiteFilter;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
@@ -72,35 +68,18 @@ public class MapsActivity extends AppCompatActivity
 {
 
     private GoogleMap mMap;
-    //private RequestQueue queue;
-    private List<HistoricalSite> allHistoricalSites;
+
     private List<ManitobaHistoricalSite> allManitobaHistoricalSites;
     private List<Marker> allMarkers;
-    //private LinearLayout llDisplayInfo;
-   // private LinearLayout llPlaceInfo;
+
+
+
     private ManitobaHistoricalSite currentSite;
-    /*private Button btnLong;
-    private Button btnShort;
-    private Button btnGoogle;
-    private ImageButton btnDirections;*/
-    private SupportMapFragment supportMapFragment;
 
     private Toolbar mToolbar;
-    private Menu menu;
-    private ArrayAdapter<ManitobaHistoricalSite> searchAdapter;
-    private AutoCompleteTextView searchSites;
-
-
-
     private boolean cameraFollow = false;
 
 
-    //To make sure we don't add sites to the map till the map is properly loaded
-    /*private boolean allSitesLoaded = false;
-    private boolean mapLoaded = false;*/
-
-    //private Location currentLocation;
-    //private FusedLocationProviderClient fusedLocationProviderClient;
     LocationManager locationManager;
     private HistoricalSiteDetailsViewModel viewModel;
     private FragmentManager fragmentManager;
@@ -113,12 +92,6 @@ public class MapsActivity extends AppCompatActivity
      */
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
 
-    /**
-     * Flag indicating whether a requested permission has been denied after returning in {@link
-     * #onRequestPermissionsResult(int, String[], int[])}.
-     */
-
-    private LocationRequest locationRequest;
     private FusedLocationProviderClient fusedLocationClient;
     private boolean trackingLocation;
     private boolean permissionDenied = false;
@@ -216,58 +189,46 @@ public class MapsActivity extends AppCompatActivity
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         viewModel = new ViewModelProvider(this).get(HistoricalSiteDetailsViewModel.class);
         viewModel.setHistoricalSiteDatabase(getApplicationContext());
-        viewModel.getCurrentSite().observe(this, new Observer<ManitobaHistoricalSite>() {
-            @Override
-            public void onChanged(ManitobaHistoricalSite changedSite) {
-                try {
-                    currentSite = changedSite;
-                    moveCameraToLocation(currentSite.getLocation());
-                    displayMarkerInfo(currentSite.getSite_id());
-                } catch (Exception e) {
-                    Log.e("Error", "UpdateCurrentPositonToBeCurrentSite: Error updating the map to reflect the viewmodel\n" + e.getMessage());
-                }
-
-
+        viewModel.getCurrentSite().observe(this, changedSite -> {
+            try {
+                currentSite = changedSite;
+                moveCameraToLocation(currentSite.getLocation());
+                displayMarkerInfo(currentSite.getSite_id());
+            } catch (Exception e) {
+                Log.e("Error", "UpdateCurrentPositonToBeCurrentSite: Error updating the map to reflect the viewmodel\n" + e.getMessage());
             }
+
+
         });
 
         //Set the default value of the details display height
         viewModel.setDisplayMode(DisplayMode.FullMap);
-        viewModel.getDisplayMode().observe(this, new Observer<DisplayMode>() {
-            @Override
-            public void onChanged(DisplayMode displayMode) {
-                updateDisplayHeight(displayMode);
-
-            }
-        });
+        viewModel.getDisplayMode().observe(this, displayMode -> updateDisplayHeight(displayMode));
 
         //Set up filters on view model
         viewModel.setSiteFilters(new SiteFilter());
-        viewModel.getSiteFilters().observe(this, new Observer<SiteFilter>() {
-            @Override
-            public void onChanged(SiteFilter siteFilter) {
-                try {
-                    //No filter
-                    //Needed to check to make sure it doesn't run when app is first loaded
-                    if (siteFilter.isAllMunicipalities() && siteFilter.isAllSiteTypes() && !firstAppLoad )
-                    {
-                        loadManitobaHistoricalSiteData();
-                    }
-                    //Only municipality filter
-                    else if (!siteFilter.isAllMunicipalities() && siteFilter.isAllSiteTypes()){
-                        loadManitobaHistoricalSiteDataMunicipalityFilter(siteFilter.getMunicipalityFilter());
-                    }
-                    //Only type filter
-                    else if (siteFilter.isAllMunicipalities() && !siteFilter.isAllSiteTypes()) {
-                        loadManitobaHistoricalSiteDataTypeFilter(siteFilter.getSiteTypeFilter());
-                    }
-                    // Get both municipality and type filter
-                    else if (!siteFilter.isAllMunicipalities() && !siteFilter.isAllSiteTypes()) {
-                        loadManitobaHistoricalAllFilter(siteFilter.getMunicipalityFilter(), siteFilter.getSiteTypeFilter());
-                    }
-                } catch (Exception e) {
-                    Log.e("Error", "updateDataToComplyWithNewFilters: Error updating the map to reflect the viewmodel\n" + e.getMessage());
+        viewModel.getSiteFilters().observe(this, siteFilter -> {
+            try {
+                //No filter
+                //Needed to check to make sure it doesn't run when app is first loaded
+                if (siteFilter.isAllMunicipalities() && siteFilter.isAllSiteTypes() && !firstAppLoad )
+                {
+                    loadManitobaHistoricalSiteData();
                 }
+                //Only municipality filter
+                else if (!siteFilter.isAllMunicipalities() && siteFilter.isAllSiteTypes()){
+                    loadManitobaHistoricalSiteDataMunicipalityFilter(siteFilter.getMunicipalityFilter());
+                }
+                //Only type filter
+                else if (siteFilter.isAllMunicipalities() && !siteFilter.isAllSiteTypes()) {
+                    loadManitobaHistoricalSiteDataTypeFilter(siteFilter.getSiteTypeFilter());
+                }
+                // Get both municipality and type filter
+                else if (!siteFilter.isAllMunicipalities() && !siteFilter.isAllSiteTypes()) {
+                    loadManitobaHistoricalAllFilter(siteFilter.getMunicipalityFilter(), siteFilter.getSiteTypeFilter());
+                }
+            } catch (Exception e) {
+                Log.e("Error", "updateDataToComplyWithNewFilters: Error updating the map to reflect the viewmodel\n" + e.getMessage());
             }
         });
 
@@ -286,7 +247,6 @@ public class MapsActivity extends AppCompatActivity
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu, menu);
-        this.menu = menu;
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -306,7 +266,7 @@ public class MapsActivity extends AppCompatActivity
                 }
             } else if (item.getItemId() == R.id.itFilters) {
                 viewModel.setDisplayMode(DisplayMode.FullSiteDetail);
-                fragmentManager.popBackStack(getString(R.string.site_fragment), fragmentManager.POP_BACK_STACK_INCLUSIVE);
+                fragmentManager.popBackStack(getString(R.string.site_fragment), FragmentManager.POP_BACK_STACK_INCLUSIVE);
 
 
                 fragmentManager.beginTransaction()
@@ -339,7 +299,7 @@ public class MapsActivity extends AppCompatActivity
     public void loadMap()
     {
         if (mMap == null) {
-            supportMapFragment =  SupportMapFragment.newInstance();
+            SupportMapFragment supportMapFragment = SupportMapFragment.newInstance();
             supportMapFragment.getMapAsync(this);
             getSupportFragmentManager().beginTransaction()
                .setReorderingAllowed(true)
@@ -503,7 +463,9 @@ public class MapsActivity extends AppCompatActivity
             allMarkers.clear();
 
             for (ManitobaHistoricalSite site: sitesToAdd) {
-                Float markerColour = markerColoursPerType.get(site.getMain_type());
+                Float markerColour = 0f;
+                if (site.getMain_type() != null && markerColoursPerType.get(site.getMain_type()) != null)
+                    markerColour = markerColoursPerType.get(site.getMain_type());
                 Marker newMarker = mMap.addMarker(new MarkerOptions().position(new LatLng(site.getLatitude(), site.getLongitude())).title(site.getName()).snippet(site.getAddress())
                         .icon(BitmapDescriptorFactory.defaultMarker(markerColour))
                         //.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.  	HUE_YELLOW 	 	))
@@ -543,7 +505,7 @@ public class MapsActivity extends AppCompatActivity
             if (allMarkers!= null)
             {
                 for (Marker marker : allMarkers) {
-                    if ((int)marker.getTag() == displayId ) { //if a marker has desired tag
+                    if (marker.getTag() != null && (int)marker.getTag() == displayId ) { //if a marker has desired tag
                         marker.showInfoWindow();
                     }
                 }
@@ -561,7 +523,7 @@ public class MapsActivity extends AppCompatActivity
     @Override
     public boolean onMarkerClick(Marker marker) {
         try {
-            int nextSiteIndex = (int) marker.getTag();
+            int nextSiteIndex = marker.getTag() != null? (int) marker.getTag(): 0;
             Location siteLocation = new Location("");
             siteLocation.setLatitude(marker.getPosition().latitude);
             siteLocation.setLongitude(marker.getPosition().longitude);
@@ -685,40 +647,34 @@ public class MapsActivity extends AppCompatActivity
 
     }
 
+    //Shared Preference on change listener, allows user to customize the site colours. All of it will be removed when I get a colour scheme I'm happy with
     SharedPreferences.OnSharedPreferenceChangeListener preferenceChangeListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
         @Override
         public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, @Nullable String key) {
             //Toast.makeText(getApplicationContext(), "Updating Display Settings", Toast.LENGTH_SHORT).show();
-            String value = "";
-
-            if (key.equals(getString(R.string.night_mode_key)))
+            if (key != null)
             {
-                value = String.valueOf( sharedPreferences.getBoolean(key, false));
-                updateSetDisplayColours(sharedPreferences.getBoolean(key, false));
-                Toast.makeText(getApplicationContext(), "Updating Display Settings. Key: " + key + ", Value: " + value, Toast.LENGTH_LONG).show();
-            } else if (key.equals(getString(R.string.background_colour_key))) {
-                value = String.valueOf( sharedPreferences.getString(key, "#ffffff"));
-                updateBackgroundColour(sharedPreferences.getString(key, "#ffffff"));
-                Toast.makeText(getApplicationContext(), "Updating Display Settings. Key: " + key + ", Value: " + value, Toast.LENGTH_LONG).show();
-            } else if (key.equals(getString(R.string.text_colour_key))) {
-                value = String.valueOf( sharedPreferences.getString(key, "#ffffff"));
-                updateTextColour(sharedPreferences.getString(key, "#000000"));
-                Toast.makeText(getApplicationContext(), "Updating Display Settings. Key: " + key + ", Value: " + value, Toast.LENGTH_LONG).show();
-            } else if (key.equals(getString(R.string.update_marker_key))) {
-                if (sharedPreferences.getBoolean(getString(R.string.update_marker_key), false))
+                if (key.equals(getString(R.string.night_mode_key)))
                 {
-                    updateMarkerColoursPerType(sharedPreferences);
-                    if (mMap != null)
+                    updateSetDisplayColours(sharedPreferences.getBoolean(key, false));
+                } else if (key.equals(getString(R.string.background_colour_key))) {
+                    updateBackgroundColour(sharedPreferences.getString(key, "#ffffff"));
+                } else if (key.equals(getString(R.string.text_colour_key))) {
+                    updateTextColour(sharedPreferences.getString(key, "#000000"));
+                } else if (key.equals(getString(R.string.update_marker_key))) {
+                    if (sharedPreferences.getBoolean(getString(R.string.update_marker_key), false))
                     {
-                        addSiteListToMap(allManitobaHistoricalSites);
+                        updateMarkerColoursPerType(sharedPreferences);
+                        if (mMap != null)
+                        {
+                            addSiteListToMap(allManitobaHistoricalSites);
+                        }
+
+
                     }
 
-
                 }
-
             }
-
-
         }
     };
 
@@ -841,13 +797,15 @@ public class MapsActivity extends AppCompatActivity
     @SuppressLint("MissingPermission")
     private void enableMyLocation() {
 
-        // 1. Check if permissions are granted, if so, enable the my location layer
+        //Check if permissions are granted, if so, enable the my location layer
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
             mMap.setMyLocationEnabled(true);
+
             locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-            // . . . . other initialization code
-            locationRequest = new LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 10000)
+
+            //Sets how often the app checks if the user location has changed
+            LocationRequest locationRequest = new LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 10000)
                     .setWaitForAccurateLocation(false)
                     .setMinUpdateIntervalMillis(30000)
                     .setMaxUpdateDelayMillis(10000)
@@ -907,7 +865,11 @@ public class MapsActivity extends AppCompatActivity
          * cases when a location is not available.
          */
 
-        Location userLocation = null;
+
+        //The default location is the Manitoba Museum, which is returned if there is an error getting location
+        Location userLocation = new Location("");
+        userLocation.setLatitude(49.9000253);
+        userLocation.setLongitude(-97.1386276);
 
         //If user location is enabled, get the user location. Else get default location (which is The Manitoba Museum)
         if(trackingLocation) {
@@ -917,29 +879,27 @@ public class MapsActivity extends AppCompatActivity
 
                 // Getting the name of the best provider
                 String provider = locationManager.getBestProvider(criteria, true);
+                if (provider != null)
+                {
+                    // Getting Current Location
+                    @SuppressLint("MissingPermission") Location location = locationManager.getLastKnownLocation(provider);
+                    userLocation = location;
+                }
 
-                // Getting Current Location
-                @SuppressLint("MissingPermission") Location location = locationManager.getLastKnownLocation(provider);
-                userLocation = location;
+
             } catch (Exception e) {
                 Toast.makeText(this, "Error fetching location. Please make sure to enable location in your settings.", Toast.LENGTH_LONG).show();
                 Log.e("Error", "getUserLocation: Error fetching user location\n" + e.getMessage());
             }
         }
-        else
-        {
-            //The Manitoba Museum lat/long
-            userLocation = new Location("");
-            userLocation.setLatitude(49.9000253);
-            userLocation.setLongitude(-97.1386276);
-        }
+
 
 
         return userLocation;
 
     }
 
-    private LocationCallback locationCallback = new LocationCallback() {
+    private final LocationCallback locationCallback = new LocationCallback() {
         @Override
         public void onLocationResult(@NonNull LocationResult locationResult) {
             super.onLocationResult(locationResult);

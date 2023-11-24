@@ -1,6 +1,5 @@
 package com.example.manitobahistoricalsites;
 
-import android.content.DialogInterface;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -16,7 +15,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -95,9 +93,11 @@ public class FilterFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         mainView = view;
-        mViewModel = new ViewModelProvider(getActivity()).get(HistoricalSiteDetailsViewModel.class);
+        mViewModel = new ViewModelProvider(requireActivity()).get(HistoricalSiteDetailsViewModel.class);
 
-        originalFilters = mViewModel.getSiteFilters().getValue();
+        originalFilters = new SiteFilter();
+        if (mViewModel.getSiteFilters().getValue() != null)
+            originalFilters = mViewModel.getSiteFilters().getValue();
         newFilters = originalFilters;
         municipalitiesFilter = originalFilters.getMunicipalityFilter();
 
@@ -105,48 +105,39 @@ public class FilterFragment extends Fragment {
         cbAllMunicipalities.setChecked(originalFilters.isAllMunicipalities());
 
 
-        cbAllMunicipalities.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                newFilters.setAllMunicipalities(isChecked);
-                if (isChecked)
-                {
-                    tvMultiMunicipalities.setText("");
-                }
-                else {
-                    tvMultiMunicipalities.setText(R.string.multi_select_municipalities);
-                }
-
+        cbAllMunicipalities.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            newFilters.setAllMunicipalities(isChecked);
+            if (isChecked)
+            {
+                tvMultiMunicipalities.setText("");
             }
+            else {
+                tvMultiMunicipalities.setText(R.string.multi_select_municipalities);
+            }
+
         });
 
         typeFilter = originalFilters.getSiteTypeFilter();
         cbAllSiteTypes = mainView.findViewById(R.id.cbSelectAllTypes);
         cbAllSiteTypes.setChecked(originalFilters.isAllSiteTypes());
-        cbAllSiteTypes.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                newFilters.setAllSiteTypes(isChecked);
-                if (isChecked)
-                {
-                    tvMultiTypes.setText("");
-                }
-                else {
-                    tvMultiTypes.setText(R.string.multi_select_types);
-                }
-
+        cbAllSiteTypes.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            newFilters.setAllSiteTypes(isChecked);
+            if (isChecked)
+            {
+                tvMultiTypes.setText("");
             }
+            else {
+                tvMultiTypes.setText(R.string.multi_select_types);
+            }
+
         });
 
         tvBack = mainView.findViewById(R.id.tvFilterGoBack);
-        tvBack.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mViewModel.setDisplayMode(DisplayMode.FullMap);
-                FragmentManager fm = getActivity().getSupportFragmentManager();
+        tvBack.setOnClickListener(v -> {
+            mViewModel.setDisplayMode(DisplayMode.FullMap);
+            FragmentManager fm = requireActivity().getSupportFragmentManager();
 
-                fm.popBackStack();
-            }
+            fm.popBackStack();
         });
 
 
@@ -167,33 +158,30 @@ public class FilterFragment extends Fragment {
         btnConfirmFilters = mainView.findViewById(R.id.btnConfirmFilters);
 
         //Updates filters
-        btnConfirmFilters.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                try {
+        btnConfirmFilters.setOnClickListener(v -> {
+            try {
 
-                    // if "All" is select or sizeT is 0, set to "All" and clear list
-                    if (newFilters.isAllMunicipalities() || newFilters.getMunicipalityFilter().size() == 0){
-                        newFilters.setAllMunicipalities(true);
-                        newFilters.getMunicipalityFilter().clear();
-                    }
-                    if (newFilters.isAllSiteTypes() || newFilters.getSiteTypeFilter().size() == 0){
-                        newFilters.setAllSiteTypes(true);
-                        newFilters.getSiteTypeFilter().clear();
-                    }
-
-
-                    mViewModel.setSiteFilters(newFilters);
-                    Toast.makeText(getContext(), "Updating Historical Site Filters", Toast.LENGTH_SHORT).show();
-
+                // if "All" is select or sizeT is 0, set to "All" and clear list
+                if (newFilters.isAllMunicipalities() || newFilters.getMunicipalityFilter().size() == 0){
+                    newFilters.setAllMunicipalities(true);
+                    newFilters.getMunicipalityFilter().clear();
                 }
-                catch (Exception e)
-                {
-                    Log.e("Error", "btnConfirmFiltersOnClick: Error saving site filters\n" + e.getMessage());
+                if (newFilters.isAllSiteTypes() || newFilters.getSiteTypeFilter().size() == 0){
+                    newFilters.setAllSiteTypes(true);
+                    newFilters.getSiteTypeFilter().clear();
                 }
 
+
+                mViewModel.setSiteFilters(newFilters);
+                Toast.makeText(getContext(), "Updating Historical Site Filters", Toast.LENGTH_SHORT).show();
 
             }
+            catch (Exception e)
+            {
+                Log.e("Error", "btnConfirmFiltersOnClick: Error saving site filters\n" + e.getMessage());
+            }
+
+
         });
 
     }
@@ -205,7 +193,7 @@ public class FilterFragment extends Fragment {
             {
                 try {
                     // Initialize alert dialog
-                    AlertDialog.Builder builder = new AlertDialog.Builder(getContext(), R.style.DialogBoxTheme);
+                    AlertDialog.Builder builder = new AlertDialog.Builder(requireContext(), R.style.DialogBoxTheme);
 
                     // set title
                     builder.setTitle("Select Municipalities");
@@ -213,73 +201,61 @@ public class FilterFragment extends Fragment {
                     // set dialog non cancelable
                     builder.setCancelable(false);
 
-                    builder.setMultiChoiceItems(allMunicipalities, selectedMunicipalities, new DialogInterface.OnMultiChoiceClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i, boolean b) {
+                    builder.setMultiChoiceItems(allMunicipalities, selectedMunicipalities, (dialogInterface, i, b) -> {
+                        // check condition
+                        if (b) {
+                            // when checkbox selected
+                            // Add position  in lang list
+                            munitList.add(i);
+                            // Sort array list
+                            Collections.sort(munitList);
+                        } else {
+                            // when checkbox unselected
+                            // Remove position from langList
+                            munitList.remove(Integer.valueOf(i));
+                        }
+                    });
+
+                    builder.setPositiveButton("OK", (dialogInterface, i) -> {
+                        // Initialize string builder
+                        StringBuilder stringBuilder = new StringBuilder();
+                        municipalitiesFilter.clear();
+
+                        // use for loop
+                        for (int j = 0; j < munitList.size(); j++) {
+                            // concat array value
+                            stringBuilder.append(allMunicipalities[munitList.get(j)]);
+                            municipalitiesFilter.add(allMunicipalities[munitList.get(j)]);
+
+
+
                             // check condition
-                            if (b) {
-                                // when checkbox selected
-                                // Add position  in lang list
-                                munitList.add(i);
-                                // Sort array list
-                                Collections.sort(munitList);
-                            } else {
-                                // when checkbox unselected
-                                // Remove position from langList
-                                munitList.remove(Integer.valueOf(i));
+                            if (j != munitList.size() - 1) {
+                                // When j value  not equal
+                                // to lang list size - 1
+                                // add comma
+                                stringBuilder.append(", ");
                             }
                         }
+                        // set text on textView
+                        tvMultiMunicipalities.setText(stringBuilder.toString());
+                        newFilters.setMunicipalityFilter(municipalitiesFilter);
                     });
 
-                    builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            // Initialize string builder
-                            StringBuilder stringBuilder = new StringBuilder();
+                    builder.setNegativeButton("Cancel", (dialogInterface, i) -> {
+                        // dismiss dialog
+                        dialogInterface.dismiss();
+                    });
+                    builder.setNeutralButton("Clear All", (dialogInterface, i) -> {
+                        // use for loop
+                        for (int j = 0; j < selectedMunicipalities.length; j++) {
+                            // remove all selection
+                            selectedMunicipalities[j] = false;
+                            // clear language list
+                            munitList.clear();
                             municipalitiesFilter.clear();
-
-                            // use for loop
-                            for (int j = 0; j < munitList.size(); j++) {
-                                // concat array value
-                                stringBuilder.append(allMunicipalities[munitList.get(j)]);
-                                municipalitiesFilter.add(allMunicipalities[munitList.get(j)]);
-
-
-
-                                // check condition
-                                if (j != munitList.size() - 1) {
-                                    // When j value  not equal
-                                    // to lang list size - 1
-                                    // add comma
-                                    stringBuilder.append(", ");
-                                }
-                            }
-                            // set text on textView
-                            tvMultiMunicipalities.setText(stringBuilder.toString());
-                            newFilters.setMunicipalityFilter(municipalitiesFilter);
-                        }
-                    });
-
-                    builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            // dismiss dialog
-                            dialogInterface.dismiss();
-                        }
-                    });
-                    builder.setNeutralButton("Clear All", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            // use for loop
-                            for (int j = 0; j < selectedMunicipalities.length; j++) {
-                                // remove all selection
-                                selectedMunicipalities[j] = false;
-                                // clear language list
-                                munitList.clear();
-                                municipalitiesFilter.clear();
-                                // clear text view value
-                                tvMultiMunicipalities.setText("");
-                            }
+                            // clear text view value
+                            tvMultiMunicipalities.setText("");
                         }
                     });
                     // show dialog
@@ -302,7 +278,7 @@ public class FilterFragment extends Fragment {
             {
                 try {
                     // Initialize alert dialog
-                    AlertDialog.Builder builder = new AlertDialog.Builder(getContext(), R.style.DialogBoxTheme);
+                    AlertDialog.Builder builder = new AlertDialog.Builder(requireContext(), R.style.DialogBoxTheme);
 
                     // set title
                     builder.setTitle("Select Site Types");
@@ -310,73 +286,61 @@ public class FilterFragment extends Fragment {
                     // set dialog non cancelable
                     builder.setCancelable(false);
 
-                    builder.setMultiChoiceItems(allTypes, selectedTypes, new DialogInterface.OnMultiChoiceClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i, boolean b) {
+                    builder.setMultiChoiceItems(allTypes, selectedTypes, (dialogInterface, i, b) -> {
+                        // check condition
+                        if (b) {
+                            // when checkbox selected
+                            // Add position  in lang list
+                            typeList.add(i);
+                            // Sort array list
+                            Collections.sort(typeList);
+                        } else {
+                            // when checkbox unselected
+                            // Remove position from langList
+                            typeList.remove(Integer.valueOf(i));
+                        }
+                    });
+
+                    builder.setPositiveButton("OK", (dialogInterface, i) -> {
+                        // Initialize string builder
+                        StringBuilder stringBuilder = new StringBuilder();
+                        typeFilter.clear();
+
+                        // use for loop
+                        for (int j = 0; j < typeList.size(); j++) {
+                            // concat array value
+                            stringBuilder.append(allTypes[typeList.get(j)]);
+                            typeFilter.add(allTypes[typeList.get(j)]);
+
+
+
                             // check condition
-                            if (b) {
-                                // when checkbox selected
-                                // Add position  in lang list
-                                typeList.add(i);
-                                // Sort array list
-                                Collections.sort(typeList);
-                            } else {
-                                // when checkbox unselected
-                                // Remove position from langList
-                                typeList.remove(Integer.valueOf(i));
+                            if (j != typeList.size() - 1) {
+                                // When j value  not equal
+                                // to lang list size - 1
+                                // add comma
+                                stringBuilder.append(", ");
                             }
                         }
+                        // set text on textView
+                        tvMultiTypes.setText(stringBuilder.toString());
+                        newFilters.setSiteTypeFilter(typeFilter);
                     });
 
-                    builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            // Initialize string builder
-                            StringBuilder stringBuilder = new StringBuilder();
+                    builder.setNegativeButton("Cancel", (dialogInterface, i) -> {
+                        // dismiss dialog
+                        dialogInterface.dismiss();
+                    });
+                    builder.setNeutralButton("Clear All", (dialogInterface, i) -> {
+                        // use for loop
+                        for (int j = 0; j < selectedTypes.length; j++) {
+                            // remove all selection
+                            selectedTypes[j] = false;
+                            // clear language list
+                            typeList.clear();
                             typeFilter.clear();
-
-                            // use for loop
-                            for (int j = 0; j < typeList.size(); j++) {
-                                // concat array value
-                                stringBuilder.append(allTypes[typeList.get(j)]);
-                                typeFilter.add(allTypes[typeList.get(j)]);
-
-
-
-                                // check condition
-                                if (j != typeList.size() - 1) {
-                                    // When j value  not equal
-                                    // to lang list size - 1
-                                    // add comma
-                                    stringBuilder.append(", ");
-                                }
-                            }
-                            // set text on textView
-                            tvMultiTypes.setText(stringBuilder.toString());
-                            newFilters.setSiteTypeFilter(typeFilter);
-                        }
-                    });
-
-                    builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            // dismiss dialog
-                            dialogInterface.dismiss();
-                        }
-                    });
-                    builder.setNeutralButton("Clear All", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            // use for loop
-                            for (int j = 0; j < selectedTypes.length; j++) {
-                                // remove all selection
-                                selectedTypes[j] = false;
-                                // clear language list
-                                typeList.clear();
-                                typeFilter.clear();
-                                // clear text view value
-                                tvMultiTypes.setText("");
-                            }
+                            // clear text view value
+                            tvMultiTypes.setText("");
                         }
                     });
                     // show dialog
@@ -396,7 +360,7 @@ public class FilterFragment extends Fragment {
     //Pre-sets the selected filters for the multi selects
     private boolean [] setPreSelectedFilter (List<String> preSetStrings, String[] allArray  )
     {
-        boolean presetFilter [] = new boolean[allArray.length];
+        boolean[] presetFilter = new boolean[allArray.length];
 
         try {
             for (int i = 0; i < allArray.length; i ++)

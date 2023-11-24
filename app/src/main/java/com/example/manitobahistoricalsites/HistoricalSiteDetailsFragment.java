@@ -3,7 +3,6 @@ package com.example.manitobahistoricalsites;
 import androidx.appcompat.widget.AppCompatButton;
 import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.FragmentManager;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import android.annotation.SuppressLint;
@@ -38,6 +37,7 @@ import com.example.manitobahistoricalsites.Database.SiteType;
 import com.example.manitobahistoricalsites.HolderClasses.DisplayMode;
 
 import java.util.List;
+import java.util.Locale;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
@@ -46,15 +46,11 @@ import io.reactivex.schedulers.Schedulers;
 public class HistoricalSiteDetailsFragment extends Fragment {
 
     private HistoricalSiteDetailsViewModel mViewModel;
-    private LinearLayout llDetails;
-    private LinearLayout llDisplayInfo;
+    private LinearLayout llDetailsContainer;
 
 
     //Declared as long click links to Manitoba Historical Society Site
     private TextView tvName;
-
-    //Declared to allow user to click to expand/collapse more info
-    private TextView tvShowMoreInfo;
 
 
     View mainView;
@@ -63,10 +59,6 @@ public class HistoricalSiteDetailsFragment extends Fragment {
     private ManitobaHistoricalSite currentSite;
 
     private final CompositeDisposable mDisposable = new CompositeDisposable();
-
-    private ViewPager2 viewPager2;
-
-    private AppCompatButton btnClose;
 
     SharedPreferences prefs;
     DisplayMode previousDisplayMode;
@@ -105,72 +97,59 @@ public class HistoricalSiteDetailsFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         mainView = view;
-        mViewModel = new ViewModelProvider(getActivity()).get(HistoricalSiteDetailsViewModel.class);
+        mViewModel = new ViewModelProvider(requireActivity()).get(HistoricalSiteDetailsViewModel.class);
         previousDisplayMode = mViewModel.getDisplayMode().getValue();
         mViewModel.setDisplayMode(DisplayMode.SiteAndMap);
 
 
-        int site_id  =  getArguments().getInt(SITE_KEY);
+        int site_id  =  1001;
+        if (getArguments() != null)
+            site_id = getArguments().getInt(SITE_KEY);
 
-        llDisplayInfo = mainView.findViewById(R.id.Details);
-        llDisplayInfo.setVisibility(View.GONE);
+        llDetailsContainer = mainView.findViewById(R.id.llDetailsContainer);
+        llDetailsContainer.setVisibility(View.GONE);
 
 
 
         //Set up Gesture listener
 
         mDetector = new GestureDetector(mainView.getContext(), new MyGestureListener());
-        llDetails = mainView.findViewById(R.id.Details);
-        llDetails.setOnTouchListener(new View.OnTouchListener() {
-            @SuppressLint("ClickableViewAccessibility")
-            @Override
-            public boolean onTouch(View view, MotionEvent motionEvent) {
-
-                return mDetector.onTouchEvent(motionEvent);
-            }
-        });
+        LinearLayout llDetails = mainView.findViewById(R.id.llDetails);
+        llDetails.setOnTouchListener((view1, motionEvent) -> mDetector.onTouchEvent(motionEvent));
 
 
         //Set button presses to link to Manitoba Historical Society Site
         tvName = (TextView) mainView.findViewById(R.id.tvName);
-        tvName.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View view) {
+        tvName.setOnLongClickListener(view12 -> {
 
-                openWebPage(currentSite.getSite_url());
-                return true;
-            }
+            openWebPage(currentSite.getSite_url());
+            return true;
         });
 
 
 
         //Set up way to expand and collapse the more info (without swiping)
-        tvShowMoreInfo = (TextView) mainView.findViewById(R.id.tvShowMoreInfo);
-        tvShowMoreInfo.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                DisplayMode oldDisplayMode = mViewModel.getDisplayMode().getValue();
+        LinearLayout llShowMoreInfo = mainView.findViewById(R.id.llShowMore);
 
-                //If Display is Full Site, then set to Site and Map. Else the display must already be Site and Map, so set it to Full Site
-                DisplayMode newDisplaymode = (oldDisplayMode == DisplayMode.FullSiteDetail? DisplayMode.SiteAndMap: DisplayMode.FullSiteDetail);
+        llShowMoreInfo.setOnClickListener(v -> {
+            DisplayMode oldDisplayMode = mViewModel.getDisplayMode().getValue();
 
-                mViewModel.setDisplayMode(newDisplaymode);
-                setSmall(newDisplaymode);
+            //If Display is Full Site, then set to Site and Map. Else the display must already be Site and Map, so set it to Full Site
+            DisplayMode newDisplaymode = (oldDisplayMode == DisplayMode.FullSiteDetail? DisplayMode.SiteAndMap: DisplayMode.FullSiteDetail);
 
-            }
+            mViewModel.setDisplayMode(newDisplaymode);
+            setSmall(newDisplaymode);
+
         });
 
         //Close button, on click sets the map fragment to full screen
-        btnClose = (AppCompatButton)   mainView.findViewById(R.id.btnClose);
-        btnClose.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mViewModel.setDisplayMode(DisplayMode.FullMap);
-                FragmentManager fm = getActivity().getSupportFragmentManager();
-                fm.popBackStack(getString(R.string.site_fragment), fm.POP_BACK_STACK_INCLUSIVE);
+        AppCompatButton btnClose = (AppCompatButton) mainView.findViewById(R.id.btnClose);
+        btnClose.setOnClickListener(v -> {
+            mViewModel.setDisplayMode(DisplayMode.FullMap);
+            FragmentManager fm = requireActivity().getSupportFragmentManager();
+            fm.popBackStack(getString(R.string.site_fragment), FragmentManager.POP_BACK_STACK_INCLUSIVE);
 
-                //mViewModel.setCurrentSite(null);
-            }
+            //mViewModel.setCurrentSite(null);
         });
 
 
@@ -182,12 +161,7 @@ public class HistoricalSiteDetailsFragment extends Fragment {
 
 
         // Updates the "# away" textbox whenever the location changes
-        mViewModel.getCurrentLocation().observe(getViewLifecycleOwner(), new Observer<Location>() {
-            @Override
-            public void onChanged(Location location) {
-                displaySiteDistance(location);
-            }
-        } );
+        mViewModel.getCurrentLocation().observe(getViewLifecycleOwner(), location -> displaySiteDistance(location));
 
 
         //Get Site info
@@ -221,7 +195,7 @@ public class HistoricalSiteDetailsFragment extends Fragment {
                         throwable ->  Toast.makeText(getContext(), "Error retrieving site sources", Toast.LENGTH_SHORT).show()
                 ));
 
-        prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
+        prefs = PreferenceManager.getDefaultSharedPreferences(requireContext());
         prefs.registerOnSharedPreferenceChangeListener(preferenceChangeListener);
         updateBackgroundColour(prefs.getString(getString(R.string.background_colour_key), "#FFFFFF"));
         updateSecondaryColour(prefs.getString(getString(R.string.secondary_colour_key), "#000000" ));
@@ -236,13 +210,14 @@ public class HistoricalSiteDetailsFragment extends Fragment {
         try {
             currentSite = site;
             mViewModel.setCurrentSite(currentSite);
-            llDisplayInfo.setVisibility(View.VISIBLE);
+            llDetailsContainer.setVisibility(View.VISIBLE);
             tvName.setText(site.getName());
             displaySiteDistance(mViewModel.getCurrentLocation().getValue());
 
             //Some sites don't have an address, only coordinates. This is to make sure that the  ", " only shows up if the site has an address
             String address = site.getAddress() == null || site.getAddress().trim().isEmpty()? "":  site.getAddress() + ", ";
-            ((TextView) mainView.findViewById(R.id.tvAddress)).setText(address + site.getMunicipality());
+            address += site.getMunicipality();
+            ((TextView) mainView.findViewById(R.id.tvAddress)).setText(address);
             setSmall(mViewModel.getDisplayMode().getValue());
 
             //Hopefully makes the description more readable
@@ -264,9 +239,9 @@ public class HistoricalSiteDetailsFragment extends Fragment {
         try {
             if (siteTypes != null && siteTypes.size() > 0)
             {
-                String allTypes = "";
+                StringBuilder allTypes = new StringBuilder();
                 for (SiteType type: siteTypes) {
-                    allTypes = allTypes  + type.getType() + "/";
+                    allTypes.append(type.getType()).append("/");
                 }
                 String displayTypes = allTypes.substring(0, allTypes.length() - 1).replace("%2F", " or ");
 
@@ -284,7 +259,7 @@ public class HistoricalSiteDetailsFragment extends Fragment {
     //Sets up the ViewPager to use the site photos
     public void displaySitePhoto(List<SitePhotos> sitePhotos)
     {
-        viewPager2 = mainView.findViewById(R.id.viewpager);
+        ViewPager2 viewPager2 = mainView.findViewById(R.id.viewpager);
         try {
             viewPager2.setAdapter(new SiteImagesAdapter(sitePhotos, viewPager2, getContext()));
         }
@@ -298,12 +273,12 @@ public class HistoricalSiteDetailsFragment extends Fragment {
     public void displaySiteSources(List<SiteSource> siteSources)
     {
         try {
-            String displaySource = "";
+            StringBuilder displaySource = new StringBuilder();
             for (SiteSource source: siteSources)
             {
-                displaySource  = displaySource + source.getInfo() + " \n\n";
+                displaySource.append(source.getInfo()).append(" \n\n");
             }
-            ((TextView) mainView.findViewById(R.id.tvSourceInfo)).setText(displaySource);
+            ((TextView) mainView.findViewById(R.id.tvSourceInfo)).setText(displaySource.toString());
         }
         catch (Exception e)
         {
@@ -331,6 +306,7 @@ public class HistoricalSiteDetailsFragment extends Fragment {
 //
         NestedScrollView nsvMoreInfo =  (NestedScrollView) mainView.findViewById(R.id.nsvMoreInfo);
         nsvMoreInfo.setVisibility(displayMode == DisplayMode.FullSiteDetail? View.VISIBLE : View.GONE );
+        TextView tvShowMoreInfo = mainView.findViewById(R.id.tvShowMoreInfo);
         tvShowMoreInfo.setText(displayMode == DisplayMode.FullSiteDetail?  R.string.show_less : R.string.show_more);
         int showInfoArrow = displayMode == DisplayMode.FullSiteDetail? R.drawable.arrow_down : R.drawable.arrow_up;
         tvShowMoreInfo.setCompoundDrawablesWithIntrinsicBounds(0, 0, showInfoArrow, 0);
@@ -342,9 +318,10 @@ public class HistoricalSiteDetailsFragment extends Fragment {
         try{
             if (userLocation != null && this.currentSite != null)
             {
-                Float distance = this.currentSite.getLocation().distanceTo(userLocation) ;
-                String distanceText = (distance >= 1000? String.format("%.2f",distance/1000) + " km": String.format("%.2f",distance) + " m");
-                ((TextView) mainView.findViewById(R.id.tvDistance)).setText( distanceText + " away");
+                float distance = this.currentSite.getLocation().distanceTo(userLocation) ;
+                //If distance is >= 1000, display kilometers. Else display meters.
+                String distanceText = (distance >= 1000? String.format( Locale.CANADA, "%.2f",distance/1000) + " km": String.format(Locale.CANADA,"%.2f",distance) + " m") + " away";
+                ((TextView) mainView.findViewById(R.id.tvDistance)).setText( distanceText );
             }
 
         } catch (Exception e)
@@ -381,20 +358,21 @@ public class HistoricalSiteDetailsFragment extends Fragment {
         prefs.unregisterOnSharedPreferenceChangeListener(preferenceChangeListener);
     }
 
-    SharedPreferences.OnSharedPreferenceChangeListener preferenceChangeListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
-        @Override
-        public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, @Nullable String key) {
-            //Toast.makeText(getApplicationContext(), "Updating Display Settings", Toast.LENGTH_SHORT).show();
-             if (key.equals(getString(R.string.background_colour_key))) {
+    SharedPreferences.OnSharedPreferenceChangeListener preferenceChangeListener = (sharedPreferences, key) -> {
+        //Toast.makeText(getApplicationContext(), "Updating Display Settings", Toast.LENGTH_SHORT).show();
+        if (key != null)
+        {
+            if (key.equals(getString(R.string.background_colour_key))) {
                 updateBackgroundColour(sharedPreferences.getString(key, "#ffffff"));
             } else if (key.equals(getString(R.string.secondary_colour_key))) {
-                 updateSecondaryColour(sharedPreferences.getString(key, "#000000"));
+                updateSecondaryColour(sharedPreferences.getString(key, "#000000"));
             } else if (key.equals(getString(R.string.text_colour_key))) {
-                 updateTextColour(sharedPreferences.getString(key, "#000000"));
-             }
-
-
+                updateTextColour(sharedPreferences.getString(key, "#000000"));
+            }
         }
+
+
+
     };
 
 
@@ -404,7 +382,7 @@ public class HistoricalSiteDetailsFragment extends Fragment {
     private void updateBackgroundColour(String colour)
     {
         try {
-            int [] layoutIds = {R.id.Details, R.id.llInsideScrollView};
+            int [] layoutIds = {R.id.llDetails, R.id.llInsideScrollView};
             for (int id: layoutIds ) {
                 mainView.findViewById(id).setBackgroundColor(Color.parseColor(colour));
             }
@@ -461,14 +439,14 @@ public class HistoricalSiteDetailsFragment extends Fragment {
         private static final int SWIPE_VELOCITY_THRESHOLD = 100;
 
         @Override
-        public boolean onDown(MotionEvent e) {
+        public boolean onDown(@NonNull MotionEvent e) {
             return true;
         }
 
         //Allows user to swipe up or down to expand/collapse the more info
         @Override
-        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-            Boolean result = true;
+        public boolean onFling(MotionEvent e1, @NonNull MotionEvent e2, float velocityX, float velocityY) {
+            boolean result = true;
             DisplayMode oldDisplayMode = mViewModel.getDisplayMode().getValue();
             try {
                 float distanceX = e2.getX() - e1.getX();

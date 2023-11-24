@@ -12,7 +12,8 @@
         android:id="@+id/ivSiteImage"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"/>
+        android:layout_gravity="center_horizontal"
+        android:contentDescription="Picture" />
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -24,7 +25,7 @@
         android:layout_width="match_parent"
         android:id="@+id/tvImageCount"
         android:layout_height="wrap_content"
-        android:layout_marginRight="5dp"
+        android:layout_marginEnd="5dp"
         android:textAlignment="textEnd"
         android:gravity="end"
         android:text="1/1"
