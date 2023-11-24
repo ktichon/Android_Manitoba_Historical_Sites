@@ -1,7 +1,6 @@
 [
   {
-    "featureType": "administrative",
-    "elementType": "geometry",
+    "featureType": "poi.business",
     "stylers": [
       {
         "visibility": "off"
@@ -9,32 +8,8 @@
     ]
   },
   {
-    "featureType": "landscape",
-    "stylers": [
-      {
-        "visibility": "simplified"
-      }
-    ]
-  },
-  {
-    "featureType": "poi",
-    "stylers": [
-      {
-        "visibility": "off"
-      }
-    ]
-  },
-  {
-    "featureType": "road",
-    "elementType": "labels.icon",
-    "stylers": [
-      {
-        "visibility": "off"
-      }
-    ]
-  },
-  {
-    "featureType": "transit",
+    "featureType": "poi.park",
+    "elementType": "labels.text",
     "stylers": [
       {
         "visibility": "off"
