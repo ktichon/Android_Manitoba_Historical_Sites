@@ -97,7 +97,7 @@ public class SearchFragment extends Fragment {
 
         //Stores the old display mode,
         previousDisplayMode = mViewModel.getDisplayMode().getValue();
-        mViewModel.setDisplayMode(DisplayMode.FullSiteDetail);
+        mViewModel.setDisplayMode(DisplayMode.FullDetail);
 
 
 
@@ -318,7 +318,7 @@ public class SearchFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        mViewModel.setDisplayMode(DisplayMode.FullSiteDetail);
+        mViewModel.setDisplayMode(DisplayMode.FullDetail);
         loadBaseOnFilters(mViewModel.getSiteFilters().getValue());
 
     }

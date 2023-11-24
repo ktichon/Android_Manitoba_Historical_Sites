@@ -265,10 +265,7 @@ public class MapsActivity extends AppCompatActivity
                     moveCameraToLocation(getUserLocation());
                 }
             } else if (item.getItemId() == R.id.itFilters) {
-                viewModel.setDisplayMode(DisplayMode.FullSiteDetail);
                 fragmentManager.popBackStack(getString(R.string.site_fragment), FragmentManager.POP_BACK_STACK_INCLUSIVE);
-
-
                 fragmentManager.beginTransaction()
                         .replace(R.id.fcvDetails, FilterFragment.class, null)
                         .setReorderingAllowed(true)
@@ -556,7 +553,7 @@ public class MapsActivity extends AppCompatActivity
                         //.replace(R.id.fcvDetails, HistoricalSiteDetailsFragment.class, null)
                         .replace(R.id.fcvDetails, newFragment, null)
                         .setReorderingAllowed(true)
-                        .addToBackStack(getString(R.string.site_fragment)) // name can be null
+                        .addToBackStack(getString(R.string.site_fragment))
                         .commit();
 
             moveCameraToLocation(newLocation);
@@ -602,7 +599,7 @@ public class MapsActivity extends AppCompatActivity
                     mapView.setVisibility(View.VISIBLE);
                     detailView.setVisibility(View.GONE);
                     break;
-                case FullSiteDetail:
+                case FullDetail:
                     detailWeight = 1;
                     mapView.setVisibility(View.GONE);
                     detailView.setVisibility(View.VISIBLE);

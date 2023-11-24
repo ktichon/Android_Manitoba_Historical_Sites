@@ -66,6 +66,9 @@ public class FilterFragment extends Fragment {
 
     SiteFilter newFilters;
 
+    DisplayMode previousDisplayMode;
+
+
 
 
 
@@ -94,6 +97,8 @@ public class FilterFragment extends Fragment {
 
         mainView = view;
         mViewModel = new ViewModelProvider(requireActivity()).get(HistoricalSiteDetailsViewModel.class);
+        previousDisplayMode = mViewModel.getDisplayMode().getValue();
+        mViewModel.setDisplayMode(DisplayMode.FullDetail);
 
         originalFilters = new SiteFilter();
         if (mViewModel.getSiteFilters().getValue() != null)
@@ -134,9 +139,7 @@ public class FilterFragment extends Fragment {
 
         tvBack = mainView.findViewById(R.id.tvFilterGoBack);
         tvBack.setOnClickListener(v -> {
-            mViewModel.setDisplayMode(DisplayMode.FullMap);
             FragmentManager fm = requireActivity().getSupportFragmentManager();
-
             fm.popBackStack();
         });
 
@@ -412,13 +415,14 @@ public class FilterFragment extends Fragment {
 
     @Override
     public void onStop() {
-        mViewModel.setDisplayMode(DisplayMode.FullMap);
         super.onStop();
+        mViewModel.setDisplayMode(previousDisplayMode);
+
     }
 
     @Override
     public void onResume() {
-        mViewModel.setDisplayMode(DisplayMode.FullSiteDetail);
         super.onResume();
+        mViewModel.setDisplayMode(DisplayMode.FullDetail);
     }
 }

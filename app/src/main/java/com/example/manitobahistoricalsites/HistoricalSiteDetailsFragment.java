@@ -135,7 +135,7 @@ public class HistoricalSiteDetailsFragment extends Fragment {
             DisplayMode oldDisplayMode = mViewModel.getDisplayMode().getValue();
 
             //If Display is Full Site, then set to Site and Map. Else the display must already be Site and Map, so set it to Full Site
-            DisplayMode newDisplaymode = (oldDisplayMode == DisplayMode.FullSiteDetail? DisplayMode.SiteAndMap: DisplayMode.FullSiteDetail);
+            DisplayMode newDisplaymode = (oldDisplayMode == DisplayMode.FullDetail ? DisplayMode.SiteAndMap: DisplayMode.FullDetail);
 
             mViewModel.setDisplayMode(newDisplaymode);
             setSmall(newDisplaymode);
@@ -146,8 +146,8 @@ public class HistoricalSiteDetailsFragment extends Fragment {
         AppCompatButton btnClose = (AppCompatButton) mainView.findViewById(R.id.btnClose);
         btnClose.setOnClickListener(v -> {
             mViewModel.setDisplayMode(DisplayMode.FullMap);
-            FragmentManager fm = requireActivity().getSupportFragmentManager();
-            fm.popBackStack(getString(R.string.site_fragment), FragmentManager.POP_BACK_STACK_INCLUSIVE);
+            /*FragmentManager fm = requireActivity().getSupportFragmentManager();
+            fm.popBackStack(getString(R.string.site_fragment), FragmentManager.POP_BACK_STACK_INCLUSIVE);*/
 
             //mViewModel.setCurrentSite(null);
         });
@@ -305,10 +305,10 @@ public class HistoricalSiteDetailsFragment extends Fragment {
     {
 //
         NestedScrollView nsvMoreInfo =  (NestedScrollView) mainView.findViewById(R.id.nsvMoreInfo);
-        nsvMoreInfo.setVisibility(displayMode == DisplayMode.FullSiteDetail? View.VISIBLE : View.GONE );
+        nsvMoreInfo.setVisibility(displayMode == DisplayMode.FullDetail ? View.VISIBLE : View.GONE );
         TextView tvShowMoreInfo = mainView.findViewById(R.id.tvShowMoreInfo);
-        tvShowMoreInfo.setText(displayMode == DisplayMode.FullSiteDetail?  R.string.show_less : R.string.show_more);
-        int showInfoArrow = displayMode == DisplayMode.FullSiteDetail? R.drawable.arrow_down : R.drawable.arrow_up;
+        tvShowMoreInfo.setText(displayMode == DisplayMode.FullDetail ?  R.string.show_less : R.string.show_more);
+        int showInfoArrow = displayMode == DisplayMode.FullDetail ? R.drawable.arrow_down : R.drawable.arrow_up;
         tvShowMoreInfo.setCompoundDrawablesWithIntrinsicBounds(0, 0, showInfoArrow, 0);
     }
 
@@ -458,7 +458,7 @@ public class HistoricalSiteDetailsFragment extends Fragment {
                     if (distanceY > 0) {
                         newDisplayMode = DisplayMode.SiteAndMap;
                     } else {
-                        newDisplayMode = DisplayMode.FullSiteDetail;
+                        newDisplayMode = DisplayMode.FullDetail;
                     }
 
                     if(newDisplayMode != oldDisplayMode)

@@ -16,7 +16,6 @@ import androidx.preference.PreferenceFragmentCompat;
 import com.example.manitobahistoricalsites.HolderClasses.DisplayMode;
 
 import java.util.Arrays;
-import java.util.HashMap;
 
 import top.defaults.colorpicker.ColorPickerPopup;
 
@@ -46,7 +45,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 
         //Stores the old display mode,
         previousDisplayMode = mViewModel.getDisplayMode().getValue();
-        mViewModel.setDisplayMode(DisplayMode.FullSiteDetail);
+        mViewModel.setDisplayMode(DisplayMode.FullDetail);
 
 
         pBackgroundColour = findPreference(getString(R.string.background_colour_key));
@@ -176,7 +175,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     @Override
     public void onResume() {
         super.onResume();
-        mViewModel.setDisplayMode(DisplayMode.FullSiteDetail);
+        mViewModel.setDisplayMode(DisplayMode.FullDetail);
     }
 
     @Override
