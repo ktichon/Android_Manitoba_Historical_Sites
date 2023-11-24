@@ -268,9 +268,6 @@ public class MapsActivity extends AppCompatActivity
                 } catch (Exception e) {
                     Log.e("Error", "updateDataToComplyWithNewFilters: Error updating the map to reflect the viewmodel\n" + e.getMessage());
                 }
-
-
-
             }
         });
 
@@ -591,7 +588,6 @@ public class MapsActivity extends AppCompatActivity
                 /*currentSite = nextSite;
                 viewModel.setCurrentSite(currentSite);*/
                 viewModel.setCurrentLocation(getUserLocation());
-                viewModel.setDisplayMode(DisplayMode.SiteAndMap);
                 Fragment newFragment = HistoricalSiteDetailsFragment.newInstance(nextSiteId);
 
                 fragmentManager.beginTransaction()
@@ -632,7 +628,6 @@ public class MapsActivity extends AppCompatActivity
         try {
             float mapWeight = 0;
             float detailWeight = 0;
-            float otherPagesWeight = 0;
 
             FragmentContainerView  mapView = (FragmentContainerView) findViewById(R.id.fcvMap);
             FragmentContainerView detailView = (FragmentContainerView) findViewById(R.id.fcvDetails);

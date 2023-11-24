@@ -69,6 +69,7 @@ public class HistoricalSiteDetailsFragment extends Fragment {
     private AppCompatButton btnClose;
 
     SharedPreferences prefs;
+    DisplayMode previousDisplayMode;
 
 
     private static final String SITE_KEY = "current_historical_site_yehaw";
@@ -105,6 +106,8 @@ public class HistoricalSiteDetailsFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         mainView = view;
         mViewModel = new ViewModelProvider(getActivity()).get(HistoricalSiteDetailsViewModel.class);
+        previousDisplayMode = mViewModel.getDisplayMode().getValue();
+        mViewModel.setDisplayMode(DisplayMode.SiteAndMap);
 
 
         int site_id  =  getArguments().getInt(SITE_KEY);
@@ -355,6 +358,7 @@ public class HistoricalSiteDetailsFragment extends Fragment {
     public void onStop() {
         super.onStop();
         mDisposable.clear();
+        mViewModel.setDisplayMode(previousDisplayMode);
     }
 
     @Override

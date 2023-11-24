@@ -20,12 +20,14 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.manitobahistoricalsites.Database.ManitobaHistoricalSite;
 import com.example.manitobahistoricalsites.HolderClasses.DisplayMode;
+import com.example.manitobahistoricalsites.HolderClasses.SiteFilter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -61,8 +63,14 @@ public class SearchFragment extends Fragment {
 
     TextView tvSearchAmount;
 
-    int limit = 10;
 
+    int limit = 10;
+    LinearLayout llActiveTypeFilters;
+
+    TextView tvActiveFilterTypes;
+    LinearLayout llActiveMunicipalityFilters;
+
+    TextView tvActiveFilterMunicipalities;
 
     SearchSiteAdapter searchSiteAdapter;
     RecyclerView recyclerView;
@@ -150,14 +158,7 @@ public class SearchFragment extends Fragment {
         //Gets sites to search through
         searchableSites = new ArrayList<>();
 
-        mDisposable.add(
-                mViewModel.getHistoricalSiteDatabase().manitobaHistoricalSiteDao().loadAllManitobaHistoricalSites()
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe( manitobaHistoricalSites -> setSearchableSites( manitobaHistoricalSites),
-                                throwable ->  Toast.makeText(getContext(), "Error fetching data", Toast.LENGTH_SHORT).show()
-                        )
-        );
+
 
         btnSearch.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -165,6 +166,13 @@ public class SearchFragment extends Fragment {
                 searchSites(etSearch.getText().toString(), false);
             }
         });
+
+        llActiveTypeFilters = mainView.findViewById(R.id.llActiveTypeFilters);
+        llActiveMunicipalityFilters = mainView.findViewById(R.id.llActiveMunicipalityFilters);
+        tvActiveFilterMunicipalities = mainView.findViewById(R.id.tvActiveFilterMunicipalities);
+        tvActiveFilterTypes = mainView.findViewById(R.id.tvActiveFilterTypes);
+
+        loadBaseOnFilters(mViewModel.getSiteFilters().getValue());
 
 
 
@@ -186,6 +194,73 @@ public class SearchFragment extends Fragment {
         }
     }
 
+    public void loadBaseOnFilters(SiteFilter siteFilter)
+    {
+        try {
+            //No filter
+            //Needed to check to make sure it doesn't run when app is first loaded
+            if (siteFilter.isAllMunicipalities() && siteFilter.isAllSiteTypes()  )
+            {
+                llActiveTypeFilters.setVisibility(View.GONE);
+                llActiveMunicipalityFilters.setVisibility(View.GONE);
+                mDisposable.add(
+                        mViewModel.getHistoricalSiteDatabase().manitobaHistoricalSiteDao().loadAllManitobaHistoricalSites()
+                                .subscribeOn(Schedulers.io())
+                                .observeOn(AndroidSchedulers.mainThread())
+                                .subscribe( manitobaHistoricalSites -> setSearchableSites( manitobaHistoricalSites),
+                                        throwable ->  Toast.makeText(getContext(), "Error fetching data", Toast.LENGTH_SHORT).show()
+                                )
+                );
+            }
+            //Only municipality filter
+            else if (!siteFilter.isAllMunicipalities() && siteFilter.isAllSiteTypes()){
+                llActiveMunicipalityFilters.setVisibility(View.VISIBLE);
+                llActiveTypeFilters.setVisibility(View.GONE);
+                tvActiveFilterMunicipalities.setText(siteFilter.getMunicipalityFilter().toString());
+                mDisposable.add(
+                        mViewModel.getHistoricalSiteDatabase().manitobaHistoricalSiteDao().loadManitobaHistoricalSitesFilterMunicipality(siteFilter.getMunicipalityFilter())
+                                .subscribeOn(Schedulers.io())
+                                .observeOn(AndroidSchedulers.mainThread())
+                                .subscribe( manitobaHistoricalSites -> setSearchableSites( manitobaHistoricalSites),
+                                        throwable ->  Toast.makeText(getContext(), "Error fetching data", Toast.LENGTH_SHORT).show()
+                                )
+                );
+            }
+            //Only type filter
+            else if (siteFilter.isAllMunicipalities() && !siteFilter.isAllSiteTypes()) {
+                llActiveMunicipalityFilters.setVisibility(View.GONE);
+                llActiveTypeFilters.setVisibility(View.VISIBLE);
+                tvActiveFilterTypes.setText(siteFilter.getSiteTypeFilter().toString());
+                mDisposable.add(
+                        mViewModel.getHistoricalSiteDatabase().manitobaHistoricalSiteDao().loadManitobaHistoricalSitesFilterType(siteFilter.getSiteTypeFilter())
+                                .subscribeOn(Schedulers.io())
+                                .observeOn(AndroidSchedulers.mainThread())
+                                .subscribe( manitobaHistoricalSites -> setSearchableSites( manitobaHistoricalSites),
+                                        throwable ->  Toast.makeText(getContext(), "Error fetching data", Toast.LENGTH_SHORT).show()
+                                )
+                );
+            }
+            // Get both municipality and type filter
+            else if (!siteFilter.isAllMunicipalities() && !siteFilter.isAllSiteTypes()) {
+                llActiveMunicipalityFilters.setVisibility(View.VISIBLE);
+                llActiveTypeFilters.setVisibility(View.VISIBLE);
+                tvActiveFilterTypes.setText(siteFilter.getSiteTypeFilter().toString());
+                tvActiveFilterMunicipalities.setText(siteFilter.getMunicipalityFilter().toString());
+                mDisposable.add(
+                        mViewModel.getHistoricalSiteDatabase().manitobaHistoricalSiteDao().loadManitobaHistoricalSitesAllFilters(siteFilter.getSiteTypeFilter(), siteFilter.getMunicipalityFilter())
+                                .subscribeOn(Schedulers.io())
+                                .observeOn(AndroidSchedulers.mainThread())
+                                .subscribe( manitobaHistoricalSites -> setSearchableSites( manitobaHistoricalSites),
+                                        throwable ->  Toast.makeText(getContext(), "Error fetching data", Toast.LENGTH_SHORT).show()
+                                )
+                );
+            }
+        } catch (Exception e) {
+            Log.e("Error", "updateDataToComplyWithNewFilters: Error updating the map to reflect the viewmodel\n" + e.getMessage());
+        }
+    }
+
+    //On text change do stuff
     TextWatcher searchTextListener = new TextWatcher() {
         @Override
         public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -252,6 +327,7 @@ public class SearchFragment extends Fragment {
     public void onResume() {
         super.onResume();
         mViewModel.setDisplayMode(DisplayMode.FullSiteDetail);
+        loadBaseOnFilters(mViewModel.getSiteFilters().getValue());
 
     }
 
