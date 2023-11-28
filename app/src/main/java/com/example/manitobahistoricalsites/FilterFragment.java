@@ -163,7 +163,6 @@ public class FilterFragment extends Fragment {
         //Updates filters
         btnConfirmFilters.setOnClickListener(v -> {
             try {
-
                 // if "All" is select or sizeT is 0, set to "All" and clear list
                 if (newFilters.isAllMunicipalities() || newFilters.getMunicipalityFilter().size() == 0){
                     newFilters.setAllMunicipalities(true);
@@ -178,10 +177,14 @@ public class FilterFragment extends Fragment {
                 mViewModel.setSiteFilters(newFilters);
                 Toast.makeText(getContext(), "Updating Historical Site Filters", Toast.LENGTH_SHORT).show();
 
+                FragmentManager fm = requireActivity().getSupportFragmentManager();
+                fm.popBackStack();
+
             }
             catch (Exception e)
             {
                 Log.e("Error", "btnConfirmFiltersOnClick: Error saving site filters\n" + e.getMessage());
+                Toast.makeText(getContext(), "Error updating Historical Site Filters", Toast.LENGTH_SHORT).show();
             }
 
 
@@ -414,10 +417,9 @@ public class FilterFragment extends Fragment {
     }
 
     @Override
-    public void onStop() {
-        super.onStop();
+    public void onDestroy() {
+        super.onDestroy();
         mViewModel.setDisplayMode(previousDisplayMode);
-
     }
 
     @Override

@@ -11,14 +11,11 @@
         android:title="About"
 
         />
-    <item
-        android:id="@+id/itSettings"
-        android:title="Settings"/>
+
 
     <item
         android:id="@+id/itFilters"
         android:title="Filters"
-        app:showAsAction="always"
         android:icon="@drawable/baseline_filter_list_24"
         />
 
@@ -27,4 +24,7 @@
         android:title="Search"
         android:icon="@drawable/search"
         />
+    <item
+        android:id="@+id/itSettings"
+        android:title="Settings"/>
 </menu>

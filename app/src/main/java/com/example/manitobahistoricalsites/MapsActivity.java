@@ -378,7 +378,7 @@ public class MapsActivity extends AppCompatActivity
                 if (goToFirst && sites.size() > 0)
                 {
                     ManitobaHistoricalSite firstSite = allManitobaHistoricalSites.get(0);
-                    viewModel.setCurrentSite(firstSite);
+                    moveCameraToLocation(firstSite.getLocation());
                     //moveCameraToLocation(firstSite.getLocation());
                 }
 

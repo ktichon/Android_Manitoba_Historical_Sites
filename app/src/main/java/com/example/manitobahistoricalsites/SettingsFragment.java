@@ -181,6 +181,12 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     @Override
     public void onStop() {
         super.onStop();
+
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
         mViewModel.setDisplayMode(previousDisplayMode);
     }
 }

@@ -325,10 +325,15 @@ public class HistoricalSiteDetailsFragment extends Fragment {
 
 
     @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mViewModel.setDisplayMode(previousDisplayMode);
+    }
+
+    @Override
     public void onStop() {
         super.onStop();
         mDisposable.clear();
-        mViewModel.setDisplayMode(previousDisplayMode);
     }
 
     @Override

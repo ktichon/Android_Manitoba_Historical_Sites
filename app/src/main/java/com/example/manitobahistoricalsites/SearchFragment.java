@@ -326,7 +326,12 @@ public class SearchFragment extends Fragment {
     @Override
     public void onStop() {
         super.onStop();
-        mViewModel.setDisplayMode(previousDisplayMode);
         mDisposable.clear();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mViewModel.setDisplayMode(previousDisplayMode);
     }
 }
