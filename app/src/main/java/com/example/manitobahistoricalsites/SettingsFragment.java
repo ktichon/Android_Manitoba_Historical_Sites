@@ -3,6 +3,7 @@ package com.example.manitobahistoricalsites;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -32,6 +33,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 
 
 
+
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         setPreferencesFromResource(R.xml.preferences, rootKey);
@@ -49,11 +51,14 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 
 
         pBackgroundColour = findPreference(getString(R.string.background_colour_key));
-        mainView.setBackgroundColor(Color.parseColor(pBackgroundColour.getText()));
+
+
+
+        mainView.setBackgroundColor(getValidColour(pBackgroundColour.getText(), Color.WHITE));
         pBackgroundColour.setSummary(pBackgroundColour.getText());
 
         pBackgroundColour.setOnBindEditTextListener(editText -> new ColorPickerPopup.Builder(getContext())
-                .initialColor(Color.parseColor(pBackgroundColour.getText())) // Set initial color
+                .initialColor(getValidColour(pBackgroundColour.getText(), Color.WHITE)) // Set initial color
                 .enableBrightness(true) // Enable brightness slider or not
                 .enableAlpha(true) // Enable alpha slider or not
                 .okTitle("Choose")
@@ -74,10 +79,10 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 }));
 
         pSecondaryColour = findPreference(getString(R.string.secondary_colour_key));
-        pSecondaryColour.setSummary(pBackgroundColour.getText());
+        pSecondaryColour.setSummary(pSecondaryColour.getText());
 
         pSecondaryColour.setOnBindEditTextListener(editText -> new ColorPickerPopup.Builder(getContext())
-                .initialColor(Color.parseColor(pSecondaryColour.getText())) // Set initial color
+                .initialColor(getValidColour(pSecondaryColour.getText(), Color.BLACK)) // Set initial color
                 .enableBrightness(true) // Enable brightness slider or not
                 .enableAlpha(true) // Enable alpha slider or not
                 .okTitle("Choose")
@@ -99,9 +104,9 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 }));
 
         pTextColour = findPreference(getString(R.string.text_colour_key));
-        pTextColour.setSummary(pBackgroundColour.getText());
+        pTextColour.setSummary(pTextColour.getText());
         pTextColour.setOnBindEditTextListener(editText -> new ColorPickerPopup.Builder(getContext())
-                .initialColor(Color.parseColor(pTextColour.getText())) // Set initial color
+                .initialColor(getValidColour(pTextColour.getText(), Color.BLACK)) // Set initial color
                 .enableBrightness(true) // Enable brightness slider or not
                 .enableAlpha(true) // Enable alpha slider or not
                 .okTitle("Choose")
@@ -173,17 +178,29 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         return displayColour;
     }
 
+    //Makes sure that a valid number is entered
+    public int getValidColour(String colour, int defaultColour)
+    {
+
+        int resultColour = defaultColour;
+        try {
+            resultColour = Color.parseColor(colour);
+        }
+        catch (Exception e)
+        {
+            resultColour = defaultColour;
+            Toast.makeText(getContext(), "Unable to get Colour", Toast.LENGTH_SHORT).show();
+        }
+        return resultColour;
+
+    }
+
     @Override
     public void onResume() {
         super.onResume();
         mViewModel.setDisplayMode(DisplayMode.FullDetail);
     }
 
-    @Override
-    public void onStop() {
-        super.onStop();
-
-    }
 
     @Override
     public void onDestroy() {

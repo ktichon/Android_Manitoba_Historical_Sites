@@ -119,6 +119,8 @@ public class SearchFragment extends Fragment {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 searchBy = parent.getItemAtPosition(position).toString();
+                searchSites(etSearch.getText().toString(), false);
+
 
             }
             @Override
@@ -270,6 +272,7 @@ public class SearchFragment extends Fragment {
     };
 
 
+    //Searches for sties with text
     public void searchSites(String searchText, boolean limitResults)
     {
         try {
