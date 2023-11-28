@@ -208,7 +208,7 @@ public class SearchFragment extends Fragment {
             else if (!siteFilter.isAllMunicipalities() && siteFilter.isAllSiteTypes()){
                 llActiveMunicipalityFilters.setVisibility(View.VISIBLE);
                 llActiveTypeFilters.setVisibility(View.GONE);
-                tvActiveFilterMunicipalities.setText(siteFilter.getMunicipalityFilter().toString());
+                tvActiveFilterMunicipalities.setText(siteFilter.getMunicipalityFilter().toString().replace("[","").replace("]", ""));
                 mDisposable.add(
                         mViewModel.getHistoricalSiteDatabase().manitobaHistoricalSiteDao().loadManitobaHistoricalSitesFilterMunicipality(siteFilter.getMunicipalityFilter())
                                 .subscribeOn(Schedulers.io())
@@ -222,7 +222,7 @@ public class SearchFragment extends Fragment {
             else if (siteFilter.isAllMunicipalities() && !siteFilter.isAllSiteTypes()) {
                 llActiveMunicipalityFilters.setVisibility(View.GONE);
                 llActiveTypeFilters.setVisibility(View.VISIBLE);
-                tvActiveFilterTypes.setText(siteFilter.getSiteTypeFilter().toString());
+                tvActiveFilterTypes.setText(siteFilter.getSiteTypeFilter().toString().replace("[","").replace("]", ""));
                 mDisposable.add(
                         mViewModel.getHistoricalSiteDatabase().manitobaHistoricalSiteDao().loadManitobaHistoricalSitesFilterType(siteFilter.getSiteTypeFilter())
                                 .subscribeOn(Schedulers.io())
@@ -236,8 +236,8 @@ public class SearchFragment extends Fragment {
             else if (!siteFilter.isAllMunicipalities() && !siteFilter.isAllSiteTypes()) {
                 llActiveMunicipalityFilters.setVisibility(View.VISIBLE);
                 llActiveTypeFilters.setVisibility(View.VISIBLE);
-                tvActiveFilterTypes.setText(siteFilter.getSiteTypeFilter().toString());
-                tvActiveFilterMunicipalities.setText(siteFilter.getMunicipalityFilter().toString());
+                tvActiveFilterTypes.setText(siteFilter.getSiteTypeFilter().toString().replace("[","").replace("]", ""));
+                tvActiveFilterMunicipalities.setText(siteFilter.getMunicipalityFilter().toString().replace("[","").replace("]", ""));
                 mDisposable.add(
                         mViewModel.getHistoricalSiteDatabase().manitobaHistoricalSiteDao().loadManitobaHistoricalSitesAllFilters(siteFilter.getSiteTypeFilter(), siteFilter.getMunicipalityFilter())
                                 .subscribeOn(Schedulers.io())

@@ -193,6 +193,7 @@ public class MapsActivity extends AppCompatActivity
             try {
                 currentSite = changedSite;
                 moveCameraToLocation(currentSite.getLocation());
+                viewModel.setCurrentLocation(getUserLocation());
                 displayMarkerInfo(currentSite.getSite_id());
             } catch (Exception e) {
                 Log.e("Error", "UpdateCurrentPositonToBeCurrentSite: Error updating the map to reflect the viewmodel\n" + e.getMessage());
@@ -546,7 +547,7 @@ public class MapsActivity extends AppCompatActivity
 
                 /*currentSite = nextSite;
                 viewModel.setCurrentSite(currentSite);*/
-                viewModel.setCurrentLocation(getUserLocation());
+
                 Fragment newFragment = HistoricalSiteDetailsFragment.newInstance(nextSiteId);
 
                 fragmentManager.beginTransaction()

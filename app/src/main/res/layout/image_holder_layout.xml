@@ -20,6 +20,7 @@
         android:id="@+id/tvSiteImageInfo"
         android:textAlignment="center"
         android:text="image text"
+        android:textIsSelectable="true"
         style="@style/subText"/>
     <TextView
         android:layout_width="match_parent"

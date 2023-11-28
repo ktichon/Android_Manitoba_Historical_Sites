@@ -36,6 +36,7 @@
 
 
                 android:layout_weight="0.8"
+                android:textIsSelectable="true"
 
 
                 android:text="Name"
@@ -67,6 +68,7 @@
             android:layout_height="wrap_content"
             android:textAlignment="center"
             android:text="Types/types"
+            android:textIsSelectable="true"
             style="@style/mainText"
             android:layout_margin="0dp"
             />
@@ -78,7 +80,7 @@
         android:textAlignment="center"
         android:text="Address"
         style="@style/mainText"
-
+            android:textIsSelectable="true"
         />
 
         <TextView
@@ -88,6 +90,7 @@
             android:textAlignment="center"
             android:text="mainText"
             android:layout_marginTop="0dp"
+            android:textIsSelectable="true"
             />
 
 
@@ -106,6 +109,7 @@
                 android:text="@string/show_more"
                 style="@style/mainText"
                 android:layout_margin="5dp"
+                android:textIsSelectable="false"
                 app:drawableEndCompat="@drawable/arrow_up" />
 
         </LinearLayout>
@@ -135,8 +139,7 @@
                     android:id="@+id/tvDescription"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-
-
+                    android:textIsSelectable="true"
                     android:text="description \nText\nBla"
                     style="@style/subText"
                     android:layout_margin="5dp"
@@ -148,6 +151,7 @@
                     android:text="@string/sources_title"
                     style="@style/mainText"
                     android:layout_marginTop="10dp"
+                    android:textIsSelectable="true"
 
                     android:id="@+id/tvSourceTitle"/>
                 <TextView
@@ -156,7 +160,20 @@
                     style="@style/subText"
                     android:layout_margin="5dp"
                     android:id="@+id/tvSourceInfo"
+                    android:textIsSelectable="true"
                     android:text="source info\nMore sources"
+                    />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    style="@style/mainText"
+                    android:layout_margin="5dp"
+                    android:textAlignment="center"
+                    android:id="@+id/tvManitobaHistoricalSociety"
+                    android:text="@string/historical_society"
+                    android:textColor="@color/quantum_googblue"
+
                     />
 
 

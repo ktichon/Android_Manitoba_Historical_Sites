@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
+import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
@@ -24,12 +25,15 @@ public class SearchSiteAdapter extends RecyclerView.Adapter<SearchSiteAdapter.Vi
 
     Context context;
     List<ManitobaHistoricalSite> siteList;
+
+    FragmentActivity activity;
     private HistoricalSiteDetailsViewModel mViewModel;
 
 
     public SearchSiteAdapter(Context context, List<ManitobaHistoricalSite> siteList, FragmentActivity activity) {
         this.context = context;
         this.siteList = siteList;
+        this.activity = activity;
         this.mViewModel = new ViewModelProvider(activity).get(HistoricalSiteDetailsViewModel.class);
     }
 
@@ -50,8 +54,15 @@ public class SearchSiteAdapter extends RecyclerView.Adapter<SearchSiteAdapter.Vi
         details += currentSite.getMunicipality() + ", " + currentSite.getMain_type();
         holder.setTvDetails(details);
         holder.getView().setOnClickListener(v -> {
-            mViewModel.setCurrentSite(currentSite);
-            mViewModel.setDisplayMode(DisplayMode.FullMap);
+            Fragment newFragment = HistoricalSiteDetailsFragment.newInstance(currentSite.getSite_id());
+            FragmentManager fragmentManager = activity.getSupportFragmentManager();
+
+            fragmentManager.beginTransaction()
+                    //.replace(R.id.fcvDetails, HistoricalSiteDetailsFragment.class, null)
+                    .replace(R.id.fcvDetails, newFragment, null)
+                    .setReorderingAllowed(true)
+                    .addToBackStack(activity.getString(R.string.site_fragment))
+                    .commit();
             InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
         });

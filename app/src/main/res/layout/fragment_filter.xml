@@ -61,6 +61,8 @@
             android:hint="@string/multi_select_municipalities"
             android:layout_margin="5dp"
             android:padding="10dp"
+            android:ellipsize="end"
+            android:maxLines="1"
             app:drawableEndCompat="@android:drawable/arrow_down_float" />
 
     </LinearLayout>
@@ -106,6 +108,8 @@
             android:background="@android:drawable/editbox_background"
             android:drawablePadding="15dp"
             android:hint="@string/multi_select_types"
+            android:ellipsize="end"
+            android:maxLines="1"
             android:layout_margin="5dp"
             android:padding="10dp"
             app:drawableEndCompat="@android:drawable/arrow_down_float" />

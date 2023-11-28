@@ -1,12 +1,36 @@
 <resources>
-    <!-- Reply Preference -->
-    <string-array name="reply_entries">
-        <item>Reply</item>
-        <item>Reply to all</item>
+
+    <!--  Possible ways to search for a site by  -->
+    <string-array name="Search_By">
+        <item>Site Name</item>
+        <item>Site Address</item>
     </string-array>
 
-    <string-array name="reply_values">
-        <item>reply</item>
-        <item>reply_all</item>
+    <!-- Readable possible marker colour names -->
+    <string-array name="Colour_Names">
+        <item>HUE_AZURE</item>
+        <item>HUE_BLUE</item>
+        <item>HUE_CYAN</item>
+        <item>HUE_GREEN</item>
+        <item>HUE_MAGENTA</item>
+        <item>HUE_ORANGE</item>
+        <item>HUE_RED</item>
+        <item>HUE_ROSE</item>
+        <item>HUE_VIOLET</item>
+        <item>HUE_YELLOW</item>
+    </string-array>
+
+    <!-- The corresponding FlOAT colour values -->
+    <string-array name="Colour_Values">
+        <item>210.0</item>
+        <item>240.0</item>
+        <item>180.0</item>
+        <item>120.0</item>
+        <item>300.0</item>
+        <item>30.0</item>
+        <item>0.0</item>
+        <item>330.0</item>
+        <item>270.0</item>
+        <item>60.0</item>
     </string-array>
 </resources>

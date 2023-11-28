@@ -105,6 +105,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="currently active filters"
+            android:maxLines="2"
+            android:minLines="1"
+            android:ellipsize="end"
+
             android:id="@+id/tvActiveFilterTypes"
             style="@style/subText"/>
 
@@ -131,6 +135,9 @@
             android:layout_height="wrap_content"
             style="@style/subText"
             android:text="currently active filters"
+            android:maxLines="2"
+            android:minLines="1"
+            android:ellipsize="end"
             android:id="@+id/tvActiveFilterMunicipalities"/>
 
     </LinearLayout>

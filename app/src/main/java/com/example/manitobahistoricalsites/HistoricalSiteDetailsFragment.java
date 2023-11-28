@@ -2,7 +2,6 @@ package com.example.manitobahistoricalsites;
 
 import androidx.appcompat.widget.AppCompatButton;
 import androidx.core.widget.NestedScrollView;
-import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
 
 import android.annotation.SuppressLint;
@@ -47,10 +46,6 @@ public class HistoricalSiteDetailsFragment extends Fragment {
 
     private HistoricalSiteDetailsViewModel mViewModel;
     private LinearLayout llDetailsContainer;
-
-
-    //Declared as long click links to Manitoba Historical Society Site
-    private TextView tvName;
 
 
     View mainView;
@@ -119,12 +114,10 @@ public class HistoricalSiteDetailsFragment extends Fragment {
 
 
         //Set button presses to link to Manitoba Historical Society Site
-        tvName = (TextView) mainView.findViewById(R.id.tvName);
-        tvName.setOnLongClickListener(view12 -> {
+        TextView tvHistoricalSocietyLink = mainView.findViewById(R.id.tvManitobaHistoricalSociety);
+        tvHistoricalSocietyLink.setOnClickListener(v -> openWebPage(currentSite.getSite_url()));
 
-            openWebPage(currentSite.getSite_url());
-            return true;
-        });
+
 
 
 
@@ -211,7 +204,7 @@ public class HistoricalSiteDetailsFragment extends Fragment {
             currentSite = site;
             mViewModel.setCurrentSite(currentSite);
             llDetailsContainer.setVisibility(View.VISIBLE);
-            tvName.setText(site.getName());
+            ((TextView) mainView.findViewById(R.id.tvName)).setText(site.getName());
             displaySiteDistance(mViewModel.getCurrentLocation().getValue());
 
             //Some sites don't have an address, only coordinates. This is to make sure that the  ", " only shows up if the site has an address
