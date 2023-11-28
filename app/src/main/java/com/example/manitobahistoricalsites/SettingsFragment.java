@@ -154,6 +154,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     Preference.OnPreferenceChangeListener onPreferenceChangeListener = new Preference.OnPreferenceChangeListener() {
         @Override
         public boolean onPreferenceChange(@NonNull Preference preference, Object newValue) {
+            ((ListPreference) preference).setValue(newValue.toString());
             preference.setSummary(getColourName(newValue.toString()));
             return false;
         }
