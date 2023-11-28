@@ -58,6 +58,9 @@ public class HistoricalSiteDetailsFragment extends Fragment {
     SharedPreferences prefs;
     DisplayMode previousDisplayMode;
 
+    DisplayMode currentSiteDisplayMode = DisplayMode.SiteAndMap;
+
+
 
     private static final String SITE_KEY = "current_historical_site_yehaw";
 
@@ -94,7 +97,7 @@ public class HistoricalSiteDetailsFragment extends Fragment {
         mainView = view;
         mViewModel = new ViewModelProvider(requireActivity()).get(HistoricalSiteDetailsViewModel.class);
         previousDisplayMode = mViewModel.getDisplayMode().getValue();
-        mViewModel.setDisplayMode(DisplayMode.SiteAndMap);
+        setCurrentSiteDisplayMode(currentSiteDisplayMode);
 
 
         int site_id  =  1001;
@@ -130,7 +133,7 @@ public class HistoricalSiteDetailsFragment extends Fragment {
             //If Display is Full Site, then set to Site and Map. Else the display must already be Site and Map, so set it to Full Site
             DisplayMode newDisplaymode = (oldDisplayMode == DisplayMode.FullDetail ? DisplayMode.SiteAndMap: DisplayMode.FullDetail);
 
-            mViewModel.setDisplayMode(newDisplaymode);
+            setCurrentSiteDisplayMode(newDisplaymode);
             setSmall(newDisplaymode);
 
         });
@@ -138,7 +141,7 @@ public class HistoricalSiteDetailsFragment extends Fragment {
         //Close button, on click sets the map fragment to full screen
         AppCompatButton btnClose = (AppCompatButton) mainView.findViewById(R.id.btnClose);
         btnClose.setOnClickListener(v -> {
-            mViewModel.setDisplayMode(DisplayMode.FullMap);
+            setCurrentSiteDisplayMode(DisplayMode.FullMap);
             /*FragmentManager fm = requireActivity().getSupportFragmentManager();
             fm.popBackStack(getString(R.string.site_fragment), FragmentManager.POP_BACK_STACK_INCLUSIVE);*/
 
@@ -324,6 +327,15 @@ public class HistoricalSiteDetailsFragment extends Fragment {
     }
 
 
+    //Allows resume to resume to correct size
+    private void setCurrentSiteDisplayMode(DisplayMode newMode)
+    {
+        this.currentSiteDisplayMode = newMode;
+        mViewModel.setDisplayMode(newMode);
+
+    }
+
+
     @Override
     public void onDestroy() {
         super.onDestroy();
@@ -341,7 +353,7 @@ public class HistoricalSiteDetailsFragment extends Fragment {
         super.onResume();
         if (currentSite != null)
         {
-            mViewModel.setDisplayMode(DisplayMode.SiteAndMap);
+            mViewModel.setDisplayMode(currentSiteDisplayMode);
             displayHistoricalSiteInfo(currentSite);
         }
         prefs.registerOnSharedPreferenceChangeListener(preferenceChangeListener);
@@ -461,7 +473,7 @@ public class HistoricalSiteDetailsFragment extends Fragment {
 
                     if(newDisplayMode != oldDisplayMode)
                     {
-                        mViewModel.setDisplayMode(newDisplayMode);
+                        setCurrentSiteDisplayMode(newDisplayMode);
                         setSmall(newDisplayMode);
                     }
                 }
