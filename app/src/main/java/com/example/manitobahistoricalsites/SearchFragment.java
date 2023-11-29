@@ -59,7 +59,6 @@ public class SearchFragment extends Fragment {
 
     String searchBy = "Site Address";
 
-    TextView tvBack;
 
     TextView tvSearchAmount;
 
@@ -133,7 +132,7 @@ public class SearchFragment extends Fragment {
         tvSearchAmount.setText("");
 
 
-        tvBack = mainView.findViewById(R.id.tvSearchGoBack);
+        TextView tvBack = mainView.findViewById(R.id.tvSearchGoBack);
         tvBack.setOnClickListener(v -> {
             mViewModel.setDisplayMode(previousDisplayMode);
             FragmentManager fm = requireActivity().getSupportFragmentManager();

@@ -26,7 +26,14 @@
     <string name="active_type_filters">Active Type Filters:</string>
     <string name="active_municipality_filters">Active Municipality Filters:</string>
 
-
+    <!-- About Display Text -->
+    <string name="about_title">About</string>
+    <string name="about_text">Welcome to my app! History has always been a passion of mine, and I quite excited to combine it with my love of coding.
+        \n\nI started working on this app in October 2022, displaying all Historical Sites according to the <a href="https://data.winnipeg.ca/City-Planning/Historical-Resources/ptpx-kgiu">City of Winnipeg Open Data</a>. With the data from the City of Winnipeg, I was able to display around 720 sites. While I was excited by what I was able to accomplish, the Winnipeg data was limited in what it could display. I knew that I could do more.
+        \n\nAlmost a year after starting this project, I was successful in collecting 99% of the data from the <a href="https://www.mhs.mb.ca">Manitoba Historical Society</a>, and now this app displays over 9360 historical all across Manitoba!
+        \n\nThank you Manitoba Historical Society for providing all the information about this history of this province.
+        \n\nCreated by me, Kyle Tichon.
+    </string>
 
 
     <!-- Variable values -->
@@ -39,10 +46,6 @@
     <string name="site_fragment">Site Details</string>
 
 
-
-
-
-
     <!--Preference Keys -->
     <string name="night_mode_key">Night_Mode_Key</string>
     <string name="background_colour_key">background_colour_key</string>
@@ -51,10 +54,11 @@
     <string name="update_marker_key">update_marker_key</string>
 
 
-
     <!-- Default maker colour (red) -->
     <string name="Default_Colour_Value">
         <item>0.0</item>
     </string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 </resources>
