@@ -171,22 +171,7 @@ public class SearchFragment extends Fragment {
 
     }
 
-
-    //Sets all searchable sites, makes sure that the edittext is only active after there is data
-    public void setSearchableSites(List<ManitobaHistoricalSite> sites)
-    {
-
-        searchableSites.clear();
-        searchableSites = sites;
-        etSearch.setEnabled(true);
-        btnSearch.setEnabled(true);
-        Toast.makeText(getContext(), "Found " +  searchableSites.size() + " Applicable sites.", Toast.LENGTH_SHORT).show();
-        if (etSearch != null && searchableSites.size() > 0)
-        {
-            searchSites(etSearch.getText().toString(), false);
-        }
-    }
-
+    //Sets which sites are available with the current filters
     public void loadBaseOnFilters(SiteFilter siteFilter)
     {
         try {
@@ -250,6 +235,21 @@ public class SearchFragment extends Fragment {
             }
         } catch (Exception e) {
             Log.e("Error", "updateDataToComplyWithNewFilters: Error updating the map to reflect the viewModel\n" + e.getMessage());
+        }
+    }
+
+    //Sets all searchable sites, makes sure that the edittext is only active after there is data
+    public void setSearchableSites(List<ManitobaHistoricalSite> sites)
+    {
+
+        searchableSites.clear();
+        searchableSites = sites;
+        etSearch.setEnabled(true);
+        btnSearch.setEnabled(true);
+        //Toast.makeText(getContext(), "Found " +  searchableSites.size() + " Applicable sites.", Toast.LENGTH_SHORT).show();
+        if (etSearch != null && searchableSites.size() > 0)
+        {
+            searchSites(etSearch.getText().toString(), false);
         }
     }
 

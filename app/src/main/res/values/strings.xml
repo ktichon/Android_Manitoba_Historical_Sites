@@ -58,7 +58,6 @@
     <string name="Default_Colour_Value">
         <item>0.0</item>
     </string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+
 
 </resources>
