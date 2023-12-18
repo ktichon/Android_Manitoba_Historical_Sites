@@ -37,10 +37,10 @@ public interface ManitobaHistoricalSiteDao {
 
     @Query(
             "SELECT DISTINCT manitobahistoricalsite.*  FROM manitobahistoricalsite"
-            + " INNER JOIN siteType ON siteType.site_id = manitobahistoricalsite.site_id"
-            + " WHERE siteType.type in (:types) ORDER BY name ASC "
+            + " INNER JOIN sitewithtype ON sitewithtype.site_id = manitobahistoricalsite.site_id"
+            + " WHERE sitewithtype.site_with_type_id in (:type_id) ORDER BY name ASC "
     )
-    public Maybe<List<ManitobaHistoricalSite>>  loadManitobaHistoricalSitesFilterType(List<String> types);
+    public Maybe<List<ManitobaHistoricalSite>>  loadManitobaHistoricalSitesFilterType(List<Integer> type_id);
 
     @Query(
             "SELECT DISTINCT manitobahistoricalsite.* FROM manitobahistoricalsite"
@@ -50,11 +50,11 @@ public interface ManitobaHistoricalSiteDao {
 
     @Query(
             "SELECT DISTINCT manitobahistoricalsite.* FROM manitobahistoricalsite"
-                    + " INNER JOIN siteType ON siteType.site_id = manitobahistoricalsite.site_id"
+                    + " INNER JOIN sitewithtype ON sitewithtype.site_id = manitobahistoricalsite.site_id"
                     + " WHERE manitobahistoricalsite.municipality in (:municipality) "
-                    + " AND siteType.type in (:types) ORDER BY name ASC"
+                    + " AND sitewithtype.site_type_id in (:type_id) ORDER BY name ASC"
     )
-    public Maybe<List<ManitobaHistoricalSite>>  loadManitobaHistoricalSitesAllFilters (List<String> types, List<String> municipality);
+    public Maybe<List<ManitobaHistoricalSite>>  loadManitobaHistoricalSitesAllFilters (List<Integer> type_id, List<String> municipality);
 
 
 

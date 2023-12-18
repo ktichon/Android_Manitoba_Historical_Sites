@@ -6,43 +6,21 @@ import java.util.List;
 //Class that stores the active site filters
 public class SiteFilter {
 
-    boolean allMunicipalities;
-    boolean allSiteTypes;
+
 
     List<String> municipalityFilter;
-    List<String> siteTypeFilter;
+    List<Integer> siteTypeFilter;
 
-    public SiteFilter(List<String> municipalityFilter, List<String> siteTypeFilter) {
+    public SiteFilter(List<String> municipalityFilter, List<Integer> siteTypeFilter) {
         this.municipalityFilter = municipalityFilter;
         this.siteTypeFilter = siteTypeFilter;
-        this.allMunicipalities = false;
-        this.allSiteTypes = false;
     }
 
     public SiteFilter() {
         this.municipalityFilter = new ArrayList<>();
         this.siteTypeFilter = new ArrayList<>();
-        this.allMunicipalities = true;
-        this.allSiteTypes = true;
         
     }
-
-    public boolean isAllMunicipalities() {
-        return allMunicipalities;
-    }
-
-    public void setAllMunicipalities(boolean allMunicipalities) {
-        this.allMunicipalities = allMunicipalities;
-    }
-
-    public boolean isAllSiteTypes() {
-        return allSiteTypes;
-    }
-
-    public void setAllSiteTypes(boolean allSiteTypes) {
-        this.allSiteTypes = allSiteTypes;
-    }
-
 
 
     public List<String> getMunicipalityFilter() {
@@ -53,11 +31,11 @@ public class SiteFilter {
         this.municipalityFilter = municipalityFilter;
     }
 
-    public List<String> getSiteTypeFilter() {
+    public List<Integer> getSiteTypeFilter() {
         return siteTypeFilter;
     }
 
-    public void setSiteTypeFilter(List<String> siteTypeFilter) {
+    public void setSiteTypeFilter(List<Integer> siteTypeFilter) {
         this.siteTypeFilter = siteTypeFilter;
     }
 

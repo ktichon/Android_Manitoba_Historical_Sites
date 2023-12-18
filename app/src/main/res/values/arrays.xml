@@ -6,6 +6,18 @@
         <item>Site Address</item>
     </string-array>
 
+    <!-- String Site Types -->
+    <string-array name="Site_Types">
+        <item>Featured Site</item>
+        <item>Museum or Archives</item>
+        <item>Building</item>
+        <item>Monument</item>
+        <item>Cemetery</item>
+        <item>Location</item>
+        <item>Other</item>
+    </string-array>
+
+
     <!-- Readable possible marker colour names -->
     <string-array name="Colour_Names">
         <item>HUE_AZURE</item>

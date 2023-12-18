@@ -14,8 +14,8 @@
 
     <!-- Filter Display Text -->
     <string name="back_click">Back</string>
-    <string name="display_all_municipalities_filter">Display All Municipalities:</string>
-    <string name="display_all_site_types_filter">Display All Site Types:</string>
+    <string name="municipalities_filter_title">Filter by Municipality</string>
+    <string name="site_types_filter_title">Filter by Type</string>
     <string name="multi_select_municipalities">Select Municipalities</string>
     <string name="multi_select_types">Select Site Types</string>
     <string name="confirm_new_filters">Confirm new Filters</string>

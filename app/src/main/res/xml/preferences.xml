@@ -42,8 +42,30 @@
         app:key="set_marker_colours"
         app:title="Set Marker Colours">
         <ListPreference
+            app:key="Featured Site"
+            app:title="Featured Site Marker Colour"
+            app:isPreferenceVisible="false"
+            app:entries="@array/Colour_Names"
+            app:entryValues="@array/Colour_Values"
+            app:defaultValue="@string/Default_Colour_Value"
+            />
+        <ListPreference
+            app:key="Museum or Archives"
+            app:title="Museum or Archives Marker Colour"
+            app:entries="@array/Colour_Names"
+            app:entryValues="@array/Colour_Values"
+            app:defaultValue="@string/Default_Colour_Value"
+            />
+        <ListPreference
             app:key="Building"
             app:title="Building Marker Colour"
+            app:entries="@array/Colour_Names"
+            app:entryValues="@array/Colour_Values"
+            app:defaultValue="@string/Default_Colour_Value"
+            />
+        <ListPreference
+            app:key="Monument"
+            app:title="Monument Marker Colour"
             app:entries="@array/Colour_Names"
             app:entryValues="@array/Colour_Values"
             app:defaultValue="@string/Default_Colour_Value"
@@ -62,20 +84,8 @@
             app:entryValues="@array/Colour_Values"
             app:defaultValue="@string/Default_Colour_Value"
             />
-        <ListPreference
-            app:key="Monument"
-            app:title="Monument Marker Colour"
-            app:entries="@array/Colour_Names"
-            app:entryValues="@array/Colour_Values"
-            app:defaultValue="@string/Default_Colour_Value"
-            />
-        <ListPreference
-            app:key="Museum or Archives"
-            app:title="Museum or Archives Marker Colour"
-            app:entries="@array/Colour_Names"
-            app:entryValues="@array/Colour_Values"
-            app:defaultValue="@string/Default_Colour_Value"
-            />
+
+
         <ListPreference
             app:key="Other"
             app:title="Other Marker Colour"

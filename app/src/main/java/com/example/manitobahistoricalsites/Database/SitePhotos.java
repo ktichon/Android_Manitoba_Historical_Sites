@@ -11,14 +11,18 @@ public class SitePhotos {
 
     public int site_id;
     public String photo_name;
+    public int width;
+    public int height;
     public String photo_url;
     public String info;
     public String import_date;
 
-    public SitePhotos(int photo_id, int site_id, String photo_name, String photo_url, String info, String import_date) {
+    public SitePhotos(int photo_id, int site_id, String photo_name, int width, int height, String photo_url, String info, String import_date) {
         this.photo_id = photo_id;
         this.site_id = site_id;
         this.photo_name = photo_name;
+        this.width = width;
+        this.height = height;
         this.photo_url = photo_url;
         this.info = info;
         this.import_date = import_date;
@@ -46,6 +50,22 @@ public class SitePhotos {
 
     public void setPhoto_name(String photo_name) {
         this.photo_name = photo_name;
+    }
+
+    public int getWidth() {
+        return width;
+    }
+
+    public void setWidth(int width) {
+        this.width = width;
+    }
+
+    public int getHeight() {
+        return height;
+    }
+
+    public void setHeight(int height) {
+        this.height = height;
     }
 
     public String getPhoto_url() {

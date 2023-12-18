@@ -23,7 +23,13 @@ public interface SiteTypeDao {
     @Query("SELECT * FROM siteType")
     public Maybe<List<SiteType>> getAllSiteTypes();
 
-    @Query("SELECT * FROM siteType WHERE site_id = :site_id ")
+    @Query("SELECT siteType.* FROM siteType " +
+            "INNER JOIN siteWithType ON siteWithType.site_type_id = siteType.siteType_id" +
+            " WHERE site_id = :site_id ")
     public Maybe<List<SiteType>> getAllSiteTypesForSite(int site_id);
+
+    @Query("SELECT type FROM siteType " +
+            " WHERE siteType_id in (:type_id) ")
+    public Maybe<List<String>> getTypesFromSiteTypeIds(List<Integer> type_id);
 
 }

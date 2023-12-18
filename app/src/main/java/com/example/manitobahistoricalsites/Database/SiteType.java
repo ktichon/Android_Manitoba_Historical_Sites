@@ -7,13 +7,11 @@ import androidx.room.PrimaryKey;
 public class SiteType {
     @PrimaryKey
     public int siteType_id;
-    public int site_id;
     public String type;
     public String import_date;
 
-    public SiteType(int siteType_id, int site_id, String type, String import_date) {
+    public SiteType(int siteType_id, String type, String import_date) {
         this.siteType_id = siteType_id;
-        this.site_id = site_id;
         this.type = type;
         this.import_date = import_date;
     }
@@ -24,14 +22,6 @@ public class SiteType {
 
     public void setSiteType_id(int siteType_id) {
         this.siteType_id = siteType_id;
-    }
-
-    public int getSite_id() {
-        return site_id;
-    }
-
-    public void setSite_id(int site_id) {
-        this.site_id = site_id;
     }
 
     public String getType() {

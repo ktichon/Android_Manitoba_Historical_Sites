@@ -18,6 +18,7 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.graphics.Color;
 import android.location.Criteria;
 import android.location.Location;
@@ -105,7 +106,8 @@ public class MapsActivity extends AppCompatActivity
     //Stop app from loading data twice when app is launched
     boolean firstAppLoad = true;
 
-    HashMap<String, Float> markerColoursPerType;
+    HashMap<Integer, Float> markerColoursPerType;
+    List<Float> markerColours;
 
 
 
@@ -129,6 +131,7 @@ public class MapsActivity extends AppCompatActivity
         allManitobaHistoricalSites = new ArrayList<>();
         allMarkers = new ArrayList<>();
         markerColoursPerType = new HashMap<>();
+        markerColours = new ArrayList<>();
 
         mToolbar = findViewById(R.id.tbMain);
         setSupportActionBar(mToolbar);
@@ -212,20 +215,20 @@ public class MapsActivity extends AppCompatActivity
             try {
                 //No filter
                 //Needed to check to make sure it doesn't run when app is first loaded
-                if (siteFilter.isAllMunicipalities() && siteFilter.isAllSiteTypes() && !firstAppLoad )
+                if (siteFilter.getMunicipalityFilter().size() == 0 && siteFilter.getSiteTypeFilter().size() == 0 && !firstAppLoad )
                 {
                     loadManitobaHistoricalSiteData();
                 }
                 //Only municipality filter
-                else if (!siteFilter.isAllMunicipalities() && siteFilter.isAllSiteTypes()){
+                else if (siteFilter.getMunicipalityFilter().size() > 0 && siteFilter.getSiteTypeFilter().size() == 0){
                     loadManitobaHistoricalSiteDataMunicipalityFilter(siteFilter.getMunicipalityFilter());
                 }
                 //Only type filter
-                else if (siteFilter.isAllMunicipalities() && !siteFilter.isAllSiteTypes()) {
+                else if (siteFilter.getMunicipalityFilter().size() == 0 && siteFilter.getSiteTypeFilter().size() > 0) {
                     loadManitobaHistoricalSiteDataTypeFilter(siteFilter.getSiteTypeFilter());
                 }
                 // Get both municipality and type filter
-                else if (!siteFilter.isAllMunicipalities() && !siteFilter.isAllSiteTypes()) {
+                else if (siteFilter.getMunicipalityFilter().size() > 0 && siteFilter.getSiteTypeFilter().size() > 0) {
                     loadManitobaHistoricalAllFilter(siteFilter.getMunicipalityFilter(), siteFilter.getSiteTypeFilter());
                 }
             } catch (Exception e) {
@@ -329,7 +332,7 @@ public class MapsActivity extends AppCompatActivity
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe( manitobaHistoricalSites -> saveSitesToApp( manitobaHistoricalSites, false),
-                                throwable ->  Toast.makeText(getApplicationContext(), "Error fetching data", Toast.LENGTH_SHORT).show()
+                                throwable ->   Log.e("Error", "loadManitobaHistoricalSiteData: Error fetching data\n" + throwable.getMessage())  //Toast.makeText(getApplicationContext(), "Error fetching data", Toast.LENGTH_SHORT).show()
                         )
         );
     }
@@ -349,7 +352,7 @@ public class MapsActivity extends AppCompatActivity
     }
 
     //Loads only by type
-    public void loadManitobaHistoricalSiteDataTypeFilter(List<String> siteTypes)
+    public void loadManitobaHistoricalSiteDataTypeFilter(List<Integer> siteTypes)
     {
         mDisposable.add(
                 viewModel.getHistoricalSiteDatabase().manitobaHistoricalSiteDao().loadManitobaHistoricalSitesFilterType(siteTypes)
@@ -362,7 +365,7 @@ public class MapsActivity extends AppCompatActivity
     }
 
     //Loads by municipality and type
-    public void loadManitobaHistoricalAllFilter( List<String> municipalities, List<String> siteTypes)
+    public void loadManitobaHistoricalAllFilter( List<String> municipalities, List<Integer> siteTypes)
     {
         mDisposable.add(
                 viewModel.getHistoricalSiteDatabase().manitobaHistoricalSiteDao().loadManitobaHistoricalSitesAllFilters(siteTypes, municipalities)
@@ -474,8 +477,10 @@ public class MapsActivity extends AppCompatActivity
 
             for (ManitobaHistoricalSite site: sitesToAdd) {
                 Float markerColour = 0f;
-                if (site.getMain_type() != null && markerColoursPerType.get(site.getMain_type()) != null)
-                    markerColour = markerColoursPerType.get(site.getMain_type());
+//                if (markerColoursPerType.get(site.getMain_type()) != null)
+//                    markerColour = markerColoursPerType.get(site.getMain_type());
+                if (site.getMain_type() > 0 && site.getMain_type() <= markerColours.size())
+                    markerColour = markerColours.get((site.getMain_type() -1));
                 Marker newMarker = mMap.addMarker(new MarkerOptions().position(new LatLng(site.getLatitude(), site.getLongitude())).title(site.getName()).snippet(site.getAddress())
                         .icon(BitmapDescriptorFactory.defaultMarker(markerColour))
                         //.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.  	HUE_YELLOW 	 	))
@@ -759,12 +764,15 @@ public class MapsActivity extends AppCompatActivity
     {
 
         try {
-            String [] siteTypes = {"Building" , "Cemetery" ,  "Location" , "Monument" ,"Museum or Archives" , "Other" };
+            String [] siteTypes = getResources().getStringArray(R.array.Site_Types);
+            markerColours.clear();
             markerColoursPerType.clear();
+
             for (String type : siteTypes) {
                 String colour = sharedPreferences.getString(type, getString(R.string.Default_Colour_Value));
                 Float colourValue = Float.valueOf(colour);
-                markerColoursPerType.put(type, colourValue);
+                //markerColoursPerType.put(type, colourValue);
+                markerColours.add(colourValue);
 
             }
         }catch (Exception e)

@@ -17,6 +17,7 @@
         android:text="@string/back_click"
         style="@style/mainText"
         android:layout_margin="5dp"
+        android:padding="5dp"
         app:drawableStartCompat="@drawable/back" />
     <LinearLayout
         android:layout_width="match_parent"
@@ -27,27 +28,17 @@
         android:layout_margin="5dp"
         >
 
-        <LinearLayout
-            android:layout_width="match_parent"
+        <TextView
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
+            android:id="@+id/tvMunicipalityFilterTitle"
+            android:text="@string/municipalities_filter_title"
+            style="@style/mainText"
             android:layout_margin="5dp"
-            android:paddingHorizontal="10dp">
+            android:paddingHorizontal="10dp"
+            android:paddingTop="5dp"
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/tvSelectAllMunicipalities"
-                android:text="@string/display_all_municipalities_filter"
-                style="@style/mainText"
-
-                />
-            <CheckBox
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/cbSelectAllMunicipalities"/>
-
-        </LinearLayout>
+            />
 
 
 
@@ -76,27 +67,17 @@
         android:layout_margin="5dp"
         >
 
-        <LinearLayout
-            android:layout_width="match_parent"
+        <TextView
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
+            android:id="@+id/tvSiteFilterTitle"
+            android:text="@string/site_types_filter_title"
+            style="@style/mainText"
             android:layout_margin="5dp"
-            android:paddingHorizontal="10dp">
+            android:paddingHorizontal="10dp"
+            android:paddingTop="5dp"
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/tvSelectAllTypes"
-                android:text="@string/display_all_site_types_filter"
-                style="@style/mainText"
-
-                />
-            <CheckBox
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/cbSelectAllTypes"/>
-
-        </LinearLayout>
+            />
 
 
 

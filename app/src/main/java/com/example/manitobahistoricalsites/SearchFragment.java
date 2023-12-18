@@ -177,7 +177,7 @@ public class SearchFragment extends Fragment {
         try {
             //No filter
             //Needed to check to make sure it doesn't run when app is first loaded
-            if (siteFilter.isAllMunicipalities() && siteFilter.isAllSiteTypes()  )
+            if (siteFilter.getMunicipalityFilter().size() == 0 && siteFilter.getSiteTypeFilter().size() == 0  )
             {
                 llActiveTypeFilters.setVisibility(View.GONE);
                 llActiveMunicipalityFilters.setVisibility(View.GONE);
@@ -191,7 +191,7 @@ public class SearchFragment extends Fragment {
                 );
             }
             //Only municipality filter
-            else if (!siteFilter.isAllMunicipalities() && siteFilter.isAllSiteTypes()){
+            else if (siteFilter.getMunicipalityFilter().size() > 0 && siteFilter.getSiteTypeFilter().size() == 0){
                 llActiveMunicipalityFilters.setVisibility(View.VISIBLE);
                 llActiveTypeFilters.setVisibility(View.GONE);
                 tvActiveFilterMunicipalities.setText(siteFilter.getMunicipalityFilter().toString().replace("[","").replace("]", ""));
@@ -205,10 +205,17 @@ public class SearchFragment extends Fragment {
                 );
             }
             //Only type filter
-            else if (siteFilter.isAllMunicipalities() && !siteFilter.isAllSiteTypes()) {
+            else if (siteFilter.getMunicipalityFilter().size() == 0 && siteFilter.getSiteTypeFilter().size() > 0) {
                 llActiveMunicipalityFilters.setVisibility(View.GONE);
                 llActiveTypeFilters.setVisibility(View.VISIBLE);
-                tvActiveFilterTypes.setText(siteFilter.getSiteTypeFilter().toString().replace("[","").replace("]", ""));
+                mDisposable.add(
+                        mViewModel.getHistoricalSiteDatabase().siteTypeDao().getTypesFromSiteTypeIds(siteFilter.getSiteTypeFilter())
+                                .subscribeOn(Schedulers.io())
+                                .observeOn(AndroidSchedulers.mainThread())
+                                .subscribe( typeList ->  tvActiveFilterTypes.setText(typeList.toString().replace("[","").replace("]", "")),
+                                        throwable ->  Toast.makeText(getContext(), "Error getting type filters", Toast.LENGTH_SHORT).show()
+                                )
+                );
                 mDisposable.add(
                         mViewModel.getHistoricalSiteDatabase().manitobaHistoricalSiteDao().loadManitobaHistoricalSitesFilterType(siteFilter.getSiteTypeFilter())
                                 .subscribeOn(Schedulers.io())
@@ -219,9 +226,17 @@ public class SearchFragment extends Fragment {
                 );
             }
             // Get both municipality and type filter
-            else if (!siteFilter.isAllMunicipalities() && !siteFilter.isAllSiteTypes()) {
+            else if (siteFilter.getMunicipalityFilter().size() > 0 && siteFilter.getSiteTypeFilter().size() > 0) {
                 llActiveMunicipalityFilters.setVisibility(View.VISIBLE);
                 llActiveTypeFilters.setVisibility(View.VISIBLE);
+                mDisposable.add(
+                        mViewModel.getHistoricalSiteDatabase().siteTypeDao().getTypesFromSiteTypeIds(siteFilter.getSiteTypeFilter())
+                                .subscribeOn(Schedulers.io())
+                                .observeOn(AndroidSchedulers.mainThread())
+                                .subscribe( typeList ->  tvActiveFilterTypes.setText(typeList.toString().replace("[","").replace("]", "")),
+                                        throwable ->  Toast.makeText(getContext(), "Error getting type filters", Toast.LENGTH_SHORT).show()
+                                )
+                );
                 tvActiveFilterTypes.setText(siteFilter.getSiteTypeFilter().toString().replace("[","").replace("]", ""));
                 tvActiveFilterMunicipalities.setText(siteFilter.getMunicipalityFilter().toString().replace("[","").replace("]", ""));
                 mDisposable.add(

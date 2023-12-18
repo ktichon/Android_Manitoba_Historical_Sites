@@ -14,7 +14,7 @@ public class ManitobaHistoricalSite {
     public String name;
     public String address;
 
-    public String main_type;
+    public int main_type;
 
     public double latitude;
 
@@ -23,8 +23,12 @@ public class ManitobaHistoricalSite {
 
     public String municipality;
     public String description;
+
     public String site_url;
+
+    public String keywords;
     public String import_date;
+
 
 
     @Ignore
@@ -32,7 +36,7 @@ public class ManitobaHistoricalSite {
 
 
 
-    public ManitobaHistoricalSite(int site_id, String name, String address, String main_type, double latitude, double longitude, String province, String municipality, String description, String site_url, String import_date) {
+    public ManitobaHistoricalSite(int site_id, String name, String address, int main_type, double latitude, double longitude, String province, String municipality, String description, String site_url, String keywords, String import_date) {
         this.site_id = site_id;
         this.name = name;
         this.address = address;
@@ -43,6 +47,7 @@ public class ManitobaHistoricalSite {
         this.municipality = municipality;
         this.description = description;
         this.site_url = site_url;
+        this.keywords = keywords;
         this.import_date = import_date;
         this.location =  new Location("");
         this.location.setLatitude(getLatitude());
@@ -75,11 +80,11 @@ public class ManitobaHistoricalSite {
         this.address = address;
     }
 
-    public String getMain_type() {
+    public int getMain_type() {
         return main_type;
     }
 
-    public void setMain_type(String main_type) {
+    public void setMain_type(int main_type) {
         this.main_type = main_type;
     }
 
@@ -139,9 +144,18 @@ public class ManitobaHistoricalSite {
         this.location = location;
     }
 
+    public String getKeywords() {
+        return keywords;
+    }
+
+    public void setKeywords(String keywords) {
+        this.keywords = keywords;
+    }
+
     public String getImport_date() {
         return import_date;
     }
+
 
     public void setImport_date(String import_date) {
         this.import_date = import_date;
