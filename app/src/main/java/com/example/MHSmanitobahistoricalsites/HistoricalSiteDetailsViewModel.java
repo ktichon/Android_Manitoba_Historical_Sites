@@ -1,4 +1,4 @@
-package com.example.manitobahistoricalsites;
+package com.example.MHSmanitobahistoricalsites;
 
 import android.content.Context;
 import android.location.Location;
@@ -7,10 +7,10 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.SavedStateHandle;
 import androidx.lifecycle.ViewModel;
 
-import com.example.manitobahistoricalsites.Database.HistoricalSiteDatabase;
-import com.example.manitobahistoricalsites.Database.ManitobaHistoricalSite;
-import com.example.manitobahistoricalsites.HolderClasses.DisplayMode;
-import com.example.manitobahistoricalsites.HolderClasses.SiteFilter;
+import com.example.MHSmanitobahistoricalsites.Database.HistoricalSiteDatabase;
+import com.example.MHSmanitobahistoricalsites.Database.ManitobaHistoricalSite;
+import com.example.MHSmanitobahistoricalsites.HolderClasses.DisplayMode;
+import com.example.MHSmanitobahistoricalsites.HolderClasses.SiteFilter;
 
 public class HistoricalSiteDetailsViewModel extends ViewModel {
 

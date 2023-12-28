@@ -1,4 +1,4 @@
-package com.example.manitobahistoricalsites.Database;
+package com.example.MHSmanitobahistoricalsites.Database;
 
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
@@ -6,22 +6,22 @@ import androidx.room.PrimaryKey;
 @Entity
 public class SiteType {
     @PrimaryKey
-    public int siteType_id;
+    public int site_type_id;
     public String type;
     public String import_date;
 
-    public SiteType(int siteType_id, String type, String import_date) {
-        this.siteType_id = siteType_id;
+    public SiteType(int site_type_id, String type, String import_date) {
+        this.site_type_id = site_type_id;
         this.type = type;
         this.import_date = import_date;
     }
 
-    public int getSiteType_id() {
-        return siteType_id;
+    public int getSite_type_id() {
+        return site_type_id;
     }
 
-    public void setSiteType_id(int siteType_id) {
-        this.siteType_id = siteType_id;
+    public void setSite_type_id(int site_type_id) {
+        this.site_type_id = site_type_id;
     }
 
     public String getType() {

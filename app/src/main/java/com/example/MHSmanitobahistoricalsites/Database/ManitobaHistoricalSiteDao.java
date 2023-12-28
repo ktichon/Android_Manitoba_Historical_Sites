@@ -1,4 +1,4 @@
-package com.example.manitobahistoricalsites.Database;
+package com.example.MHSmanitobahistoricalsites.Database;
 
 import androidx.room.Dao;
 import androidx.room.Delete;
@@ -9,7 +9,6 @@ import androidx.room.Update;
 
 
 import java.util.List;
-import java.util.Map;
 
 import io.reactivex.Maybe;
 import io.reactivex.rxjava3.core.Completable;

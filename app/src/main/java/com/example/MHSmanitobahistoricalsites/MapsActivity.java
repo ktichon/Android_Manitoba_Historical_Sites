@@ -1,4 +1,4 @@
-package com.example.manitobahistoricalsites;
+package com.example.MHSmanitobahistoricalsites;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -18,7 +18,6 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.content.res.Resources;
 import android.graphics.Color;
 import android.location.Criteria;
 import android.location.Location;
@@ -35,9 +34,9 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.manitobahistoricalsites.Database.ManitobaHistoricalSite;
-import com.example.manitobahistoricalsites.HolderClasses.DisplayMode;
-import com.example.manitobahistoricalsites.HolderClasses.SiteFilter;
+import com.example.MHSmanitobahistoricalsites.Database.ManitobaHistoricalSite;
+import com.example.MHSmanitobahistoricalsites.HolderClasses.DisplayMode;
+import com.example.MHSmanitobahistoricalsites.HolderClasses.SiteFilter;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;

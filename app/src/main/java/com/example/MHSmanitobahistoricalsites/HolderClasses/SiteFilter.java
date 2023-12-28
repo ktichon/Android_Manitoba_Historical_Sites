@@ -1,4 +1,4 @@
-package com.example.manitobahistoricalsites.HolderClasses;
+package com.example.MHSmanitobahistoricalsites.HolderClasses;
 
 import java.util.ArrayList;
 import java.util.List;

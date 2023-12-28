@@ -1,4 +1,4 @@
-package com.example.manitobahistoricalsites.Database;
+package com.example.MHSmanitobahistoricalsites.Database;
 
 import androidx.room.Dao;
 import androidx.room.Delete;
@@ -24,12 +24,12 @@ public interface SiteTypeDao {
     public Maybe<List<SiteType>> getAllSiteTypes();
 
     @Query("SELECT siteType.* FROM siteType " +
-            "INNER JOIN siteWithType ON siteWithType.site_type_id = siteType.siteType_id" +
+            "INNER JOIN siteWithType ON siteWithType.site_type_id = siteType.site_type_id" +
             " WHERE site_id = :site_id ")
     public Maybe<List<SiteType>> getAllSiteTypesForSite(int site_id);
 
     @Query("SELECT type FROM siteType " +
-            " WHERE siteType_id in (:type_id) ")
+            " WHERE site_type_id in (:type_id) ")
     public Maybe<List<String>> getTypesFromSiteTypeIds(List<Integer> type_id);
 
 }

@@ -1,4 +1,4 @@
-package com.example.manitobahistoricalsites;
+package com.example.MHSmanitobahistoricalsites;
 
 import android.graphics.Color;
 import android.os.Bundle;
@@ -14,7 +14,7 @@ import androidx.preference.ListPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 
-import com.example.manitobahistoricalsites.HolderClasses.DisplayMode;
+import com.example.MHSmanitobahistoricalsites.HolderClasses.DisplayMode;
 
 import java.util.Arrays;
 

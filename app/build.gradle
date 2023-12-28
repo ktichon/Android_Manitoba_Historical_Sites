@@ -5,13 +5,13 @@ plugins {
 }
 
 android {
-    namespace 'com.example.manitobahistoricalsites'
+    namespace 'com.example.MHSmanitobahistoricalsites'
     compileSdk 34
 
     defaultConfig {
-        applicationId "com.example.manitobahistoricalsites"
+        applicationId "com.example.MHSmanitobahistoricalsites"
         minSdk 21
-        targetSdk 32
+        targetSdk 33
         versionCode 6
         versionName "1.6 Full Demo Mode"
 

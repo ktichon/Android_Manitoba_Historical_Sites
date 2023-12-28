@@ -1,4 +1,4 @@
-package com.example.manitobahistoricalsites.Database;
+package com.example.MHSmanitobahistoricalsites.Database;
 
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;

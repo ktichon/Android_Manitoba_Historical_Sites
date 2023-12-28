@@ -1,8 +1,12 @@
-package com.example.manitobahistoricalsites;
+package com.example.MHSmanitobahistoricalsites;
 
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
+import android.text.Html;
+import android.text.Spanned;
+import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,7 +18,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
 
-import com.example.manitobahistoricalsites.Database.SitePhotos;
+import com.example.MHSmanitobahistoricalsites.Database.SitePhotos;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
@@ -44,14 +48,23 @@ public class SiteImagesAdapter extends RecyclerView.Adapter<SiteImagesAdapter.Vi
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         SitePhotos currentPhoto = sitePhotos.get(position);
-        holder.setTvSiteImageInfo(currentPhoto.info);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            holder.setTvSiteImageInfo(Html.fromHtml(currentPhoto.info, Html.TO_HTML_PARAGRAPH_LINES_INDIVIDUAL));
+        } else {
+            holder.setTvSiteImageInfo(Html.fromHtml(currentPhoto.info));
+        }
+        //((TextView) mainView.findViewById(R.id.tvDescription)).setText(formattedDescription);
+        holder.tvSiteImageInfo.setMovementMethod(LinkMovementMethod.getInstance());
+        //holder.setTvSiteImageInfo(currentPhoto.info);
         String imageCount = (position + 1) + "/" + getItemCount();
         holder.setTvImageCount(imageCount);
 
+        holder.imageView.setMaxHeight(currentPhoto.getHeight());
         Picasso.Builder builder = new Picasso.Builder(viewPager2.getContext());
         builder.listener((picasso, uri, e) -> Log.e("Error", "Picasso: Error displaying site photos " + currentPhoto.getPhoto_url() +"\n" + e.getMessage()));
         builder.build().load(currentPhoto.getPhoto_url()).error(R.drawable.baseline_error_outline_50)
                 .into(holder.imageView);
+
 
         holder.imageView.setOnLongClickListener(v -> {
             try{
@@ -74,7 +87,9 @@ public class SiteImagesAdapter extends RecyclerView.Adapter<SiteImagesAdapter.Vi
 
 
 
+
     }
+
 
     @Override
     public int getItemCount() {
@@ -105,7 +120,7 @@ public class SiteImagesAdapter extends RecyclerView.Adapter<SiteImagesAdapter.Vi
             return imageView;
         }
 
-        public  void setTvSiteImageInfo(String info)
+        public  void setTvSiteImageInfo(Spanned info)
         {
             tvSiteImageInfo.setText(info);
         }
@@ -114,8 +129,6 @@ public class SiteImagesAdapter extends RecyclerView.Adapter<SiteImagesAdapter.Vi
         {
             tvImageCount.setText(info);
         }
-
-
 
     }
 

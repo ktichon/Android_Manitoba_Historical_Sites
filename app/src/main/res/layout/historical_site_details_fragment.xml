@@ -142,7 +142,7 @@
                 <androidx.viewpager2.widget.ViewPager2
                     android:id="@+id/viewpager"
                     android:layout_width="match_parent"
-                    android:layout_height="175dp"
+                    android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:layout_margin="5dp"/>
                 <TextView
@@ -153,8 +153,12 @@
                     android:textIsSelectable="true"
                     android:text="description \nText\nBla"
                     style="@style/subText"
+
                     android:layout_margin="5dp"
+
                     />
+                <!--android:autoLink="web"
+                    android:linksClickable="true"-->
 
                 <TextView
                     android:layout_width="match_parent"

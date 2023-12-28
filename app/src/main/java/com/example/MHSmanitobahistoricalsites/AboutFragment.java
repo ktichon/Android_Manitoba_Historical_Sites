@@ -1,4 +1,4 @@
-package com.example.manitobahistoricalsites;
+package com.example.MHSmanitobahistoricalsites;
 
 import android.os.Bundle;
 
@@ -13,7 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.example.manitobahistoricalsites.HolderClasses.DisplayMode;
+import com.example.MHSmanitobahistoricalsites.HolderClasses.DisplayMode;
 
 
 public class AboutFragment extends Fragment {

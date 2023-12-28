@@ -1,4 +1,4 @@
-package com.example.manitobahistoricalsites;
+package com.example.MHSmanitobahistoricalsites;
 
 import android.content.Context;
 

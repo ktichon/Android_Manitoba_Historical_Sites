@@ -1,4 +1,4 @@
-package com.example.manitobahistoricalsites;
+package com.example.MHSmanitobahistoricalsites;
 
 import androidx.appcompat.widget.AppCompatButton;
 import androidx.core.widget.NestedScrollView;
@@ -10,6 +10,7 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.location.Location;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -18,23 +19,27 @@ import androidx.fragment.app.Fragment;
 import androidx.preference.PreferenceManager;
 import androidx.viewpager2.widget.ViewPager2;
 
+import android.text.Html;
 import android.text.TextUtils;
+import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Adapter;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.manitobahistoricalsites.Database.ManitobaHistoricalSite;
-import com.example.manitobahistoricalsites.Database.SitePhotos;
-import com.example.manitobahistoricalsites.Database.SiteSource;
-import com.example.manitobahistoricalsites.Database.SiteType;
-import com.example.manitobahistoricalsites.HolderClasses.DisplayMode;
+import com.example.MHSmanitobahistoricalsites.Database.ManitobaHistoricalSite;
+import com.example.MHSmanitobahistoricalsites.Database.SitePhotos;
+import com.example.MHSmanitobahistoricalsites.Database.SiteSource;
+import com.example.MHSmanitobahistoricalsites.Database.SiteType;
+import com.example.MHSmanitobahistoricalsites.HolderClasses.DisplayMode;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 
@@ -59,6 +64,7 @@ public class HistoricalSiteDetailsFragment extends Fragment {
     DisplayMode previousDisplayMode;
 
     DisplayMode currentSiteDisplayMode = DisplayMode.SiteAndMap;
+    Boolean firstLoad = true;
 
 
 
@@ -217,8 +223,14 @@ public class HistoricalSiteDetailsFragment extends Fragment {
             setSmall(mViewModel.getDisplayMode().getValue());
 
             //Hopefully makes the description more readable
-            String formattedDescription = site.getDescription().replace("\n", "\n\n");
-            ((TextView) mainView.findViewById(R.id.tvDescription)).setText(formattedDescription);
+            String formattedDescription = site.getDescription().replace("\n", "\n\n"); //.replace("\n", "<br>");
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                ((TextView) mainView.findViewById(R.id.tvDescription)).setText(Html.fromHtml(formattedDescription, Html.TO_HTML_PARAGRAPH_LINES_INDIVIDUAL));
+            } else {
+                ((TextView) mainView.findViewById(R.id.tvDescription)).setText(Html.fromHtml(formattedDescription));
+            }
+            //((TextView) mainView.findViewById(R.id.tvDescription)).setText(formattedDescription);
+            ((TextView) mainView.findViewById(R.id.tvDescription)).setMovementMethod(LinkMovementMethod.getInstance());
         }
         catch (Exception e)
         {
@@ -257,13 +269,54 @@ public class HistoricalSiteDetailsFragment extends Fragment {
     {
         ViewPager2 viewPager2 = mainView.findViewById(R.id.viewpager);
         try {
-            viewPager2.setAdapter(new SiteImagesAdapter(sitePhotos, viewPager2, getContext()));
+            SiteImagesAdapter adapter = new SiteImagesAdapter(sitePhotos, viewPager2, getContext());
+            viewPager2.setAdapter(adapter);
+
+            //Page height can vary, this re updates the height when a new image is shown
+            viewPager2.setPageTransformer(new ViewPager2.PageTransformer() {
+                @Override
+                public void transformPage(@NonNull View page, float position) {
+                    if (firstLoad)
+                        firstLoad = false;
+                    else
+                        updateViewPagerHeight(page, viewPager2);
+                }
+            });
+
         }
         catch (Exception e)
         {
             Log.e("Error", "displaySitePhoto: Error displaying site photos\n" + e.getMessage());
         }
     }
+
+    //Updates the pager height to always fit the new photo
+    private void updateViewPagerHeight(View view, ViewPager2 pager) {
+        try {
+            view.post(new Runnable() {
+                @Override
+                public void run() {
+                    int wMeasureSpec = View.MeasureSpec.makeMeasureSpec(view.getWidth(), View.MeasureSpec.EXACTLY);
+                    int hMeasureSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
+                    view.measure(wMeasureSpec, hMeasureSpec);
+                    if (pager.getLayoutParams().height != view.getMeasuredHeight()) {
+                        ViewGroup.LayoutParams layout = pager.getLayoutParams();
+                        layout.height = view.getMeasuredHeight();
+                        pager.setLayoutParams(layout);
+
+                    }
+                }
+
+            });
+        }
+        catch (Exception e)
+        {
+            Log.e("Error", "updateViewPagerHeight: Error updating the height\n" + e.getMessage());
+        }
+
+    }
+
+
 
     //Displays the site sources
     public void displaySiteSources(List<SiteSource> siteSources)
@@ -272,9 +325,15 @@ public class HistoricalSiteDetailsFragment extends Fragment {
             StringBuilder displaySource = new StringBuilder();
             for (SiteSource source: siteSources)
             {
-                displaySource.append(source.getInfo()).append(" \n\n");
+                displaySource.append(source.getInfo()).append("<br><br>");
             }
-            ((TextView) mainView.findViewById(R.id.tvSourceInfo)).setText(displaySource.toString());
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                ((TextView) mainView.findViewById(R.id.tvSourceInfo)).setText(Html.fromHtml(displaySource.toString(), Html.FROM_HTML_MODE_COMPACT));
+            } else {
+                ((TextView) mainView.findViewById(R.id.tvSourceInfo)).setText(Html.fromHtml(displaySource.toString()));
+            }
+            ((TextView) mainView.findViewById(R.id.tvSourceInfo)).setMovementMethod(LinkMovementMethod.getInstance());
         }
         catch (Exception e)
         {

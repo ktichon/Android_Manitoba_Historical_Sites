@@ -3,8 +3,8 @@
     <!-- String Display Text -->
 
     <!-- Main Display Text -->
-    <string name="app_name">Manitoba Historical Sites</string>
-    <string name="title_activity_maps">Manitoba Historical Sites</string>
+    <string name="app_name">MHS Manitoba Historical Sites</string>
+    <string name="title_activity_maps">MHS Manitoba Historical Sites</string>
 
     <!-- Historic Site Details Display Text -->
     <string name="show_more">Click here to show more info</string>

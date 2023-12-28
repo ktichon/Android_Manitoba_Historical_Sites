@@ -1,4 +1,4 @@
-package com.example.manitobahistoricalsites;
+package com.example.MHSmanitobahistoricalsites;
 
 import android.os.Bundle;
 
@@ -17,8 +17,8 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.manitobahistoricalsites.HolderClasses.DisplayMode;
-import com.example.manitobahistoricalsites.HolderClasses.SiteFilter;
+import com.example.MHSmanitobahistoricalsites.HolderClasses.DisplayMode;
+import com.example.MHSmanitobahistoricalsites.HolderClasses.SiteFilter;
 
 import java.util.ArrayList;
 import java.util.Collections;

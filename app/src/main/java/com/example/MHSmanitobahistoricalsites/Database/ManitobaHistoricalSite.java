@@ -1,8 +1,7 @@
-package com.example.manitobahistoricalsites.Database;
+package com.example.MHSmanitobahistoricalsites.Database;
 
 import android.location.Location;
 
-import androidx.annotation.NonNull;
 import androidx.room.Entity;
 import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
