@@ -284,6 +284,7 @@ public class FilterFragment extends Fragment {
                     // set text on textView
                     tvMultiTypes.setText(stringBuilder.toString());
                     newFilters.setSiteTypeFilter(typeFilter);
+                    Toast.makeText(getContext(),typeFilter.toString(), Toast.LENGTH_LONG).show();
                 });
 
                 builder.setNegativeButton("Cancel", (dialogInterface, i) -> {

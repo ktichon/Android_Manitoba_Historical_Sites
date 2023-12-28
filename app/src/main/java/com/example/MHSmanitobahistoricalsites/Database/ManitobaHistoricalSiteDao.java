@@ -37,7 +37,7 @@ public interface ManitobaHistoricalSiteDao {
     @Query(
             "SELECT DISTINCT manitobahistoricalsite.*  FROM manitobahistoricalsite"
             + " INNER JOIN sitewithtype ON sitewithtype.site_id = manitobahistoricalsite.site_id"
-            + " WHERE sitewithtype.site_with_type_id in (:type_id) ORDER BY name ASC "
+            + " WHERE sitewithtype.site_type_id in (:type_id) ORDER BY name ASC "
     )
     public Maybe<List<ManitobaHistoricalSite>>  loadManitobaHistoricalSitesFilterType(List<Integer> type_id);
 

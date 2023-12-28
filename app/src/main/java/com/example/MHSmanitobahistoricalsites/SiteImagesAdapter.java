@@ -59,7 +59,8 @@ public class SiteImagesAdapter extends RecyclerView.Adapter<SiteImagesAdapter.Vi
         String imageCount = (position + 1) + "/" + getItemCount();
         holder.setTvImageCount(imageCount);
 
-        holder.imageView.setMaxHeight(currentPhoto.getHeight());
+        holder.imageView.setMinimumHeight(currentPhoto.getHeight());
+        holder.imageView.setMinimumWidth(currentPhoto.getWidth());
         Picasso.Builder builder = new Picasso.Builder(viewPager2.getContext());
         builder.listener((picasso, uri, e) -> Log.e("Error", "Picasso: Error displaying site photos " + currentPhoto.getPhoto_url() +"\n" + e.getMessage()));
         builder.build().load(currentPhoto.getPhoto_url()).error(R.drawable.baseline_error_outline_50)

@@ -45,10 +45,12 @@ public class SearchSiteAdapter extends RecyclerView.Adapter<SearchSiteAdapter.Vi
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+        String[] siteTypes = context.getResources().getStringArray(R.array.Site_Types);
         ManitobaHistoricalSite currentSite = siteList.get(position);
         holder.setTvName(currentSite.getName());
         String details = currentSite.getAddress() == null? "": currentSite.getAddress() + ", ";
-        details += currentSite.getMunicipality() + ", " + currentSite.getMain_type();
+
+        details += currentSite.getMunicipality() + ", " + siteTypes[currentSite.getMain_type() - 1];
         holder.setTvDetails(details);
         holder.getView().setOnClickListener(v -> {
             Fragment newFragment = HistoricalSiteDetailsFragment.newInstance(currentSite.getSite_id());
