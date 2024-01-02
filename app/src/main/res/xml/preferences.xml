@@ -54,35 +54,35 @@
             app:title="Museum or Archives Marker Colour"
             app:entries="@array/Colour_Names"
             app:entryValues="@array/Colour_Values"
-            app:defaultValue="@string/Default_Colour_Value"
+            app:defaultValue="180.0"
             />
         <ListPreference
             app:key="Building"
             app:title="Building Marker Colour"
             app:entries="@array/Colour_Names"
             app:entryValues="@array/Colour_Values"
-            app:defaultValue="@string/Default_Colour_Value"
+            app:defaultValue="330.0"
             />
         <ListPreference
             app:key="Monument"
             app:title="Monument Marker Colour"
             app:entries="@array/Colour_Names"
             app:entryValues="@array/Colour_Values"
-            app:defaultValue="@string/Default_Colour_Value"
+            app:defaultValue="30.0"
             />
         <ListPreference
             app:key="Cemetery"
             app:title="Cemetery Marker Colour"
             app:entries="@array/Colour_Names"
             app:entryValues="@array/Colour_Values"
-            app:defaultValue="@string/Default_Colour_Value"
+            app:defaultValue="270.0"
             />
         <ListPreference
             app:key="Location"
             app:title="Location Marker Colour"
             app:entries="@array/Colour_Names"
             app:entryValues="@array/Colour_Values"
-            app:defaultValue="@string/Default_Colour_Value"
+            app:defaultValue="120.0"
             />
 
 
@@ -91,7 +91,7 @@
             app:title="Other Marker Colour"
             app:entries="@array/Colour_Names"
             app:entryValues="@array/Colour_Values"
-            app:defaultValue="@string/Default_Colour_Value"
+            app:defaultValue="60.0"
             />
 
     </PreferenceCategory>
