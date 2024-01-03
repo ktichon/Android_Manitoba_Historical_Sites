@@ -154,6 +154,17 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         ListPreference lpOther = findPreference("Other");
         lpOther.setOnPreferenceChangeListener(onPreferenceChangeListener);
         lpOther.setSummary(getColourName(lpOther.getValue()));
+
+        EditTextPreference minCluster = findPreference(getString(R.string.min_cluster_key));
+        minCluster.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+            @Override
+            public boolean onPreferenceChange(@NonNull Preference preference, Object newValue) {
+                minCluster.setSummary(newValue.toString());
+                minCluster.setText( newValue.toString());
+                return false;
+            }
+        });
+        minCluster.setSummary(minCluster.getText());
     }
 
     Preference.OnPreferenceChangeListener onPreferenceChangeListener = new Preference.OnPreferenceChangeListener() {

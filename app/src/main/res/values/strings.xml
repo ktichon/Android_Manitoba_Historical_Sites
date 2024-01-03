@@ -52,6 +52,7 @@
     <string name="secondary_colour_key">secondary_colour_key</string>
     <string name="text_colour_key">text_colour_key</string>
     <string name="update_marker_key">update_marker_key</string>
+    <string name="min_cluster_key">min_cluster_key</string>
 
 
     <!-- Default maker colour (red) -->

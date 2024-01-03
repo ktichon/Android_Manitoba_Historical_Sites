@@ -1,5 +1,5 @@
-<PreferenceScreen
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
 
     <SwitchPreferenceCompat
         app:key="Night_Mode_Key"
@@ -8,10 +8,13 @@
 
 
 
-    <Preference
-        app:key="feedback"
-        app:title="Send feedback"
-        app:summary="Report technical issues or suggest new features"/>
+    <EditTextPreference
+        app:key="min_cluster_key"
+        app:title="Minimum Cluster Value"
+        android:inputType="number"
+        android:defaultValue="20"
+
+        />
 
     <PreferenceCategory
         app:key="set_colours"

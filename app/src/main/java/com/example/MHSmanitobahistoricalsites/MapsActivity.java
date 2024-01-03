@@ -25,6 +25,7 @@ import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Looper;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -36,6 +37,8 @@ import android.widget.Toast;
 
 import com.example.MHSmanitobahistoricalsites.Database.ManitobaHistoricalSite;
 import com.example.MHSmanitobahistoricalsites.HolderClasses.DisplayMode;
+import com.example.MHSmanitobahistoricalsites.HolderClasses.SiteClusterItem;
+import com.example.MHSmanitobahistoricalsites.HolderClasses.SiteClusterRenderer;
 import com.example.MHSmanitobahistoricalsites.HolderClasses.SiteFilter;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
@@ -49,9 +52,13 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.maps.android.clustering.Cluster;
+import com.google.maps.android.clustering.ClusterManager;
+import com.google.maps.android.clustering.algo.NonHierarchicalViewBasedAlgorithm;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -64,7 +71,7 @@ import io.reactivex.schedulers.Schedulers;
 
 
 public class MapsActivity extends AppCompatActivity
-        implements  OnMapReadyCallback, ActivityCompat.OnRequestPermissionsResultCallback, GoogleMap.OnMarkerClickListener
+        implements  OnMapReadyCallback, ActivityCompat.OnRequestPermissionsResultCallback
 {
 
     private GoogleMap mMap;
@@ -107,6 +114,7 @@ public class MapsActivity extends AppCompatActivity
 
     HashMap<Integer, Float> markerColoursPerType;
     List<Float> markerColours;
+    private ClusterManager<SiteClusterItem> mClusterManager;
 
 
 
@@ -428,7 +436,7 @@ public class MapsActivity extends AppCompatActivity
     public void onMapReady(GoogleMap googleMap) {
         try {
             mMap = googleMap;
-            mMap.setOnMarkerClickListener(this);
+           // mMap.setOnMarkerClickListener(this);
             //mMap.getUiSettings().setMapToolbarEnabled(false);
             //mMap.getUiSettings().setMyLocationButtonEnabled(false);
 
@@ -443,6 +451,7 @@ public class MapsActivity extends AppCompatActivity
             // Set Map colour from preference
             updateSetDisplayColours(PreferenceManager.getDefaultSharedPreferences(this).getBoolean(getString(R.string.night_mode_key), false));
 
+            //Enable location. If user location isn't null, move camera to user
             enableMyLocation();
             if (getUserLocation() != null) {
                 LatLng current = new LatLng(getUserLocation().getLatitude(), getUserLocation().getLongitude());
@@ -450,6 +459,44 @@ public class MapsActivity extends AppCompatActivity
                 viewModel.getCurrentLocation().setValue(getUserLocation());
 
             }
+
+            //Sets up Cluster Manager
+            mClusterManager = new ClusterManager<SiteClusterItem>(getApplicationContext(), mMap);
+
+            //Need to set the marker onclick listener in the cluster manager
+            mClusterManager.setOnClusterItemClickListener(new ClusterManager.OnClusterItemClickListener<SiteClusterItem>() {
+                @Override
+                public boolean onClusterItemClick(SiteClusterItem item) {
+                    try {
+                        int nextSiteIndex = item.getSiteID();
+                        Location siteLocation = new Location("");
+                        siteLocation.setLatitude(item.getPosition().latitude);
+                        siteLocation.setLongitude(item.getPosition().longitude);
+
+                        //ManitobaHistoricalSite newCurrentSite = allManitobaHistoricalSites.stream().filter(site -> site.getSite_id() == currentSiteIndex).findFirst().orElse(null);
+                        siteSelected(nextSiteIndex,siteLocation);
+                    }
+                    catch (Exception e)
+                    {
+                        Log.e("Error", "onClusterItemClick: Error getting new site\n" + e.getMessage());
+                    }
+                    return false;
+                }
+            });
+
+
+
+            //mClusterManager.setAnimation(false);
+            updateClusterManagerRender(Integer.valueOf(prefs.getString(getString(R.string.min_cluster_key), "20")));
+
+
+            DisplayMetrics metrics = new DisplayMetrics();
+            getWindowManager().getDefaultDisplay().getMetrics(metrics);
+            mClusterManager.setAlgorithm(new NonHierarchicalViewBasedAlgorithm<SiteClusterItem>(metrics.widthPixels, metrics.heightPixels));
+
+
+            mMap.setOnCameraIdleListener(mClusterManager);
+            mMap.setOnMarkerClickListener(mClusterManager);
 
             if (allManitobaHistoricalSites != null && allManitobaHistoricalSites.size() > 0)
             {
@@ -472,7 +519,9 @@ public class MapsActivity extends AppCompatActivity
         try {
             //Removes all markers from map before adding new ones
             mMap.clear();
-            allMarkers.clear();
+            mClusterManager.clearItems();
+
+
 
             for (ManitobaHistoricalSite site: sitesToAdd) {
                 Float markerColour = 0f;
@@ -480,14 +529,21 @@ public class MapsActivity extends AppCompatActivity
 //                    markerColour = markerColoursPerType.get(site.getMain_type());
                 if (site.getMain_type() > 0 && site.getMain_type() <= markerColours.size())
                     markerColour = markerColours.get((site.getMain_type() -1));
-                Marker newMarker = mMap.addMarker(new MarkerOptions().position(new LatLng(site.getLatitude(), site.getLongitude())).title(site.getName()).snippet(site.getAddress())
+                /*Marker newMarker = mMap.addMarker(new MarkerOptions().position(new LatLng(site.getLatitude(), site.getLongitude())).title(site.getName()).snippet(site.getAddress())
                         .icon(BitmapDescriptorFactory.defaultMarker(markerColour))
                         //.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.  	HUE_YELLOW 	 	))
                 );
                 newMarker.setTag(site.getSite_id());
-                allMarkers.add(newMarker);
+                allMarkers.add(newMarker);*/
+
+
+                SiteClusterItem newItem = new SiteClusterItem(new LatLng(site.getLatitude(), site.getLongitude()), site.getName(), site.getAddress(), site.getSite_id(), markerColour );
+                mClusterManager.addItem(newItem);
+
 
             }
+            mClusterManager.cluster();
+
             Toast.makeText(getApplicationContext(), "All sites have been added to the map", Toast.LENGTH_SHORT).show();
 
             //Stops app from loading data twice when opened
@@ -518,9 +574,10 @@ public class MapsActivity extends AppCompatActivity
         try {
             if (allMarkers!= null)
             {
-                for (Marker marker : allMarkers) {
+                for (Marker marker : mClusterManager.getMarkerCollection().getMarkers()) {
                     if (marker.getTag() != null && (int)marker.getTag() == displayId ) { //if a marker has desired tag
                         marker.showInfoWindow();
+
                     }
                 }
             }
@@ -532,7 +589,7 @@ public class MapsActivity extends AppCompatActivity
 
     }
 
-    //On marker click zoom to location and display data
+    /*//On marker click zoom to location and display data
     @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     public boolean onMarkerClick(Marker marker) {
@@ -554,7 +611,7 @@ public class MapsActivity extends AppCompatActivity
 
 
         return false;
-    }
+    }*/
 
     private void siteSelected(int nextSiteId, Location newLocation)
     {
@@ -693,10 +750,23 @@ public class MapsActivity extends AppCompatActivity
 
                     }
 
+                } else if (key.equals(getString(R.string.min_cluster_key))) {
+                    updateClusterManagerRender(Integer.valueOf(sharedPreferences.getString(key, "20")));
                 }
             }
         }
     };
+
+    //Updates the minimum cluster size
+    public void updateClusterManagerRender(int min)
+    {
+        if (mClusterManager != null)
+        {
+            SiteClusterRenderer customRender = new SiteClusterRenderer(this, mMap, mClusterManager);
+            customRender.setMinClusterSize(min);
+            mClusterManager.setRenderer(customRender);
+        }
+    }
 
 
 
