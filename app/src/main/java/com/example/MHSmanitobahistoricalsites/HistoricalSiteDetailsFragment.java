@@ -56,29 +56,32 @@ public class HistoricalSiteDetailsFragment extends Fragment {
     View mainView;
     private GestureDetector mDetector;
 
-    private ManitobaHistoricalSite currentSite;
+
 
     private final CompositeDisposable mDisposable = new CompositeDisposable();
 
     SharedPreferences prefs;
-    DisplayMode previousDisplayMode;
 
-    DisplayMode currentSiteDisplayMode = DisplayMode.SiteAndMap;
+    DisplayMode currentSiteDisplayMode = DisplayMode.FullMap;
     Boolean firstLoad = true;
 
 
+    TextView tvName;
+    TextView tvAddress;
+    TextView tvDescription;
+    TextView tvHistoricalSocietyLink;
+    TextView tvTypes;
+    ViewPager2 photoViewPager;
+    TextView tvSourceInfo;
+    NestedScrollView nsvMoreInfo;
+    TextView tvShowMoreInfo;
+    TextView tvDistance;
 
-    private static final String SITE_KEY = "current_historical_site_yehaw";
+    LinearLayout llDetails;
+    LinearLayout llShowMoreInfo;
+    AppCompatButton btnClose;
 
-    //Allows historical site to be passed in away the allows back-button
-    public static HistoricalSiteDetailsFragment newInstance(int site_id) {
-        Bundle args = new Bundle();
-        args.putInt(SITE_KEY, site_id);
-        HistoricalSiteDetailsFragment fragment = new HistoricalSiteDetailsFragment();
-        fragment.setArguments(args);
-        return fragment;
 
-    }
 
 
 
@@ -102,13 +105,7 @@ public class HistoricalSiteDetailsFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         mainView = view;
         mViewModel = new ViewModelProvider(requireActivity()).get(HistoricalSiteDetailsViewModel.class);
-        previousDisplayMode = mViewModel.getDisplayMode().getValue();
-        setCurrentSiteDisplayMode(currentSiteDisplayMode);
 
-
-        int site_id  =  1001;
-        if (getArguments() != null)
-            site_id = getArguments().getInt(SITE_KEY);
 
         llDetailsContainer = mainView.findViewById(R.id.llDetailsContainer);
         llDetailsContainer.setVisibility(View.GONE);
@@ -118,20 +115,19 @@ public class HistoricalSiteDetailsFragment extends Fragment {
         //Set up Gesture listener
 
         mDetector = new GestureDetector(mainView.getContext(), new MyGestureListener());
-        LinearLayout llDetails = mainView.findViewById(R.id.llDetails);
+        llDetails = mainView.findViewById(R.id.llDetails);
         llDetails.setOnTouchListener((view1, motionEvent) -> mDetector.onTouchEvent(motionEvent));
 
 
-        //Set button presses to link to Manitoba Historical Society Site
-        TextView tvHistoricalSocietyLink = mainView.findViewById(R.id.tvManitobaHistoricalSociety);
-        tvHistoricalSocietyLink.setOnClickListener(v -> openWebPage(currentSite.getSite_url()));
+
+
 
 
 
 
 
         //Set up way to expand and collapse the more info (without swiping)
-        LinearLayout llShowMoreInfo = mainView.findViewById(R.id.llShowMore);
+        llShowMoreInfo = mainView.findViewById(R.id.llShowMore);
 
         llShowMoreInfo.setOnClickListener(v -> {
             DisplayMode oldDisplayMode = mViewModel.getDisplayMode().getValue();
@@ -144,15 +140,32 @@ public class HistoricalSiteDetailsFragment extends Fragment {
 
         });
 
+
         //Close button, on click sets the map fragment to full screen
-        AppCompatButton btnClose = (AppCompatButton) mainView.findViewById(R.id.btnClose);
+        btnClose = mainView.findViewById(R.id.btnClose);
         btnClose.setOnClickListener(v -> {
-            setCurrentSiteDisplayMode(DisplayMode.FullMap);
+            mViewModel.setCurrentSite(null);
             /*FragmentManager fm = requireActivity().getSupportFragmentManager();
             fm.popBackStack(getString(R.string.site_fragment), FragmentManager.POP_BACK_STACK_INCLUSIVE);*/
 
             //mViewModel.setCurrentSite(null);
         });
+
+
+
+        //Might as well get these text fields once, instead of every time a new site is loaded
+        tvName = mainView.findViewById(R.id.tvName);
+        tvAddress = mainView.findViewById(R.id.tvAddress);
+        tvDescription = mainView.findViewById(R.id.tvDescription);
+        tvHistoricalSocietyLink = mainView.findViewById(R.id.tvManitobaHistoricalSociety);
+        tvTypes = mainView.findViewById(R.id.tvTypes);
+        photoViewPager = mainView.findViewById(R.id.viewpager);
+        tvSourceInfo = mainView.findViewById(R.id.tvSourceInfo);
+        nsvMoreInfo = mainView.findViewById(R.id.nsvMoreInfo);
+        tvShowMoreInfo = mainView.findViewById(R.id.tvShowMoreInfo);
+        tvDistance = mainView.findViewById(R.id.tvDistance);
+
+
 
 
 
@@ -165,9 +178,11 @@ public class HistoricalSiteDetailsFragment extends Fragment {
         // Updates the "# away" textbox whenever the location changes
         mViewModel.getCurrentLocation().observe(getViewLifecycleOwner(), location -> displaySiteDistance(location));
 
+        mViewModel.getCurrentSite().observe(getViewLifecycleOwner(), site -> historicalSiteChanged(site));
+
 
         //Get Site info
-        mDisposable.add(
+        /*mDisposable.add(
                 mViewModel.getHistoricalSiteDatabase().manitobaHistoricalSiteDao().getManitobaHistoricalSite(site_id)
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
@@ -195,7 +210,7 @@ public class HistoricalSiteDetailsFragment extends Fragment {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe( siteSources -> displaySiteSources( siteSources),
                         throwable ->  Toast.makeText(getContext(), "Error retrieving site sources", Toast.LENGTH_SHORT).show()
-                ));
+                ));*/
 
         prefs = PreferenceManager.getDefaultSharedPreferences(requireContext());
         prefs.registerOnSharedPreferenceChangeListener(preferenceChangeListener);
@@ -205,32 +220,77 @@ public class HistoricalSiteDetailsFragment extends Fragment {
 
     }
 
+    //There is no reason to create a new fragment to the stack when a marker is clicked. It causes a lot of problems in navigation, all for the ability to press the back button and get the previous site.
+    //A feature that will not even work on apple devices. Instead, there will only be one details fragment, and it will be updated when the new current site is selected.
+    public void historicalSiteChanged(ManitobaHistoricalSite site){
+        try {
+
+            mDisposable.clear();
+            if (site != null)
+            {
+                try {
+                    displayHistoricalSiteInfo(site);
+                    mDisposable.add(mViewModel.getHistoricalSiteDatabase().siteTypeDao().getAllSiteTypesForSite(site.getSite_id())
+                            .subscribeOn(Schedulers.io())
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribe( siteTypes -> displaySiteType( siteTypes),
+                                    throwable ->  Toast.makeText(getContext(), "Error retrieving site types", Toast.LENGTH_SHORT).show()
+                            ));
+
+                    mDisposable.add(mViewModel.getHistoricalSiteDatabase().sitePhotosDao().getAllSitePhotosForSite(site.getSite_id())
+                            .subscribeOn(Schedulers.io())
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribe( sitePhotos -> displaySitePhoto( sitePhotos),
+                                    throwable ->  Toast.makeText(getContext(), "Error retrieving site photos", Toast.LENGTH_SHORT).show()
+                            ));
+
+                    mDisposable.add(mViewModel.getHistoricalSiteDatabase().siteSourceDao().getAllSiteSourcesForSite(site.getSite_id())
+                            .subscribeOn(Schedulers.io())
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribe( siteSources -> displaySiteSources( siteSources),
+                                    throwable ->  Toast.makeText(getContext(), "Error retrieving site sources", Toast.LENGTH_SHORT).show()
+                            ));
+
+                } catch (Exception e)
+                {
+                    Log.e("Error", "historicalSiteChanged GettingInfo: Error updating info for new site\n" + e.getMessage());
+                }
+            }
+
+
+        }
+        catch (Exception e)
+        {
+            Log.e("Error", "historicalSiteChanged: Error updating info for new site\n" + e.getMessage());
+        }
+    }
+
 
     //Gets and displays info for Manitoba Historical Site
     public void displayHistoricalSiteInfo(ManitobaHistoricalSite site)
     {
         try {
-            currentSite = site;
-            mViewModel.setCurrentSite(currentSite);
+
             llDetailsContainer.setVisibility(View.VISIBLE);
-            ((TextView) mainView.findViewById(R.id.tvName)).setText(site.getName());
+            tvName.setText(site.getName());
             displaySiteDistance(mViewModel.getCurrentLocation().getValue());
 
             //Some sites don't have an address, only coordinates. This is to make sure that the  ", " only shows up if the site has an address
             String address = site.getAddress() == null || site.getAddress().trim().isEmpty()? "":  site.getAddress() + ", ";
             address += site.getMunicipality();
-            ((TextView) mainView.findViewById(R.id.tvAddress)).setText(address);
+            tvAddress.setText(address);
             setSmall(mViewModel.getDisplayMode().getValue());
 
             //Hopefully makes the description more readable
             String formattedDescription = site.getDescription().replace("\n", "\n\n"); //.replace("\n", "<br>");
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                ((TextView) mainView.findViewById(R.id.tvDescription)).setText(Html.fromHtml(formattedDescription, Html.TO_HTML_PARAGRAPH_LINES_INDIVIDUAL));
+                tvDescription.setText(Html.fromHtml(formattedDescription, Html.TO_HTML_PARAGRAPH_LINES_INDIVIDUAL));
             } else {
-                ((TextView) mainView.findViewById(R.id.tvDescription)).setText(Html.fromHtml(formattedDescription));
+                tvDescription.setText(Html.fromHtml(formattedDescription));
             }
-            //((TextView) mainView.findViewById(R.id.tvDescription)).setText(formattedDescription);
-            ((TextView) mainView.findViewById(R.id.tvDescription)).setMovementMethod(LinkMovementMethod.getInstance());
+
+            tvDescription.setMovementMethod(LinkMovementMethod.getInstance());
+            tvHistoricalSocietyLink.setOnClickListener(v -> startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(site.getSite_url()))));
         }
         catch (Exception e)
         {
@@ -253,7 +313,7 @@ public class HistoricalSiteDetailsFragment extends Fragment {
                 }
                 String displayTypes = allTypes.substring(0, allTypes.length() - 1).replace("%2F", " or ");
 
-                ((TextView) mainView.findViewById(R.id.tvTypes)).setText(displayTypes);
+                tvTypes.setText(displayTypes);
 
 
             }
@@ -267,19 +327,19 @@ public class HistoricalSiteDetailsFragment extends Fragment {
     //Sets up the ViewPager to use the site photos
     public void displaySitePhoto(List<SitePhotos> sitePhotos)
     {
-        ViewPager2 viewPager2 = mainView.findViewById(R.id.viewpager);
         try {
-            SiteImagesAdapter adapter = new SiteImagesAdapter(sitePhotos, viewPager2, getContext());
-            viewPager2.setAdapter(adapter);
+
+            SiteImagesAdapter adapter = new SiteImagesAdapter(sitePhotos, photoViewPager, getContext());
+            photoViewPager.setAdapter(adapter);
 
             //Page height can vary, this re updates the height when a new image is shown
-            viewPager2.setPageTransformer(new ViewPager2.PageTransformer() {
+            photoViewPager.setPageTransformer(new ViewPager2.PageTransformer() {
                 @Override
                 public void transformPage(@NonNull View page, float position) {
                     if (firstLoad)
                         firstLoad = false;
                     else
-                        updateViewPagerHeight(page, viewPager2);
+                        updateViewPagerHeight(page, photoViewPager);
                 }
             });
 
@@ -329,11 +389,11 @@ public class HistoricalSiteDetailsFragment extends Fragment {
             }
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                ((TextView) mainView.findViewById(R.id.tvSourceInfo)).setText(Html.fromHtml(displaySource.toString(), Html.FROM_HTML_MODE_COMPACT));
+                tvSourceInfo.setText(Html.fromHtml(displaySource.toString(), Html.FROM_HTML_MODE_COMPACT));
             } else {
-                ((TextView) mainView.findViewById(R.id.tvSourceInfo)).setText(Html.fromHtml(displaySource.toString()));
+                tvSourceInfo.setText(Html.fromHtml(displaySource.toString()));
             }
-            ((TextView) mainView.findViewById(R.id.tvSourceInfo)).setMovementMethod(LinkMovementMethod.getInstance());
+            tvSourceInfo.setMovementMethod(LinkMovementMethod.getInstance());
         }
         catch (Exception e)
         {
@@ -341,27 +401,10 @@ public class HistoricalSiteDetailsFragment extends Fragment {
         }
     }
 
-
-    //Opens the web view activity and display the short or long link
-    public void openWebPage(String url) {
-        //url = "https://developer.android.com/reference/android/webkit/WebView";
-        if (TextUtils.isEmpty(url)) {
-            Toast.makeText(mainView.getContext(), "There is no addition information about the historic site " + currentSite.getName() + " in this app.", Toast.LENGTH_SHORT).show();
-        } else {
-            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-            startActivity(browserIntent);
-
-
-        }
-    }
-
-    //if the display is smoll, display no links
+    //if the display is smoll, hide the nested scroll view (that contains photos, description, and sources)
     private void setSmall(DisplayMode displayMode)
     {
-//
-        NestedScrollView nsvMoreInfo =  (NestedScrollView) mainView.findViewById(R.id.nsvMoreInfo);
         nsvMoreInfo.setVisibility(displayMode == DisplayMode.FullDetail ? View.VISIBLE : View.GONE );
-        TextView tvShowMoreInfo = mainView.findViewById(R.id.tvShowMoreInfo);
         tvShowMoreInfo.setText(displayMode == DisplayMode.FullDetail ?  R.string.show_less : R.string.show_more);
         int showInfoArrow = displayMode == DisplayMode.FullDetail ? R.drawable.arrow_down : R.drawable.arrow_up;
         tvShowMoreInfo.setCompoundDrawablesWithIntrinsicBounds(0, 0, showInfoArrow, 0);
@@ -371,12 +414,13 @@ public class HistoricalSiteDetailsFragment extends Fragment {
     private void displaySiteDistance(Location userLocation)
     {
         try{
-            if (userLocation != null && this.currentSite != null)
+            ManitobaHistoricalSite currentSite = mViewModel.getCurrentSite().getValue();
+            if (userLocation != null && currentSite != null)
             {
-                float distance = this.currentSite.getLocation().distanceTo(userLocation) ;
+                float distance = currentSite.getLocation().distanceTo(userLocation) ;
                 //If distance is >= 1000, display kilometers. Else display meters.
                 String distanceText = (distance >= 1000? String.format( Locale.CANADA, "%.2f",distance/1000) + " km": String.format(Locale.CANADA,"%.2f",distance) + " m") + " away";
-                ((TextView) mainView.findViewById(R.id.tvDistance)).setText( distanceText );
+                tvDistance.setText( distanceText );
             }
 
         } catch (Exception e)
@@ -398,7 +442,7 @@ public class HistoricalSiteDetailsFragment extends Fragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        mViewModel.setDisplayMode(previousDisplayMode);
+        //mViewModel.setDisplayMode(previousDisplayMode);
     }
 
     @Override
@@ -410,11 +454,11 @@ public class HistoricalSiteDetailsFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        if (currentSite != null)
+        /*if (currentSite != null)
         {
             mViewModel.setDisplayMode(currentSiteDisplayMode);
             displayHistoricalSiteInfo(currentSite);
-        }
+        }*/
         prefs.registerOnSharedPreferenceChangeListener(preferenceChangeListener);
 
 

@@ -31,8 +31,14 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     private EditTextPreference pTextColour;
 
 
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        mViewModel = new ViewModelProvider(requireActivity()).get(HistoricalSiteDetailsViewModel.class);
 
-
+        //Stores the old display mode,
+        previousDisplayMode = mViewModel.getDisplayMode().getValue();
+    }
 
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
@@ -43,11 +49,8 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         mainView = view;
-        mViewModel = new ViewModelProvider(requireActivity()).get(HistoricalSiteDetailsViewModel.class);
 
-        //Stores the old display mode,
-        previousDisplayMode = mViewModel.getDisplayMode().getValue();
-        mViewModel.setDisplayMode(DisplayMode.FullDetail);
+
 
 
         pBackgroundColour = findPreference(getString(R.string.background_colour_key));
@@ -209,7 +212,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     @Override
     public void onResume() {
         super.onResume();
-        mViewModel.setDisplayMode(DisplayMode.FullDetail);
+        mViewModel.setDisplayMode(DisplayMode.Other);
     }
 
 

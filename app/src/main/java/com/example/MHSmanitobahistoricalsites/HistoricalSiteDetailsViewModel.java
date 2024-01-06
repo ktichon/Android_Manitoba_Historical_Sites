@@ -22,6 +22,7 @@ public class HistoricalSiteDetailsViewModel extends ViewModel {
     private SavedStateHandle state;
 
     private HistoricalSiteDatabase historicalSiteDatabase;
+    private MutableLiveData<Boolean> searched;
 
 
 
@@ -33,6 +34,7 @@ public class HistoricalSiteDetailsViewModel extends ViewModel {
         this.currentLocation = new MutableLiveData<Location>();
         this.displayMode = new MutableLiveData<DisplayMode>();
         this.siteFiler = new MutableLiveData<SiteFilter>();
+        this.searched = new MutableLiveData<Boolean>();
     }
 
 
@@ -83,5 +85,14 @@ public class HistoricalSiteDetailsViewModel extends ViewModel {
     public void setSiteFilters(SiteFilter siteFiler)
     {
         this.siteFiler.setValue(siteFiler);
+    }
+
+    public MutableLiveData<Boolean> getSearched() {
+        return searched;
+    }
+
+    public void setsearched(Boolean searched)
+    {
+        this.searched.setValue(searched);
     }
 }

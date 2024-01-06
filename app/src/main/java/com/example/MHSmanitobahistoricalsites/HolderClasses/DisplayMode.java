@@ -4,4 +4,5 @@ public enum DisplayMode {
     FullMap,
     FullDetail,
     SiteAndMap,
+    Other,
 }

@@ -33,7 +33,7 @@ public class SiteClusterRenderer extends DefaultClusterRenderer<SiteClusterItem>
         marker.setTitle(item.getTitle());
         marker.setSnippet(item.getSnippet());
         marker.setIcon(BitmapDescriptorFactory.defaultMarker(item.getColour()));
-        marker.setTag(item.getSiteID());
+        marker.setTag(item.getHistoricalSite().getSite_id());
         super.onClusterItemUpdated(item, marker);
     }
 

@@ -2,7 +2,6 @@ package com.example.MHSmanitobahistoricalsites;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
@@ -22,7 +21,6 @@ import android.graphics.Color;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Looper;
 import android.util.DisplayMetrics;
@@ -50,17 +48,15 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.maps.android.clustering.Cluster;
+import com.google.maps.android.clustering.ClusterItem;
 import com.google.maps.android.clustering.ClusterManager;
 import com.google.maps.android.clustering.algo.NonHierarchicalViewBasedAlgorithm;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
@@ -79,9 +75,6 @@ public class MapsActivity extends AppCompatActivity
     private List<ManitobaHistoricalSite> allManitobaHistoricalSites;
     private List<Marker> allMarkers;
 
-
-
-    private ManitobaHistoricalSite currentSite;
 
     private Toolbar mToolbar;
     private boolean cameraFollow = false;
@@ -105,7 +98,7 @@ public class MapsActivity extends AppCompatActivity
 
     private final CompositeDisposable mDisposable = new CompositeDisposable();
 
-    private final int cameraZoom = 16;
+    private final float cameraZoom = 16;
 
     SharedPreferences prefs;
 
@@ -115,6 +108,14 @@ public class MapsActivity extends AppCompatActivity
     HashMap<Integer, Float> markerColoursPerType;
     List<Float> markerColours;
     private ClusterManager<SiteClusterItem> mClusterManager;
+
+
+    FragmentContainerView  mapFragmentContainerView;
+    FragmentContainerView detailFragmentContainerView;
+    FragmentContainerView otherFragmentContainerView;
+
+
+
 
 
 
@@ -198,13 +199,24 @@ public class MapsActivity extends AppCompatActivity
         //Location stuff
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         viewModel = new ViewModelProvider(this).get(HistoricalSiteDetailsViewModel.class);
+        viewModel.setsearched(false);
         viewModel.setHistoricalSiteDatabase(getApplicationContext());
         viewModel.getCurrentSite().observe(this, changedSite -> {
             try {
-                currentSite = changedSite;
-                moveCameraToLocation(currentSite.getLocation());
-                viewModel.setCurrentLocation(getUserLocation());
-                displayMarkerInfo(currentSite.getSite_id());
+                if (changedSite == null)
+                {
+                    viewModel.setDisplayMode(DisplayMode.FullMap);
+                }
+                else
+                {
+                    moveCameraToLocation(changedSite.getLocation(), viewModel.getSearched().getValue());
+                    viewModel.setCurrentLocation(getUserLocation());
+                    viewModel.setDisplayMode(DisplayMode.SiteAndMap);
+
+                    //displayMarkerInfo(currentSite.getSite_id());
+                }
+
+
             } catch (Exception e) {
                 Log.e("Error", "UpdateCurrentPositonToBeCurrentSite: Error updating the map to reflect the viewmodel\n" + e.getMessage());
             }
@@ -212,9 +224,9 @@ public class MapsActivity extends AppCompatActivity
 
         });
 
-        //Set the default value of the details display height
-        viewModel.setDisplayMode(DisplayMode.FullMap);
+
         viewModel.getDisplayMode().observe(this, displayMode -> updateDisplayHeight(displayMode));
+
 
         //Set up filters on view model
         viewModel.setSiteFilters(new SiteFilter());
@@ -243,6 +255,16 @@ public class MapsActivity extends AppCompatActivity
             }
         });
 
+        mapFragmentContainerView = (FragmentContainerView) findViewById(R.id.fcvMap);
+        detailFragmentContainerView = (FragmentContainerView) findViewById(R.id.fcvDetails);
+        otherFragmentContainerView = (FragmentContainerView) findViewById(R.id.fcvOther);
+        fragmentManager.beginTransaction()
+                .replace(R.id.fcvDetails, HistoricalSiteDetailsFragment.class, null)
+                .setReorderingAllowed(true)
+                .commit();
+        viewModel.setDisplayMode(DisplayMode.FullMap);
+
+
 
 
 
@@ -251,6 +273,7 @@ public class MapsActivity extends AppCompatActivity
         loadManitobaHistoricalSiteData();
         //Then load map. I think it takes longer
         loadMap();
+
     }
 
     //Set up menu
@@ -273,11 +296,11 @@ public class MapsActivity extends AppCompatActivity
                 } else {
                     this.cameraFollow = true;
                     item.setIcon(R.drawable.ic_camera_follow);
-                    moveCameraToLocation(getUserLocation());
+                    moveCameraToLocation(getUserLocation(), false);
                 }
             } else if (item.getItemId() == R.id.itAbout) {
                 fragmentManager.beginTransaction()
-                        .replace(R.id.fcvDetails, AboutFragment.class, null)
+                        .replace(R.id.fcvOther, AboutFragment.class, null)
                         .setReorderingAllowed(true)
                         .addToBackStack(null) // name can be null
                         .commit();
@@ -286,14 +309,14 @@ public class MapsActivity extends AppCompatActivity
             } else if (item.getItemId() == R.id.itFilters) {
                 fragmentManager.popBackStack(getString(R.string.site_fragment), FragmentManager.POP_BACK_STACK_INCLUSIVE);
                 fragmentManager.beginTransaction()
-                        .replace(R.id.fcvDetails, FilterFragment.class, null)
+                        .replace(R.id.fcvOther, FilterFragment.class, null)
                         .setReorderingAllowed(true)
                         .addToBackStack(null) // name can be null
                         .commit();
             } else if (item.getItemId() == R.id.itSearch) {
                 fragmentManager.beginTransaction()
 
-                        .replace(R.id.fcvDetails, SearchFragment.class, null)
+                        .replace(R.id.fcvOther, SearchFragment.class, null)
                         .setReorderingAllowed(true)
                         .addToBackStack(null) // name can be null
                         .commit();
@@ -302,7 +325,7 @@ public class MapsActivity extends AppCompatActivity
             else if (item.getItemId() == R.id.itSettings) {
                 fragmentManager.beginTransaction()
 
-                        .replace(R.id.fcvDetails, new SettingsFragment(), null)
+                        .replace(R.id.fcvOther, new SettingsFragment(), null)
                         .setReorderingAllowed(true)
                         .addToBackStack(null) // name can be null
                         .commit();
@@ -400,7 +423,7 @@ public class MapsActivity extends AppCompatActivity
                 if (goToFirst && sites.size() > 0)
                 {
                     ManitobaHistoricalSite firstSite = allManitobaHistoricalSites.get(0);
-                    moveCameraToLocation(firstSite.getLocation());
+                    moveCameraToLocation(firstSite.getLocation(),  false);
                     //moveCameraToLocation(firstSite.getLocation());
                 }
 
@@ -468,13 +491,9 @@ public class MapsActivity extends AppCompatActivity
                 @Override
                 public boolean onClusterItemClick(SiteClusterItem item) {
                     try {
-                        int nextSiteIndex = item.getSiteID();
-                        Location siteLocation = new Location("");
-                        siteLocation.setLatitude(item.getPosition().latitude);
-                        siteLocation.setLongitude(item.getPosition().longitude);
-
-                        //ManitobaHistoricalSite newCurrentSite = allManitobaHistoricalSites.stream().filter(site -> site.getSite_id() == currentSiteIndex).findFirst().orElse(null);
-                        siteSelected(nextSiteIndex,siteLocation);
+                        //If it is a new site, update current site
+                        if (viewModel.getCurrentSite().getValue() != item.getHistoricalSite())
+                            viewModel.setCurrentSite(item.getHistoricalSite());
                     }
                     catch (Exception e)
                     {
@@ -537,7 +556,7 @@ public class MapsActivity extends AppCompatActivity
                 allMarkers.add(newMarker);*/
 
 
-                SiteClusterItem newItem = new SiteClusterItem(new LatLng(site.getLatitude(), site.getLongitude()), site.getName(), site.getAddress(), site.getSite_id(), markerColour );
+                SiteClusterItem newItem = new SiteClusterItem(site, markerColour );
                 mClusterManager.addItem(newItem);
 
 
@@ -567,91 +586,49 @@ public class MapsActivity extends AppCompatActivity
 
 
 
-    //Displays marker title specific historical site, used in 'Search' and on current site fragment backspace
-    // used in onCreate
-    private void displayMarkerInfo(int displayId)
-    {
-        try {
-            if (allMarkers!= null)
-            {
-                for (Marker marker : mClusterManager.getMarkerCollection().getMarkers()) {
-                    if (marker.getTag() != null && (int)marker.getTag() == displayId ) { //if a marker has desired tag
-                        marker.showInfoWindow();
-
-                    }
-                }
-            }
-        }
-        catch (Exception e)
-        {
-            Toast.makeText(getApplicationContext(), "Error getting marker info", Toast.LENGTH_SHORT).show();
-        }
-
-    }
-
-    /*//On marker click zoom to location and display data
-    @RequiresApi(api = Build.VERSION_CODES.N)
-    @Override
-    public boolean onMarkerClick(Marker marker) {
-        try {
-            int nextSiteIndex = marker.getTag() != null? (int) marker.getTag(): 0;
-            Location siteLocation = new Location("");
-            siteLocation.setLatitude(marker.getPosition().latitude);
-            siteLocation.setLongitude(marker.getPosition().longitude);
-
-            //ManitobaHistoricalSite newCurrentSite = allManitobaHistoricalSites.stream().filter(site -> site.getSite_id() == currentSiteIndex).findFirst().orElse(null);
-            siteSelected(nextSiteIndex,siteLocation);
-        }
-        catch (Exception e)
-        {
-            Log.e("Error", "onMarkerClick: Error getting new site\n" + e.getMessage());
-        }
+//    //Displays marker title specific historical site, used in 'Search' and on current site fragment backspace
+//    // used in onCreate
+//    //No longer works, as clustering means only a few markers are created at a time
+//    private void displayMarkerInfo(int displayId)
+//    {
+//        try {
+//
+//            if (mClusterManager.getMarkerCollection().getMarkers().size() > 0)
+//            {
+//
+//
+//                for (Marker marker : mClusterManager.getMarkerCollection().getMarkers()) {
+//                    //int tag = (int) marker.getTag();
+//                    if (marker.getTag() != null && (int)marker.getTag() == displayId ) { //if a marker has desired tag
+//                        marker.showInfoWindow();
+//
+//                    }
+//                }
+//            }
+//        }
+//        catch (Exception e)
+//        {
+//            Toast.makeText(getApplicationContext(), "Error getting marker info", Toast.LENGTH_SHORT).show();
+//        }
+//
+//    }
 
 
 
 
-        return false;
-    }*/
-
-    private void siteSelected(int nextSiteId, Location newLocation)
-    {
-        try {
-            //removed for testing
-
-                /*currentSite = nextSite;
-                viewModel.setCurrentSite(currentSite);*/
-
-                Fragment newFragment = HistoricalSiteDetailsFragment.newInstance(nextSiteId);
-
-                fragmentManager.beginTransaction()
-                        //.replace(R.id.fcvDetails, HistoricalSiteDetailsFragment.class, null)
-                        /*.setCustomAnimations(
-                                R.anim.slide_in,  // enter
-                                R.anim.fade_out,  // exit
-                                R.anim.fade_in,   // popEnter
-                                R.anim.slide_out  // popExit
-                        )*/
-                        .replace(R.id.fcvDetails, newFragment, null)
-                        .setReorderingAllowed(true)
-                        .addToBackStack(getString(R.string.site_fragment))
-                        .commit();
-
-            moveCameraToLocation(newLocation);
-        }
-        catch (Exception e)
-        {
-            Log.e("Error", "siteSelected: Error getting details of site id" + nextSiteId +"\n" + e.getMessage());
-        }
-
-
-    }
 
     //Moves camera to new location
-    private void moveCameraToLocation(Location newLocation)
+    private void moveCameraToLocation(Location newLocation, boolean searched)
     {
         try {
             LatLng userLatLng = new LatLng(newLocation.getLatitude(), newLocation.getLongitude());
-            mMap.animateCamera(CameraUpdateFactory.newLatLng(userLatLng));
+            if (searched)
+            {
+                viewModel.setsearched(false);
+                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(userLatLng, cameraZoom));
+            }
+            else
+                mMap.animateCamera(CameraUpdateFactory.newLatLng(userLatLng));
         }
         catch (Exception e)
         {
@@ -667,30 +644,37 @@ public class MapsActivity extends AppCompatActivity
         try {
             float mapWeight = 0;
             float detailWeight = 0;
+            float otherWeight = 0;
+            otherFragmentContainerView.setVisibility(View.GONE);
 
-            FragmentContainerView  mapView = (FragmentContainerView) findViewById(R.id.fcvMap);
-            FragmentContainerView detailView = (FragmentContainerView) findViewById(R.id.fcvDetails);
+
 
             //Sets the layout_weight for the active fragment container
             switch (displayMode)
             {
                 case FullMap:
                     mapWeight = 1;
-                    mapView.setVisibility(View.VISIBLE);
-                    detailView.setVisibility(View.GONE);
+                    mapFragmentContainerView.setVisibility(View.VISIBLE);
+                    detailFragmentContainerView.setVisibility(View.GONE);
                     break;
                 case FullDetail:
                     detailWeight = 1;
-                    mapView.setVisibility(View.GONE);
-                    detailView.setVisibility(View.VISIBLE);
+                    mapFragmentContainerView.setVisibility(View.GONE);
+                    detailFragmentContainerView.setVisibility(View.VISIBLE);
                     break;
 
                 case SiteAndMap:
                     mapWeight = Float.parseFloat(getString(R.string.display_both_map));
                     detailWeight = Float.parseFloat(getString(R.string.display_both_details));
-                    mapView.setVisibility(View.VISIBLE);
-                    detailView.setVisibility(View.VISIBLE);
+                    mapFragmentContainerView.setVisibility(View.VISIBLE);
+                    detailFragmentContainerView.setVisibility(View.VISIBLE);
                     break;
+
+                case Other:
+                    otherWeight = 1;
+                    mapFragmentContainerView.setVisibility(View.GONE);
+                    detailFragmentContainerView.setVisibility(View.GONE);
+                    otherFragmentContainerView.setVisibility(View.VISIBLE);
 
             }
 
@@ -702,12 +686,15 @@ public class MapsActivity extends AppCompatActivity
             try {
 
 
-                LinearLayout.LayoutParams mapViewLayoutParams =  (LinearLayout.LayoutParams) mapView.getLayoutParams();
-                LinearLayout.LayoutParams detailViewParams =  (LinearLayout.LayoutParams) detailView.getLayoutParams();
+                LinearLayout.LayoutParams mapViewLayoutParams =   (LinearLayout.LayoutParams) mapFragmentContainerView.getLayoutParams();
+                LinearLayout.LayoutParams detailViewParams =  (LinearLayout.LayoutParams) detailFragmentContainerView.getLayoutParams();
+                LinearLayout.LayoutParams otherViewParams =  (LinearLayout.LayoutParams) otherFragmentContainerView.getLayoutParams();
                 mapViewLayoutParams.weight = mapWeight;
                 detailViewParams.weight = detailWeight;
-                mapView.setLayoutParams(mapViewLayoutParams);
-                detailView.setLayoutParams(detailViewParams);
+                otherViewParams.weight = otherWeight;
+                mapFragmentContainerView.setLayoutParams(mapViewLayoutParams);
+                detailFragmentContainerView.setLayoutParams(detailViewParams);
+                otherFragmentContainerView.setLayoutParams(otherViewParams);
 
              }
             catch (Exception e)
@@ -801,7 +788,7 @@ public class MapsActivity extends AppCompatActivity
     private void updateBackgroundColour(String colour)
     {
         try {
-            int [] layoutIds = {R.id.root, R.id.tbMain, R.id.llDisplaySpacing, R.id.fcvDetails};
+            int [] layoutIds = {R.id.root, R.id.tbMain, R.id.llDisplaySpacing, R.id.fcvOther};
             for (int id: layoutIds ) {
                 findViewById(id).setBackgroundColor(Color.parseColor(colour));
 
@@ -1004,7 +991,7 @@ public class MapsActivity extends AppCompatActivity
                         viewModel.getCurrentLocation().setValue(newLocation);
                         if (cameraFollow && mMap != null)
                         {
-                            moveCameraToLocation(newLocation);
+                            moveCameraToLocation(newLocation, false);
                         }
                     }
                 }

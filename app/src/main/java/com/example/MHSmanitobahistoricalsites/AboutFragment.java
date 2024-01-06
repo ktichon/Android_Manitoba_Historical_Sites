@@ -33,6 +33,9 @@ public class AboutFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mViewModel = new ViewModelProvider(requireActivity()).get(HistoricalSiteDetailsViewModel.class);
+        //Stores the old display mode,
+        previousDisplayMode = mViewModel.getDisplayMode().getValue();
 
     }
 
@@ -47,11 +50,10 @@ public class AboutFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         mainView = view;
-        mViewModel = new ViewModelProvider(requireActivity()).get(HistoricalSiteDetailsViewModel.class);
 
-        //Stores the old display mode,
-        previousDisplayMode = mViewModel.getDisplayMode().getValue();
-        mViewModel.setDisplayMode(DisplayMode.FullDetail);
+
+
+        //mViewModel.setDisplayMode(DisplayMode.Other);
         TextView tvBack = mainView.findViewById(R.id.tvAboutGoBack);
         tvBack.setOnClickListener(v -> {
             FragmentManager fm = requireActivity().getSupportFragmentManager();
@@ -62,7 +64,7 @@ public class AboutFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        mViewModel.setDisplayMode(DisplayMode.FullDetail);
+        mViewModel.setDisplayMode(DisplayMode.Other);
     }
 
 

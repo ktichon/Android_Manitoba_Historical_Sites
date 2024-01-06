@@ -2,6 +2,7 @@ package com.example.MHSmanitobahistoricalsites;
 
 import android.os.Bundle;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
@@ -66,6 +67,10 @@ public class FilterFragment extends Fragment {
 
     DisplayMode previousDisplayMode;
 
+    OnBackPressedCallback fullScreenCallback;
+
+
+
 
 
 
@@ -79,6 +84,20 @@ public class FilterFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mViewModel = new ViewModelProvider(requireActivity()).get(HistoricalSiteDetailsViewModel.class);
+        previousDisplayMode = mViewModel.getDisplayMode().getValue();
+        fullScreenCallback = new OnBackPressedCallback(false) {
+            @Override
+            public void handleOnBackPressed() {
+                mViewModel.setDisplayMode(DisplayMode.Other);
+                setEnabled(false);
+            }
+        };
+
+        requireActivity().getOnBackPressedDispatcher().addCallback(this, fullScreenCallback);
+        originalFilters = new SiteFilter();
+        if (mViewModel.getSiteFilters().getValue() != null)
+            originalFilters = mViewModel.getSiteFilters().getValue();
 
     }
 
@@ -94,15 +113,12 @@ public class FilterFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         mainView = view;
-        mViewModel = new ViewModelProvider(requireActivity()).get(HistoricalSiteDetailsViewModel.class);
-        previousDisplayMode = mViewModel.getDisplayMode().getValue();
-        mViewModel.setDisplayMode(DisplayMode.FullDetail);
+
+        //mViewModel.setDisplayMode(DisplayMode.Other);
 
         allTypes = getResources().getStringArray(R.array.Site_Types);
 
-        originalFilters = new SiteFilter();
-        if (mViewModel.getSiteFilters().getValue() != null)
-            originalFilters = mViewModel.getSiteFilters().getValue();
+
         newFilters = originalFilters;
         municipalitiesFilter = originalFilters.getMunicipalityFilter();
 
@@ -114,6 +130,8 @@ public class FilterFragment extends Fragment {
             fm.popBackStack();
         });
 
+
+
         //Sets up municipalities
         tvMultiMunicipalities = mainView.findViewById(R.id.tvMultiSelectMunicipality);
         selectedMunicipalities = setPreSelectedMunitFilter(originalFilters.getMunicipalityFilter(), allMunicipalities);
@@ -124,18 +142,20 @@ public class FilterFragment extends Fragment {
         selectedTypes = setPreSelectedTypeFilter(originalFilters.getSiteTypeFilter(), allTypes);
         tvMultiTypes.setOnClickListener(onTypeMultiClick);
 
-        
+
+
+
+
+
         btnConfirmFilters = mainView.findViewById(R.id.btnConfirmFilters);
 
         //Updates filters
         btnConfirmFilters.setOnClickListener(v -> {
             try {
-
-                mViewModel.setSiteFilters(newFilters);
                 Toast.makeText(getContext(), "Updating Historical Site Filters", Toast.LENGTH_SHORT).show();
-
-                FragmentManager fm = requireActivity().getSupportFragmentManager();
-                fm.popBackStack();
+                mViewModel.setSiteFilters(newFilters);
+                mViewModel.setCurrentSite(null);
+                fullScreenCallback.setEnabled(true);
 
             }
             catch (Exception e)
@@ -146,6 +166,11 @@ public class FilterFragment extends Fragment {
 
 
         });
+
+
+
+
+
 
     }
 
@@ -284,7 +309,6 @@ public class FilterFragment extends Fragment {
                     // set text on textView
                     tvMultiTypes.setText(stringBuilder.toString());
                     newFilters.setSiteTypeFilter(typeFilter);
-                    Toast.makeText(getContext(),typeFilter.toString(), Toast.LENGTH_LONG).show();
                 });
 
                 builder.setNegativeButton("Cancel", (dialogInterface, i) -> {
@@ -385,14 +409,22 @@ public class FilterFragment extends Fragment {
 
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
-        mViewModel.setDisplayMode(previousDisplayMode);
+    public void onResume() {
+        super.onResume();
+        if (!fullScreenCallback.isEnabled())
+            mViewModel.setDisplayMode(DisplayMode.Other);
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
-        mViewModel.setDisplayMode(DisplayMode.FullDetail);
+    public void onDestroy() {
+        super.onDestroy();
+        mViewModel.setCurrentSite(null);
+        if (newFilters != originalFilters)
+            mViewModel.setSiteFilters(new SiteFilter());
+
+        /*if (previousDisplayMode == DisplayMode.Other)
+            mViewModel.setDisplayMode(previousDisplayMode)*/
+
+
     }
 }

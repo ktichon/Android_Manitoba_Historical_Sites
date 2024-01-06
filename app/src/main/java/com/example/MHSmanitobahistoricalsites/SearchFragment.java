@@ -2,6 +2,7 @@ package com.example.MHSmanitobahistoricalsites;
 
 import android.os.Bundle;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatButton;
@@ -75,9 +76,26 @@ public class SearchFragment extends Fragment {
     RecyclerView recyclerView;
 
     private AppCompatButton btnSearch;
+    OnBackPressedCallback fullScreenCallback;
 
     public SearchFragment() {
         // Required empty public constructor
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        mViewModel = new ViewModelProvider(requireActivity()).get(HistoricalSiteDetailsViewModel.class);
+        previousDisplayMode = mViewModel.getDisplayMode().getValue();
+        fullScreenCallback = new OnBackPressedCallback(false) {
+            @Override
+            public void handleOnBackPressed() {
+                mViewModel.setDisplayMode(DisplayMode.Other);
+                setEnabled(false);
+            }
+        };
+
+        requireActivity().getOnBackPressedDispatcher().addCallback(this, fullScreenCallback);
     }
 
     @Override
@@ -91,12 +109,7 @@ public class SearchFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         mainView = view;
-        mViewModel = new ViewModelProvider(requireActivity()).get(HistoricalSiteDetailsViewModel.class);
 
-
-        //Stores the old display mode,
-        previousDisplayMode = mViewModel.getDisplayMode().getValue();
-        mViewModel.setDisplayMode(DisplayMode.FullDetail);
 
 
 
@@ -142,7 +155,7 @@ public class SearchFragment extends Fragment {
 
         //Set up searched site adapter
         applicableSites = new ArrayList<>();
-        searchSiteAdapter = new SearchSiteAdapter(getContext(), applicableSites, getActivity());
+        searchSiteAdapter = new SearchSiteAdapter(getContext(), applicableSites, getActivity(), fullScreenCallback);
         recyclerView = mainView.findViewById(R.id.rvSearchSiteHolder);
         recyclerView.setAdapter(searchSiteAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -335,7 +348,7 @@ public class SearchFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        mViewModel.setDisplayMode(DisplayMode.FullDetail);
+        mViewModel.setDisplayMode(DisplayMode.Other);
         loadBaseOnFilters(mViewModel.getSiteFilters().getValue());
 
     }

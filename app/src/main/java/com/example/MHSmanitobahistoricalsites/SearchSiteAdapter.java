@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
@@ -25,13 +26,15 @@ public class SearchSiteAdapter extends RecyclerView.Adapter<SearchSiteAdapter.Vi
 
     FragmentActivity activity;
     private HistoricalSiteDetailsViewModel mViewModel;
+    OnBackPressedCallback onBackPressedCallback;
 
 
-    public SearchSiteAdapter(Context context, List<ManitobaHistoricalSite> siteList, FragmentActivity activity) {
+    public SearchSiteAdapter(Context context, List<ManitobaHistoricalSite> siteList, FragmentActivity activity, OnBackPressedCallback onBackPressedCallback) {
         this.context = context;
         this.siteList = siteList;
         this.activity = activity;
         this.mViewModel = new ViewModelProvider(activity).get(HistoricalSiteDetailsViewModel.class);
+        this.onBackPressedCallback = onBackPressedCallback;
     }
 
     @NonNull
@@ -53,21 +56,25 @@ public class SearchSiteAdapter extends RecyclerView.Adapter<SearchSiteAdapter.Vi
         details += currentSite.getMunicipality() + ", " + siteTypes[currentSite.getMain_type() - 1];
         holder.setTvDetails(details);
         holder.getView().setOnClickListener(v -> {
-            Fragment newFragment = HistoricalSiteDetailsFragment.newInstance(currentSite.getSite_id());
+            /*Fragment newFragment = HistoricalSiteDetailsFragment.newInstance(currentSite.getSite_id());
             FragmentManager fragmentManager = activity.getSupportFragmentManager();
 
             fragmentManager.beginTransaction()
                     //.replace(R.id.fcvDetails, HistoricalSiteDetailsFragment.class, null)
-                    /*.setCustomAnimations(
+                    *//*.setCustomAnimations(
                             R.anim.slide_in,  // enter
                             R.anim.fade_out,  // exit
                             R.anim.fade_in,   // popEnter
                             R.anim.slide_out  // popExit
-                    )*/
-                    .replace(R.id.fcvDetails, newFragment, null)
+                    )*//*
+                    .replace(R.id.fcvOther, newFragment, null)
                     .setReorderingAllowed(true)
                     .addToBackStack(activity.getString(R.string.site_fragment))
-                    .commit();
+                    .commit();*/
+            mViewModel.setsearched(true);
+            mViewModel.setCurrentSite(currentSite);
+            onBackPressedCallback.setEnabled(true);
+
             InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
         });
