@@ -43,6 +43,7 @@
 
                         android:layout_weight="0.8"
                         android:textIsSelectable="true"
+                        android:layout_gravity="center"
 
 
                         android:text="Name"
@@ -53,9 +54,9 @@
 
                     <androidx.appcompat.widget.AppCompatButton
                         android:id="@+id/btnClose"
-                        android:layout_width="25dp"
-                        android:layout_height="25dp"
-                        android:layout_gravity="center_vertical"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+
                         android:background="@drawable/close_button"
                         android:contentDescription="Close Current Site"
 

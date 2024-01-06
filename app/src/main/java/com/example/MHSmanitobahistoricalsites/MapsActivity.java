@@ -73,7 +73,6 @@ public class MapsActivity extends AppCompatActivity
     private GoogleMap mMap;
 
     private List<ManitobaHistoricalSite> allManitobaHistoricalSites;
-    private List<Marker> allMarkers;
 
 
     private Toolbar mToolbar;
@@ -137,7 +136,6 @@ public class MapsActivity extends AppCompatActivity
 
 
         allManitobaHistoricalSites = new ArrayList<>();
-        allMarkers = new ArrayList<>();
         markerColoursPerType = new HashMap<>();
         markerColours = new ArrayList<>();
 

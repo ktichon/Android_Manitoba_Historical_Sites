@@ -17,7 +17,8 @@ public class SiteClusterItem implements ClusterItem {
     public SiteClusterItem( ManitobaHistoricalSite historicalSite, float colour) {
         this.position = new LatLng(historicalSite.getLatitude(), historicalSite.getLongitude());
         this.title = historicalSite.getName();
-        this.snippet = historicalSite.getAddress() + (historicalSite.getAddress() == null? " ": ", ") + historicalSite.getMunicipality();
+        //this.snippet = historicalSite.getAddress() + (historicalSite.getAddress() == null? " ": ", ") + historicalSite.getMunicipality();
+        this.snippet = (historicalSite.getAddress() == null || historicalSite.getAddress().trim().isEmpty()? "":  historicalSite.getAddress() + ", ") + historicalSite.getMunicipality();
         this.historicalSite = historicalSite;
         this.colour = colour;
     }

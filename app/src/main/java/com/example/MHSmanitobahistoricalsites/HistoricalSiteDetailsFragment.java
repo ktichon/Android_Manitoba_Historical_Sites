@@ -405,6 +405,7 @@ public class HistoricalSiteDetailsFragment extends Fragment {
     private void setSmall(DisplayMode displayMode)
     {
         nsvMoreInfo.setVisibility(displayMode == DisplayMode.FullDetail ? View.VISIBLE : View.GONE );
+        nsvMoreInfo.scrollTo(0,0);
         tvShowMoreInfo.setText(displayMode == DisplayMode.FullDetail ?  R.string.show_less : R.string.show_more);
         int showInfoArrow = displayMode == DisplayMode.FullDetail ? R.drawable.arrow_down : R.drawable.arrow_up;
         tvShowMoreInfo.setCompoundDrawablesWithIntrinsicBounds(0, 0, showInfoArrow, 0);
