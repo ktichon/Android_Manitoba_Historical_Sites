@@ -141,6 +141,19 @@
                 android:background="@color/white"
                 android:id="@+id/llInsideScrollView"
                 android:padding="10dp">
+                <TextView
+                    android:id="@+id/tvNoPhotos"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/no_photo_text"
+                    android:textAlignment="center"
+                    android:autoLink="email|web"
+                    android:textIsSelectable="true"
+                    android:linksClickable="true"
+                    android:padding="10dp"
+                    style="@style/mainText"
+                    android:textStyle="italic"
+                    />
                 <androidx.viewpager2.widget.ViewPager2
                     android:id="@+id/viewpager"
                     android:layout_width="match_parent"

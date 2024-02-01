@@ -168,6 +168,28 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             }
         });
         minCluster.setSummary(minCluster.getText());
+
+        EditTextPreference mapWeight = findPreference(getString(R.string.map_weight_key));
+        mapWeight.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+            @Override
+            public boolean onPreferenceChange(@NonNull Preference preference, Object newValue) {
+                mapWeight.setSummary(newValue.toString());
+                mapWeight.setText( newValue.toString());
+                return false;
+            }
+        });
+        mapWeight.setSummary(mapWeight.getText());
+
+        EditTextPreference detailsWeight = findPreference(getString(R.string.details_weight_key));
+        detailsWeight.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+            @Override
+            public boolean onPreferenceChange(@NonNull Preference preference, Object newValue) {
+                detailsWeight.setSummary(newValue.toString());
+                detailsWeight.setText( newValue.toString());
+                return false;
+            }
+        });
+        detailsWeight.setSummary(detailsWeight.getText());
     }
 
     Preference.OnPreferenceChangeListener onPreferenceChangeListener = new Preference.OnPreferenceChangeListener() {

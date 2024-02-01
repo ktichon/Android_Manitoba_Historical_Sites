@@ -11,6 +11,7 @@
     <string name="show_less">Click here to show less info</string>
     <string name="sources_title">Sources:</string>
     <string name="historical_society"><u>Click here to go to the Manitoba Historical Society webpage for this site!</u></string>
+    <string name="no_photo_text">We have no photos for this site.\nIf you have one in your personal collection and can provide a copy, please contact us at photos@mhs.mb.ca</string>
 
     <!-- Filter Display Text -->
     <string name="back_click">Back</string>
@@ -54,6 +55,8 @@
     <string name="update_marker_key">update_marker_key</string>
     <string name="min_cluster_key">min_cluster_key</string>
     <string name="cluster_animation_key">cluster_animation_key</string>
+    <string name="map_weight_key">map_weight_key</string>
+    <string name="details_weight_key">details_weight_key</string>
 
 
     <!-- Default maker colour (red) -->

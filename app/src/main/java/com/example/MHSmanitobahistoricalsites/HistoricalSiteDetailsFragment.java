@@ -81,6 +81,8 @@ public class HistoricalSiteDetailsFragment extends Fragment {
     LinearLayout llShowMoreInfo;
     AppCompatButton btnClose;
 
+    TextView tvNoPhotos;
+
 
 
 
@@ -164,6 +166,8 @@ public class HistoricalSiteDetailsFragment extends Fragment {
         nsvMoreInfo = mainView.findViewById(R.id.nsvMoreInfo);
         tvShowMoreInfo = mainView.findViewById(R.id.tvShowMoreInfo);
         tvDistance = mainView.findViewById(R.id.tvDistance);
+        tvNoPhotos = mainView.findViewById(R.id.tvNoPhotos);
+        tvNoPhotos.setVisibility(View.GONE);
 
 
 
@@ -328,20 +332,31 @@ public class HistoricalSiteDetailsFragment extends Fragment {
     public void displaySitePhoto(List<SitePhotos> sitePhotos)
     {
         try {
+            if (sitePhotos.size()> 0)
+            {
+                tvNoPhotos.setVisibility(View.GONE);
+                photoViewPager.setVisibility(View.VISIBLE);
+                SiteImagesAdapter adapter = new SiteImagesAdapter(sitePhotos, photoViewPager, getContext());
+                photoViewPager.setAdapter(adapter);
 
-            SiteImagesAdapter adapter = new SiteImagesAdapter(sitePhotos, photoViewPager, getContext());
-            photoViewPager.setAdapter(adapter);
+                //Page height can vary, this re updates the height when a new image is shown
+                photoViewPager.setPageTransformer(new ViewPager2.PageTransformer() {
+                    @Override
+                    public void transformPage(@NonNull View page, float position) {
+                        if (firstLoad)
+                            firstLoad = false;
+                        else
+                            updateViewPagerHeight(page, photoViewPager);
+                    }
+                });
+            }
+            else
+            {
+                tvNoPhotos.setVisibility(View.VISIBLE);
+                photoViewPager.setVisibility(View.GONE);
+            }
 
-            //Page height can vary, this re updates the height when a new image is shown
-            photoViewPager.setPageTransformer(new ViewPager2.PageTransformer() {
-                @Override
-                public void transformPage(@NonNull View page, float position) {
-                    if (firstLoad)
-                        firstLoad = false;
-                    else
-                        updateViewPagerHeight(page, photoViewPager);
-                }
-            });
+
 
         }
         catch (Exception e)
@@ -530,7 +545,7 @@ public class HistoricalSiteDetailsFragment extends Fragment {
         try {
 
 
-            int [] layoutIds = {R.id.tvName, R.id.tvTypes, R.id.tvAddress, R.id.tvDistance, R.id.tvShowMoreInfo, R.id.tvDescription, R.id.tvSourceTitle, R.id.tvSourceInfo};
+            int [] layoutIds = {R.id.tvName, R.id.tvTypes, R.id.tvAddress, R.id.tvDistance, R.id.tvShowMoreInfo, R.id.tvDescription, R.id.tvSourceTitle, R.id.tvSourceInfo, R.id.tvNoPhotos};
             for (int id: layoutIds ) {
                 ((TextView) mainView.findViewById(id)).setTextColor(Color.parseColor(colour));
 

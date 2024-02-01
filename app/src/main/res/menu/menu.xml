@@ -11,7 +11,7 @@
         android:id="@+id/itFilters"
         android:title="Filters"
         android:icon="@drawable/filter"
-        app:showAsAction="always"
+
         />
     <item
         android:id="@+id/itFollowCamera"

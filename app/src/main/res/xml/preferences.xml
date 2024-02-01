@@ -3,7 +3,7 @@
 
     <SwitchPreferenceCompat
         app:key="Night_Mode_Key"
-        app:title="Enable Night Mode"
+        app:title="Enable Night Mode Map"
         app:defaultValue="false"/>
 
 
@@ -21,6 +21,25 @@
             app:title="Minimum Cluster Value"
             android:inputType="number"
             android:defaultValue="20"
+            />
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        app:key="layout_weight"
+        app:title="Layout Weight">
+
+        <EditTextPreference
+            app:key="map_weight_key"
+            app:title="Map Weight"
+            android:inputType="number"
+            android:defaultValue="3"
+            />
+
+        <EditTextPreference
+            app:key="details_weight_key"
+            app:title="Details Weight"
+            android:inputType="number"
+            android:defaultValue="1"
             />
     </PreferenceCategory>
 

@@ -663,8 +663,8 @@ public class MapsActivity extends AppCompatActivity
                     break;
 
                 case SiteAndMap:
-                    mapWeight = Float.parseFloat(getString(R.string.display_both_map));
-                    detailWeight = Float.parseFloat(getString(R.string.display_both_details));
+                    mapWeight = Float.parseFloat(prefs.getString(getString(R.string.map_weight_key), getString(R.string.display_both_map)));
+                    detailWeight =  Float.parseFloat(prefs.getString(getString(R.string.details_weight_key), getString(R.string.display_both_details)));
                     mapFragmentContainerView.setVisibility(View.VISIBLE);
                     detailFragmentContainerView.setVisibility(View.VISIBLE);
                     break;
