@@ -3,7 +3,7 @@
     <!-- String Display Text -->
 
     <!-- Main Display Text -->
-    <string name="app_name">MHS Manitoba Historical Sites</string>
+    <string name="app_name">MHS Historical Sites</string>
     <string name="title_activity_maps">MHS Manitoba Historical Sites</string>
 
     <!-- Historic Site Details Display Text -->
@@ -53,6 +53,7 @@
     <string name="text_colour_key">text_colour_key</string>
     <string name="update_marker_key">update_marker_key</string>
     <string name="min_cluster_key">min_cluster_key</string>
+    <string name="cluster_animation_key">cluster_animation_key</string>
 
 
     <!-- Default maker colour (red) -->

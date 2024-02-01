@@ -7,14 +7,24 @@
         app:defaultValue="false"/>
 
 
+    <PreferenceCategory
+        app:key="clustering"
+        app:title="Marker Clustering Options">
 
-    <EditTextPreference
-        app:key="min_cluster_key"
-        app:title="Minimum Cluster Value"
-        android:inputType="number"
-        android:defaultValue="20"
+        <SwitchPreferenceCompat
+            app:key="cluster_animation_key"
+            app:title="Enable Cluster Animations"
+            app:defaultValue="false"/>
 
-        />
+        <EditTextPreference
+            app:key="min_cluster_key"
+            app:title="Minimum Cluster Value"
+            android:inputType="number"
+            android:defaultValue="20"
+            />
+    </PreferenceCategory>
+
+
 
     <PreferenceCategory
         app:key="set_colours"

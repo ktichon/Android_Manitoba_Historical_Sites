@@ -54,8 +54,8 @@
 
                     <androidx.appcompat.widget.AppCompatButton
                         android:id="@+id/btnClose"
-                        android:layout_width="40dp"
-                        android:layout_height="40dp"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
 
                         android:background="@drawable/close_button"
                         android:contentDescription="Close Current Site"
@@ -114,7 +114,8 @@
                         android:layout_gravity="center"
                         android:textAlignment="center"
                         android:text="@string/show_more"
-                        style="@style/mainText"
+                        style="@style/titleText"
+                        android:textStyle="normal"
                         android:layout_margin="5dp"
                         android:textIsSelectable="false"
                         app:drawableEndCompat="@drawable/arrow_up" />

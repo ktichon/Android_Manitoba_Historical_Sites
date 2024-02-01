@@ -45,4 +45,15 @@
         <item>270.0</item>
         <item>60.0</item>
     </string-array>
+
+
+    <string-array name="Default_Colour_Values">
+        <item>0.0</item>
+        <item>180.0</item>
+        <item>330.0</item>
+        <item>30.0</item>
+        <item>270.0</item>
+        <item>120.0</item>
+        <item>60.0</item>
+    </string-array>
 </resources>

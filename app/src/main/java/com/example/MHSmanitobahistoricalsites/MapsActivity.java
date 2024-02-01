@@ -104,7 +104,7 @@ public class MapsActivity extends AppCompatActivity
     //Stop app from loading data twice when app is launched
     boolean firstAppLoad = true;
 
-    HashMap<Integer, Float> markerColoursPerType;
+    //HashMap<Integer, Float> markerColoursPerType;
     List<Float> markerColours;
     private ClusterManager<SiteClusterItem> mClusterManager;
 
@@ -136,7 +136,7 @@ public class MapsActivity extends AppCompatActivity
 
 
         allManitobaHistoricalSites = new ArrayList<>();
-        markerColoursPerType = new HashMap<>();
+        //markerColoursPerType = new HashMap<>();
         markerColours = new ArrayList<>();
 
         mToolbar = findViewById(R.id.tbMain);
@@ -505,6 +505,7 @@ public class MapsActivity extends AppCompatActivity
 
             //mClusterManager.setAnimation(false);
             updateClusterManagerRender(Integer.valueOf(prefs.getString(getString(R.string.min_cluster_key), "20")));
+            mClusterManager.setAnimation(prefs.getBoolean(getString(R.string.cluster_animation_key), false));
 
 
             DisplayMetrics metrics = new DisplayMetrics();
@@ -737,6 +738,9 @@ public class MapsActivity extends AppCompatActivity
 
                 } else if (key.equals(getString(R.string.min_cluster_key))) {
                     updateClusterManagerRender(Integer.valueOf(sharedPreferences.getString(key, "20")));
+                } else if (key.equals(getString(R.string.cluster_animation_key))) {
+                    if (mClusterManager != null)
+                        mClusterManager.setAnimation(prefs.getBoolean(getString(R.string.cluster_animation_key), false));
                 }
             }
         }
@@ -819,11 +823,12 @@ public class MapsActivity extends AppCompatActivity
 
         try {
             String [] siteTypes = getResources().getStringArray(R.array.Site_Types);
+            String [] defaultColour = getResources().getStringArray(R.array.Default_Colour_Values);
             markerColours.clear();
-            markerColoursPerType.clear();
+            //markerColoursPerType.clear();
 
             for (String type : siteTypes) {
-                String colour = sharedPreferences.getString(type, getString(R.string.Default_Colour_Value));
+                String colour = sharedPreferences.getString(type, defaultColour[markerColours.size()]);
                 Float colourValue = Float.valueOf(colour);
                 //markerColoursPerType.put(type, colourValue);
                 markerColours.add(colourValue);
