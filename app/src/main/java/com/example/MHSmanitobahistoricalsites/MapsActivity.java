@@ -22,6 +22,7 @@ import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Looper;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -98,6 +99,7 @@ public class MapsActivity extends AppCompatActivity
     private final CompositeDisposable mDisposable = new CompositeDisposable();
 
     private final float cameraZoom = 16;
+    private final float searchZoom = 18;
 
     SharedPreferences prefs;
 
@@ -207,9 +209,11 @@ public class MapsActivity extends AppCompatActivity
                 }
                 else
                 {
-                    moveCameraToLocation(changedSite.getLocation(), viewModel.getSearched().getValue());
+                    moveCameraToLocation(changedSite.getLocation(), viewModel.getSearched().getValue(), changedSite);
                     viewModel.setCurrentLocation(getUserLocation());
                     viewModel.setDisplayMode(DisplayMode.SiteAndMap);
+
+
 
                     //displayMarkerInfo(currentSite.getSite_id());
                 }
@@ -294,7 +298,7 @@ public class MapsActivity extends AppCompatActivity
                 } else {
                     this.cameraFollow = true;
                     item.setIcon(R.drawable.ic_camera_follow);
-                    moveCameraToLocation(getUserLocation(), false);
+                    moveCameraToLocation(getUserLocation(), false, null);
                 }
             } else if (item.getItemId() == R.id.itAbout) {
                 fragmentManager.beginTransaction()
@@ -421,7 +425,7 @@ public class MapsActivity extends AppCompatActivity
                 if (goToFirst && sites.size() > 0)
                 {
                     ManitobaHistoricalSite firstSite = allManitobaHistoricalSites.get(0);
-                    moveCameraToLocation(firstSite.getLocation(),  false);
+                    moveCameraToLocation(firstSite.getLocation(),  false, null);
                     //moveCameraToLocation(firstSite.getLocation());
                 }
 
@@ -585,46 +589,66 @@ public class MapsActivity extends AppCompatActivity
 
 
 
-//    //Displays marker title specific historical site, used in 'Search' and on current site fragment backspace
-//    // used in onCreate
-//    //No longer works, as clustering means only a few markers are created at a time
-//    private void displayMarkerInfo(int displayId)
-//    {
-//        try {
-//
-//            if (mClusterManager.getMarkerCollection().getMarkers().size() > 0)
-//            {
-//
-//
-//                for (Marker marker : mClusterManager.getMarkerCollection().getMarkers()) {
-//                    //int tag = (int) marker.getTag();
-//                    if (marker.getTag() != null && (int)marker.getTag() == displayId ) { //if a marker has desired tag
-//                        marker.showInfoWindow();
-//
-//                    }
-//                }
-//            }
-//        }
-//        catch (Exception e)
-//        {
-//            Toast.makeText(getApplicationContext(), "Error getting marker info", Toast.LENGTH_SHORT).show();
-//        }
-//
-//    }
+    //Displays marker title specific historical site, used in 'Search' and on current site fragment backspace
+    // used in onCreate
+    //No longer works, as clustering means only a few markers are created at a time
+    //Now works, as I implemented a delay after the camera moves to allow time for markers to load
+    private void displayMarkerInfo(ManitobaHistoricalSite searchedSite)
+    {
+        try {
+
+
+            if (mClusterManager.getMarkerCollection().getMarkers().size() > 0)
+           {
+
+               //Collection<Marker> markers = mClusterManager.getMarkerCollection().getMarkers();
+
+               for (Marker marker : mClusterManager.getMarkerCollection().getMarkers()) {
+                   /*String makerName = marker.getTitle();
+                   String siteName = searchedSite.getName();
+                   String markerAddress = marker.getSnippet();
+                   LatLng testPosition = marker.getPosition();
+                   double markerLatitude = testPosition.latitude;
+                   double siteLatitude = searchedSite.getLatitude();
+                   double markerLongitude = testPosition.longitude;
+                   double siteLongitude = searchedSite.getLongitude();*/
+
+                   if (marker.getTitle().equals(searchedSite.getName()) && marker.getPosition().latitude == searchedSite.getLatitude() && marker.getPosition().longitude == searchedSite.getLongitude()) { //if a marker has desired tag
+                       marker.showInfoWindow();
+                       break;
+
+                    }
+               }
+            }
+       }
+      catch (Exception e)
+        {
+            Log.e("Error", "Error getting marker info\n" + e.getMessage());
+            //Toast.makeText(getApplicationContext(), "Error getting marker info", Toast.LENGTH_SHORT).show();
+       }
+
+   }
 
 
 
 
 
     //Moves camera to new location
-    private void moveCameraToLocation(Location newLocation, boolean searched)
+    private void moveCameraToLocation(Location newLocation, boolean searched, ManitobaHistoricalSite searchedSite)
     {
         try {
             LatLng userLatLng = new LatLng(newLocation.getLatitude(), newLocation.getLongitude());
             if (searched)
             {
                 viewModel.setsearched(false);
-                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(userLatLng, cameraZoom));
+                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(userLatLng, searchZoom));
+                Handler handler = new Handler();
+                handler.postDelayed(new Runnable() {
+                    public void run() {
+                        displayMarkerInfo(searchedSite);
+                    }
+                }, 2000);
+
             }
             else
                 mMap.animateCamera(CameraUpdateFactory.newLatLng(userLatLng));
@@ -828,6 +852,7 @@ public class MapsActivity extends AppCompatActivity
             //markerColoursPerType.clear();
 
             for (String type : siteTypes) {
+                //Default value for listPreference doesn't work on first install, so I made a work around using an array resource
                 String colour = sharedPreferences.getString(type, defaultColour[markerColours.size()]);
                 Float colourValue = Float.valueOf(colour);
                 //markerColoursPerType.put(type, colourValue);
@@ -994,7 +1019,7 @@ public class MapsActivity extends AppCompatActivity
                         viewModel.getCurrentLocation().setValue(newLocation);
                         if (cameraFollow && mMap != null)
                         {
-                            moveCameraToLocation(newLocation, false);
+                            moveCameraToLocation(newLocation, false, null);
                         }
                     }
                 }

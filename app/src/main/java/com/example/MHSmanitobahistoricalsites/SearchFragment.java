@@ -64,7 +64,7 @@ public class SearchFragment extends Fragment {
     TextView tvSearchAmount;
 
 
-    int limit = 10;
+    int limit = 25;
     LinearLayout llActiveTypeFilters;
 
     TextView tvActiveFilterTypes;
