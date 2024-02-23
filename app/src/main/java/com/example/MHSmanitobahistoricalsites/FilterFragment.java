@@ -81,6 +81,7 @@ public class FilterFragment extends Fragment {
     }
 
 
+    //Overrides the callback to go back to full Filter info
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

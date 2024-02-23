@@ -12,6 +12,8 @@ import com.example.MHSmanitobahistoricalsites.Database.ManitobaHistoricalSite;
 import com.example.MHSmanitobahistoricalsites.HolderClasses.DisplayMode;
 import com.example.MHSmanitobahistoricalsites.HolderClasses.SiteFilter;
 
+import java.util.List;
+
 public class HistoricalSiteDetailsViewModel extends ViewModel {
 
     private MutableLiveData<ManitobaHistoricalSite> currentSite;
@@ -23,6 +25,7 @@ public class HistoricalSiteDetailsViewModel extends ViewModel {
 
     private HistoricalSiteDatabase historicalSiteDatabase;
     private MutableLiveData<Boolean> searched;
+    private MutableLiveData<List<Float>> markerColours;
 
 
 
@@ -35,6 +38,7 @@ public class HistoricalSiteDetailsViewModel extends ViewModel {
         this.displayMode = new MutableLiveData<DisplayMode>();
         this.siteFiler = new MutableLiveData<SiteFilter>();
         this.searched = new MutableLiveData<Boolean>();
+        this.markerColours = new MutableLiveData<List<Float>>();
     }
 
 
@@ -91,8 +95,17 @@ public class HistoricalSiteDetailsViewModel extends ViewModel {
         return searched;
     }
 
-    public void setsearched(Boolean searched)
+    public void setSearched(Boolean searched)
     {
         this.searched.setValue(searched);
     }
+    public MutableLiveData<List<Float>> getMarkerColours() {
+        return markerColours;
+    }
+
+    public void setMarkerColours(List<Float> markerColours)
+    {
+        this.markerColours.setValue(markerColours);
+    }
+
 }

@@ -9,9 +9,7 @@ import android.widget.TextView;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
-import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -71,7 +69,7 @@ public class SearchSiteAdapter extends RecyclerView.Adapter<SearchSiteAdapter.Vi
                     .setReorderingAllowed(true)
                     .addToBackStack(activity.getString(R.string.site_fragment))
                     .commit();*/
-            mViewModel.setsearched(true);
+            mViewModel.setSearched(true);
             mViewModel.setCurrentSite(currentSite);
             onBackPressedCallback.setEnabled(true);
 

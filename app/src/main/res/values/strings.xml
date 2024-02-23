@@ -6,12 +6,17 @@
     <string name="app_name">MHS Historical Sites</string>
     <string name="title_activity_maps">MHS Manitoba Historical Sites</string>
 
+    <!-- Legend -->
+    <string name="legend_title_show">Click Here to Show Legend</string>
+    <string name="legend_title_hide">Click Here to Hide Legend</string>
+
+
     <!-- Historic Site Details Display Text -->
     <string name="show_more">Click here to show more info</string>
     <string name="show_less">Click here to show less info</string>
     <string name="sources_title">Sources:</string>
     <string name="historical_society"><u>Click here to go to the Manitoba Historical Society webpage for this site!</u></string>
-    <string name="no_photo_text">We have no photos for this site.\nIf you have one in your personal collection and can provide a copy, please contact us at photos@mhs.mb.ca</string>
+    <string name="no_photo_text">We have no photos for this site.\nIf you have one in your personal collection and can provide a copy,\nplease contact us at photos@mhs.mb.ca</string>
 
     <!-- Filter Display Text -->
     <string name="back_click">Back</string>
@@ -63,6 +68,8 @@
     <string name="Default_Colour_Value">
         <item>0.0</item>
     </string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 
 </resources>

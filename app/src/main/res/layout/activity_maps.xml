@@ -1,11 +1,10 @@
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
 
-    android:id="@+id/root"
-    >
+    android:id="@+id/root">
     <androidx.appcompat.widget.Toolbar
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -15,46 +14,92 @@
         android:elevation="4dp"
         android:id="@+id/tbMain">
         <TextView
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/tvAppbarTitle"
-            android:text="@string/app_name" android:textSize="20sp"/>
+            android:text="@string/app_name" android:textSize="24sp"/>
 
     </androidx.appcompat.widget.Toolbar>
-
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/tbMain"
+        android:layout_height="match_parent"
+        android:id="@+id/llMainContainer"
         android:orientation="vertical"
-
-        android:id="@+id/llDisplaySpacing"
+        android:layout_below="@+id/tbMain"
         >
 
-        <androidx.fragment.app.FragmentContainerView
-            android:layout_width="match_parent"
-            android:id="@+id/fcvMap"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            />
-        <androidx.fragment.app.FragmentContainerView
-            android:id="@+id/fcvDetails"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="0"
+            android:layout_weight="0.92"
+            android:orientation="vertical"
+            android:id="@+id/llDisplaySpacing"
+            >
+
+            <androidx.fragment.app.FragmentContainerView
+                android:layout_width="match_parent"
+                android:id="@+id/fcvMap"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                />
+            <androidx.fragment.app.FragmentContainerView
+                android:id="@+id/fcvDetails"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="0"
+                android:visibility="gone"
+                />
+            <androidx.fragment.app.FragmentContainerView
+                android:id="@+id/fcvOther"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:visibility="gone"
+                />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.08"
+            android:id="@+id/llLegend"
+            android:layout_alignParentBottom="true"
+            android:gravity="center"
+            android:background="@color/black"
             android:visibility="gone"
-            />
-        <androidx.fragment.app.FragmentContainerView
-            android:id="@+id/fcvOther"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:visibility="gone"
-            />
 
 
+            >
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_margin="1dp"
+                android:background="@color/white"
+                android:id="@+id/llLegendBackground"
+                android:gravity="center">
+                <TextView
+                    android:id="@+id/tvLegend"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:textAlignment="center"
+                    android:text="@string/legend_title_show"
+                    style="@style/titleText"
+                    android:textStyle="normal"
+                    android:layout_margin="5dp"
+                    android:textIsSelectable="false"
+                    app:drawableEndCompat="@drawable/arrow_up" />
 
+            </LinearLayout>
+
+
+        </LinearLayout>
 
     </LinearLayout>
+
+
+
+
 
 
 </RelativeLayout>

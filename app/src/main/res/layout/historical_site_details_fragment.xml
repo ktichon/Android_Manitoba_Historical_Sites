@@ -96,6 +96,7 @@
                     android:layout_height="wrap_content"
                     android:textAlignment="center"
                     android:text="mainText"
+                    style="@style/subText"
                     android:layout_marginTop="0dp"
                     android:textIsSelectable="true"
                     />
@@ -150,7 +151,7 @@
                     android:autoLink="email|web"
                     android:textIsSelectable="true"
                     android:linksClickable="true"
-                    android:padding="10dp"
+                    android:padding="5dp"
                     style="@style/mainText"
                     android:textStyle="italic"
                     />

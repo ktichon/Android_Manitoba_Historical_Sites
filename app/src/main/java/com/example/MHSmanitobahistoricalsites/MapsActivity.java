@@ -6,7 +6,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentContainerView;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
@@ -52,13 +51,10 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
-import com.google.maps.android.clustering.ClusterItem;
 import com.google.maps.android.clustering.ClusterManager;
 import com.google.maps.android.clustering.algo.NonHierarchicalViewBasedAlgorithm;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -107,13 +103,14 @@ public class MapsActivity extends AppCompatActivity
     boolean firstAppLoad = true;
 
     //HashMap<Integer, Float> markerColoursPerType;
-    List<Float> markerColours;
+    //List<Float> markerColours;
     private ClusterManager<SiteClusterItem> mClusterManager;
 
 
     FragmentContainerView  mapFragmentContainerView;
     FragmentContainerView detailFragmentContainerView;
     FragmentContainerView otherFragmentContainerView;
+    LinearLayout llLegend;
 
 
 
@@ -138,18 +135,13 @@ public class MapsActivity extends AppCompatActivity
 
 
         allManitobaHistoricalSites = new ArrayList<>();
-        //markerColoursPerType = new HashMap<>();
-        markerColours = new ArrayList<>();
+
+
 
         mToolbar = findViewById(R.id.tbMain);
         setSupportActionBar(mToolbar);
 
-        //Setting Up Preference values
-        prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        prefs.registerOnSharedPreferenceChangeListener(preferenceChangeListener);
-        updateBackgroundColour(prefs.getString(getString(R.string.background_colour_key), "#FFFFFF"));
-        updateTextColour(prefs.getString(getString(R.string.text_colour_key), "#000000"));
-        updateMarkerColoursPerType(prefs);
+
         //getSharedPreferences(getString(R.string.preference_key), MODE_PRIVATE).registerOnSharedPreferenceChangeListener(preferenceChangeListener);
 
 
@@ -199,7 +191,7 @@ public class MapsActivity extends AppCompatActivity
         //Location stuff
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         viewModel = new ViewModelProvider(this).get(HistoricalSiteDetailsViewModel.class);
-        viewModel.setsearched(false);
+        viewModel.setSearched(false);
         viewModel.setHistoricalSiteDatabase(getApplicationContext());
         viewModel.getCurrentSite().observe(this, changedSite -> {
             try {
@@ -257,6 +249,7 @@ public class MapsActivity extends AppCompatActivity
             }
         });
 
+        llLegend = (LinearLayout) findViewById(R.id.llLegend);
         mapFragmentContainerView = (FragmentContainerView) findViewById(R.id.fcvMap);
         detailFragmentContainerView = (FragmentContainerView) findViewById(R.id.fcvDetails);
         otherFragmentContainerView = (FragmentContainerView) findViewById(R.id.fcvOther);
@@ -265,7 +258,21 @@ public class MapsActivity extends AppCompatActivity
                 .setReorderingAllowed(true)
                 .commit();
         viewModel.setDisplayMode(DisplayMode.FullMap);
+        viewModel.setMarkerColours(new ArrayList<>());
 
+        //Setting Up Preference values
+        prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        prefs.registerOnSharedPreferenceChangeListener(preferenceChangeListener);
+        updateBackgroundColour(prefs.getString(getString(R.string.background_colour_key), "#FFFFFF"));
+        updateTextColour(prefs.getString(getString(R.string.text_colour_key), "#000000"));
+        updateMarkerColoursPerType(prefs);
+
+        llLegend.setOnClickListener(v -> fragmentManager.beginTransaction()
+
+                .replace(R.id.fcvOther, LegendFragment.class, null)
+                .setReorderingAllowed(true)
+                .addToBackStack(null) // name can be null
+                .commit());
 
 
 
@@ -474,7 +481,7 @@ public class MapsActivity extends AppCompatActivity
             mMap.setLatLngBoundsForCameraTarget(manitobaBounds);*/
 
             // Set Map colour from preference
-            updateSetDisplayColours(PreferenceManager.getDefaultSharedPreferences(this).getBoolean(getString(R.string.night_mode_key), false));
+            updateMapDisplayColour(PreferenceManager.getDefaultSharedPreferences(this).getBoolean(getString(R.string.night_mode_key), false));
 
             //Enable location. If user location isn't null, move camera to user
             enableMyLocation();
@@ -489,26 +496,23 @@ public class MapsActivity extends AppCompatActivity
             mClusterManager = new ClusterManager<SiteClusterItem>(getApplicationContext(), mMap);
 
             //Need to set the marker onclick listener in the cluster manager
-            mClusterManager.setOnClusterItemClickListener(new ClusterManager.OnClusterItemClickListener<SiteClusterItem>() {
-                @Override
-                public boolean onClusterItemClick(SiteClusterItem item) {
-                    try {
-                        //If it is a new site, update current site
-                        if (viewModel.getCurrentSite().getValue() != item.getHistoricalSite())
-                            viewModel.setCurrentSite(item.getHistoricalSite());
-                    }
-                    catch (Exception e)
-                    {
-                        Log.e("Error", "onClusterItemClick: Error getting new site\n" + e.getMessage());
-                    }
-                    return false;
+            mClusterManager.setOnClusterItemClickListener(item -> {
+                try {
+                    //If it is a new site, update current site
+                    if (viewModel.getCurrentSite().getValue() != item.getHistoricalSite())
+                        viewModel.setCurrentSite(item.getHistoricalSite());
                 }
+                catch (Exception e)
+                {
+                    Log.e("Error", "onClusterItemClick: Error getting new site\n" + e.getMessage());
+                }
+                return false;
             });
 
 
 
             //mClusterManager.setAnimation(false);
-            updateClusterManagerRender(Integer.valueOf(prefs.getString(getString(R.string.min_cluster_key), "20")));
+            updateClusterManagerRender(Integer.parseInt(prefs.getString(getString(R.string.min_cluster_key), "20")));
             mClusterManager.setAnimation(prefs.getBoolean(getString(R.string.cluster_animation_key), false));
 
 
@@ -542,6 +546,7 @@ public class MapsActivity extends AppCompatActivity
             //Removes all markers from map before adding new ones
             mMap.clear();
             mClusterManager.clearItems();
+            List<Float> markerColours = viewModel.getMarkerColours().getValue();
 
 
 
@@ -640,14 +645,10 @@ public class MapsActivity extends AppCompatActivity
             LatLng userLatLng = new LatLng(newLocation.getLatitude(), newLocation.getLongitude());
             if (searched)
             {
-                viewModel.setsearched(false);
+                viewModel.setSearched(false);
                 mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(userLatLng, searchZoom));
                 Handler handler = new Handler();
-                handler.postDelayed(new Runnable() {
-                    public void run() {
-                        displayMarkerInfo(searchedSite);
-                    }
-                }, 2000);
+                handler.postDelayed(() -> displayMarkerInfo(searchedSite), 1500);
 
             }
             else
@@ -679,11 +680,13 @@ public class MapsActivity extends AppCompatActivity
                     mapWeight = 1;
                     mapFragmentContainerView.setVisibility(View.VISIBLE);
                     detailFragmentContainerView.setVisibility(View.GONE);
+                   // llLegend.setVisibility(View.VISIBLE);
                     break;
                 case FullDetail:
                     detailWeight = 1;
                     mapFragmentContainerView.setVisibility(View.GONE);
                     detailFragmentContainerView.setVisibility(View.VISIBLE);
+                    llLegend.setVisibility(View.GONE);
                     break;
 
                 case SiteAndMap:
@@ -691,6 +694,7 @@ public class MapsActivity extends AppCompatActivity
                     detailWeight =  Float.parseFloat(prefs.getString(getString(R.string.details_weight_key), getString(R.string.display_both_details)));
                     mapFragmentContainerView.setVisibility(View.VISIBLE);
                     detailFragmentContainerView.setVisibility(View.VISIBLE);
+                    llLegend.setVisibility(View.GONE);
                     break;
 
                 case Other:
@@ -698,6 +702,7 @@ public class MapsActivity extends AppCompatActivity
                     mapFragmentContainerView.setVisibility(View.GONE);
                     detailFragmentContainerView.setVisibility(View.GONE);
                     otherFragmentContainerView.setVisibility(View.VISIBLE);
+                    llLegend.setVisibility(View.GONE);
 
             }
 
@@ -743,9 +748,11 @@ public class MapsActivity extends AppCompatActivity
             {
                 if (key.equals(getString(R.string.night_mode_key)))
                 {
-                    updateSetDisplayColours(sharedPreferences.getBoolean(key, false));
+                    updateMapDisplayColour(sharedPreferences.getBoolean(key, false));
                 } else if (key.equals(getString(R.string.background_colour_key))) {
                     updateBackgroundColour(sharedPreferences.getString(key, "#ffffff"));
+                } else if (key.equals(getString(R.string.secondary_colour_key))) {
+                    updateSecondaryColour(sharedPreferences.getString(key, "#000000"));
                 } else if (key.equals(getString(R.string.text_colour_key))) {
                     updateTextColour(sharedPreferences.getString(key, "#000000"));
                 } else if (key.equals(getString(R.string.update_marker_key))) {
@@ -761,7 +768,7 @@ public class MapsActivity extends AppCompatActivity
                     }
 
                 } else if (key.equals(getString(R.string.min_cluster_key))) {
-                    updateClusterManagerRender(Integer.valueOf(sharedPreferences.getString(key, "20")));
+                    updateClusterManagerRender(Integer.parseInt(sharedPreferences.getString(key, "20")));
                 } else if (key.equals(getString(R.string.cluster_animation_key))) {
                     if (mClusterManager != null)
                         mClusterManager.setAnimation(prefs.getBoolean(getString(R.string.cluster_animation_key), false));
@@ -783,7 +790,7 @@ public class MapsActivity extends AppCompatActivity
 
 
 
-    private void updateSetDisplayColours(Boolean nightMode)
+    private void updateMapDisplayColour(Boolean nightMode)
     {
 
         try {
@@ -807,17 +814,34 @@ public class MapsActivity extends AppCompatActivity
         }
         catch (Exception e)
         {
-            Log.e("Error", "updateSetDisplayColours: error updating display colours" + e.getMessage());
+            Log.e("Error", "updateMapDisplayColour: error updating display colours" + e.getMessage());
         }
     }
 
+    //Sets Background olour
     private void updateBackgroundColour(String colour)
     {
         try {
-            int [] layoutIds = {R.id.root, R.id.tbMain, R.id.llDisplaySpacing, R.id.fcvOther};
+            int [] layoutIds = {R.id.root, R.id.tbMain, R.id.llDisplaySpacing, R.id.fcvOther, R.id.llLegendBackground};
             for (int id: layoutIds ) {
                 findViewById(id).setBackgroundColor(Color.parseColor(colour));
 
+            }
+        }catch (Exception e)
+        {
+            Log.e("Error", "updateBackgroundColour: error updating display colours" + e.getMessage());
+        }
+
+
+    }
+
+    //Sets secondary colour
+    private void updateSecondaryColour(String colour)
+    {
+        try {
+            int [] layoutIds = {R.id.llLegend};
+            for (int id: layoutIds ) {
+                findViewById(id).setBackgroundColor(Color.parseColor(colour));
             }
         }catch (Exception e)
         {
@@ -833,6 +857,7 @@ public class MapsActivity extends AppCompatActivity
             mToolbar.setTitleTextColor(Color.parseColor(colour));
             mToolbar.setSubtitleTextColor(Color.parseColor(colour));
             ((TextView) findViewById(R.id.tvAppbarTitle)).setTextColor(Color.parseColor(colour));
+            ((TextView) findViewById(R.id.tvLegend)).setTextColor(Color.parseColor(colour));
         }catch (Exception e)
         {
             Log.e("Error", "updateTextColour: error updating display colours" + e.getMessage());
@@ -848,7 +873,8 @@ public class MapsActivity extends AppCompatActivity
         try {
             String [] siteTypes = getResources().getStringArray(R.array.Site_Types);
             String [] defaultColour = getResources().getStringArray(R.array.Default_Colour_Values);
-            markerColours.clear();
+            List<Float> markerColours = new ArrayList<>();
+            //markerColours.clear();
             //markerColoursPerType.clear();
 
             for (String type : siteTypes) {
@@ -859,6 +885,7 @@ public class MapsActivity extends AppCompatActivity
                 markerColours.add(colourValue);
 
             }
+            viewModel.setMarkerColours(markerColours);
         }catch (Exception e)
         {
             Log.e("Error", "updateMarkerColoursPerType: error updating display colours" + e.getMessage());
