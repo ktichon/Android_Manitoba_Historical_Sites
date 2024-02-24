@@ -118,6 +118,7 @@ public class HistoricalSiteDetailsFragment extends Fragment {
 
         mDetector = new GestureDetector(mainView.getContext(), new MyGestureListener());
         llDetails = mainView.findViewById(R.id.llDetails);
+
         llDetails.setOnTouchListener((view1, motionEvent) -> mDetector.onTouchEvent(motionEvent));
 
 
@@ -138,7 +139,7 @@ public class HistoricalSiteDetailsFragment extends Fragment {
             DisplayMode newDisplaymode = (oldDisplayMode == DisplayMode.FullDetail ? DisplayMode.SiteAndMap: DisplayMode.FullDetail);
 
             setCurrentSiteDisplayMode(newDisplaymode);
-            setSmall(newDisplaymode);
+            setSmall(newDisplaymode, mViewModel.getCurrentSite().getValue().getName());
 
         });
 
@@ -276,14 +277,14 @@ public class HistoricalSiteDetailsFragment extends Fragment {
         try {
 
             llDetailsContainer.setVisibility(View.VISIBLE);
-            tvName.setText(site.getName());
+            //tvName.setText(site.getName());
             displaySiteDistance(mViewModel.getCurrentLocation().getValue());
 
             //Some sites don't have an address, only coordinates. This is to make sure that the  ", " only shows up if the site has an address
             String address = site.getAddress() == null || site.getAddress().trim().isEmpty()? "":  site.getAddress() + ", ";
             address += site.getMunicipality();
             tvAddress.setText(address);
-            setSmall(mViewModel.getDisplayMode().getValue());
+            setSmall(mViewModel.getDisplayMode().getValue(), site.getName());
 
             //Hopefully makes the description more readable
             String formattedDescription = site.getDescription().replace("\n", "\n\n"); //.replace("\n", "<br>");
@@ -417,13 +418,18 @@ public class HistoricalSiteDetailsFragment extends Fragment {
     }
 
     //if the display is smoll, hide the nested scroll view (that contains photos, description, and sources)
-    private void setSmall(DisplayMode displayMode)
+    private void setSmall(DisplayMode displayMode, String siteName)
     {
         nsvMoreInfo.setVisibility(displayMode == DisplayMode.FullDetail ? View.VISIBLE : View.GONE );
         nsvMoreInfo.scrollTo(0,0);
         tvShowMoreInfo.setText(displayMode == DisplayMode.FullDetail ?  R.string.show_less : R.string.show_more);
         int showInfoArrow = displayMode == DisplayMode.FullDetail ? R.drawable.arrow_down : R.drawable.arrow_up;
         tvShowMoreInfo.setCompoundDrawablesWithIntrinsicBounds(0, 0, showInfoArrow, 0);
+
+        if (displayMode == DisplayMode.SiteAndMap && siteName.contains("/"))
+            tvName.setText(siteName.split(" /")[0] +"...");
+        else
+            tvName.setText(siteName);
     }
 
     //Displays site distance from the user location
@@ -593,7 +599,7 @@ public class HistoricalSiteDetailsFragment extends Fragment {
                     if(newDisplayMode != oldDisplayMode)
                     {
                         setCurrentSiteDisplayMode(newDisplayMode);
-                        setSmall(newDisplayMode);
+                        setSmall(newDisplayMode, mViewModel.getCurrentSite().getValue().getName());
                     }
                 }
             } catch (Exception e) {

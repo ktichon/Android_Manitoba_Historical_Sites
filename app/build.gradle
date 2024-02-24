@@ -12,8 +12,8 @@ android {
         applicationId "com.example.MHSmanitobahistoricalsites"
         minSdk 21
         targetSdk 33
-        versionCode 10
-        versionName "2.0 Full Demo Mode"
+        versionCode 11
+        versionName "2.1 Full Demo Mode"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
